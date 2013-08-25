@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.brightgestures.droidorm</groupId>
+	<artifactId>droidorm</artifactId>
+	<version>${app.version.name}</version>
+	<name>DroidORM - simple but powerful Android ORM</name>
+	<packaging>apklib</packaging>
+
+    <scm>
+        <url>https://github.com/TadeasKriz/droidorm</url>
+        <connection>scm:git:git://github.com/TadeasKriz/droidorm.git</connection>
+        <developerConnection>scm:git:git@github.com:TadeasKriz/droidorm.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Tadeas Kriz</name>
+            <email>tadeas.kriz@gmail.com</email>
+            <id>TadeasKriz</id>
+            <timezone>+1</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/TadeasKriz/droidorm/issues</url>
+    </issueManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <app.version.code>1</app.version.code>
+        <app.version.name>1.0-SNAPSHOT</app.version.name>
+
+		<java.source.version>1.6</java.source.version>
+		<java.target.version>1.6</java.target.version>
+
+		<android.version>4.1.1.4</android.version>
+		<android.platform>18</android.platform>
+		<android-maven.version>3.6.0</android-maven.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>android</artifactId>
+			<version>4.1.1.4</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+
+		<plugins>
+			<plugin>
+				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
+				<artifactId>android-maven-plugin</artifactId>
+				<version>${android-maven.version}</version>
+				<configuration>
+					<sdk>
+						<platform>${android.platform}</platform>
+					</sdk>
+				</configuration>
+                <executions>
+                    <execution>
+                        <id>update-manifest</id>
+                        <goals>
+                            <goal>manifest-update</goal>
+                        </goals>
+                        <configuration>
+                            <manifest>
+                                <versionName>${app.version.name}</versionName>
+                                <versionCode>${app.version.code}</versionCode>
+                            </manifest>
+                        </configuration>
+                    </execution>
+                </executions>
+				<extensions>true</extensions>
+			</plugin>
+
+	        <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java.source.version}</source>
+                    <target>${java.target.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                	<failsOnError>true</failsOnError>
+                </configuration>
+            </plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<type>jar</type>
+									<file>${project.build.directory}/${project.build.finalName}.jar</file>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
