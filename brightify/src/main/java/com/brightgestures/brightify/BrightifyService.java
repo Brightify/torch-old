@@ -74,7 +74,7 @@ public class BrightifyService {
         return sFactory != null;
     }
 
-    protected static boolean isDatabaseCreated(Context context) {
+    public static boolean isDatabaseCreated(Context context) {
         if(!isLoaded()) {
             load(context);
         }

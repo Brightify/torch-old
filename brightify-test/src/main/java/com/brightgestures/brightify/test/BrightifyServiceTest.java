@@ -10,11 +10,11 @@ import com.brightgestures.brightify.BrightifyService;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class BrightifyCreationTest extends ActivityUnitTestCase<MainTestActivity> {
+public class BrightifyServiceTest extends ActivityUnitTestCase<MainTestActivity> {
 
     private Context mContext;
 
-    public BrightifyCreationTest() {
+    public BrightifyServiceTest() {
         super(MainTestActivity.class);
     }
 
@@ -27,19 +27,21 @@ public class BrightifyCreationTest extends ActivityUnitTestCase<MainTestActivity
 
     @MediumTest
     public void testCreation() {
+        assertFalse(BrightifyService.isLoaded());
+
         BrightifyService.load(mContext);
 
-        BrightifyService.factory().register(ActivityTestObject.class);
+        assertTrue(BrightifyService.isLoaded());
 
-        Brightify db = BrightifyService.bfy(mContext);
+        assertFalse(BrightifyService.isDatabaseCreated(mContext));
 
-        assertNotNull(db);
+        BrightifyService.setDatabaseCreated(mContext);
 
-        SQLiteDatabase sqLiteDatabase = db.getWritableDatabase();
+        assertTrue(BrightifyService.isDatabaseCreated(mContext));
 
-        assertNotNull(sqLiteDatabase);
+        BrightifyService.setDatabaseNotCreated(mContext);
 
-        sqLiteDatabase.close();
+        assertFalse(BrightifyService.isDatabaseCreated(mContext));
     }
 
     @Override
