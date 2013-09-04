@@ -62,6 +62,10 @@ public class BrightifyFactory {
         Entities.register(entityClass, metadata);
     }
 
+    public <T> EntityMetadata<T> unregister(Class<T> entityClass) {
+        return Entities.unregister(entityClass);
+    }
+
     public void createDatabase(Context context) {
         Brightify brightify = BrightifyService.bfy(context);
 
@@ -72,6 +76,8 @@ public class BrightifyFactory {
 
     public void deleteDatabase(Context context) {
         context.deleteDatabase(mDatabaseName);
+
+        BrightifyService.setDatabaseNotCreated(context);
     }
 
     public void createTables(SQLiteDatabase db) {

@@ -84,5 +84,11 @@ public class Entities {
         byKind.put(metadata.getKind(), metadata);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> EntityMetadata<T> unregister(Class<T> entityClass) {
+        EntityMetadata<?> metadata = byClass.remove(entityClass);
+        byKind.remove(metadata.getKind());
+        return (EntityMetadata<T>) metadata;
+    }
 
 }
