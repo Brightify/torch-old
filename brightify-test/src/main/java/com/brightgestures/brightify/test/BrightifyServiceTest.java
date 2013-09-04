@@ -1,10 +1,8 @@
 package com.brightgestures.brightify.test;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
-import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.BrightifyService;
 
 /**
@@ -26,22 +24,22 @@ public class BrightifyServiceTest extends ActivityUnitTestCase<MainTestActivity>
     }
 
     @MediumTest
-    public void testCreation() {
+    public void testService() {
         assertFalse(BrightifyService.isLoaded());
 
         BrightifyService.load(mContext);
-
         assertTrue(BrightifyService.isLoaded());
 
         assertFalse(BrightifyService.isDatabaseCreated(mContext));
 
         BrightifyService.setDatabaseCreated(mContext);
-
         assertTrue(BrightifyService.isDatabaseCreated(mContext));
 
         BrightifyService.setDatabaseNotCreated(mContext);
-
         assertFalse(BrightifyService.isDatabaseCreated(mContext));
+
+        BrightifyService.unload(mContext);
+        assertFalse(BrightifyService.isLoaded());
     }
 
     @Override
