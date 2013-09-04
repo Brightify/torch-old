@@ -57,6 +57,19 @@ public class BrightifyService {
         }
     }
 
+    /**
+     * Use this to force unload Brightify. Probably used in tests.
+     *
+     * This will NOT delete the database. It will only unload the factory.
+     *
+     * @param context
+     */
+    public static void unload(Context context) {
+        // TODO go through all opened SQLite databases and close them
+
+        sFactory = null;
+    }
+
     public static Brightify bfy(Context context) {
         LinkedList<Brightify> stack = STACK.get();
         if(stack.isEmpty()) {
