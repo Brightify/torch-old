@@ -104,6 +104,8 @@ public class Loader {
                     i++;
                 }
 
+                db.
+
                 cursor = db.query(metadata.getTableName(), columns, null, null, null, null, null);
 
                 if(cursor == null || !cursor.moveToFirst()) {

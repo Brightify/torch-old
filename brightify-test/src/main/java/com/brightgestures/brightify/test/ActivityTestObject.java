@@ -20,21 +20,12 @@ public class ActivityTestObject implements Serializable {
     public String stringField = "testString";
     public Long longField = Long.MAX_VALUE;
 
-    public ArrayList<String> stringList = new ArrayList<String>();
-
-    {
-        stringList.add("test1");
-        stringList.add("test2");
-        stringList.add("test3");
-    }
-
     @Override
     public boolean equals(Object o) {
         if(o instanceof ActivityTestObject) {
             ActivityTestObject that = (ActivityTestObject) o;
             return ((this.id == null && that.id == null) || (this.id != null && this.id.equals(that.id)))  && this.intField.equals(that.intField) &&
-                    this.longField.equals(that.longField) && this.stringField.equals(that.stringField) &&
-                    this.stringList.equals(that.stringList);
+                    this.longField.equals(that.longField) && this.stringField.equals(that.stringField);
 
         }
         return super.equals(o);

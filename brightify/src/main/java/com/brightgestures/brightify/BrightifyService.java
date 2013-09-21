@@ -5,17 +5,19 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import com.brightgestures.brightify.model.TableMetadata;
 
 import java.util.LinkedList;
 
 
 public class BrightifyService {
-    private static String DATABASE_NAME_PROPERTY = "com.brainwashstudio.brightify.DATABASE_NAME";
-    private static String DATABASE_VERSION_PROPERTY = "com.brainwashstudio.brightify.DATABASE_VERSION";
-    private static String ENABLE_QUERY_LOGGING_PROPERTY = "com.brainwashstudio.brightify.ENABLE_QUERY_LOGGING";
+    private static final String TAG = BrightifyService.class.getSimpleName();
 
-    private static String CURRENT_DATABASE_PREFERENCE = "com.brainwashstudio.brightify.CURRENT_DATABASE";
+    private static final String DATABASE_NAME_PROPERTY = "com.brainwashstudio.brightify.DATABASE_NAME";
+    private static final String DATABASE_VERSION_PROPERTY = "com.brainwashstudio.brightify.DATABASE_VERSION";
+    private static final String ENABLE_QUERY_LOGGING_PROPERTY = "com.brainwashstudio.brightify.ENABLE_QUERY_LOGGING";
+    private static final String CURRENT_DATABASE_PREFERENCE = "com.brainwashstudio.brightify.CURRENT_DATABASE";
 
     private static BrightifyFactory sFactory;
 
@@ -41,10 +43,13 @@ public class BrightifyService {
             // TODO log warning about missing database name property!
             if(info.metaData.containsKey(DATABASE_NAME_PROPERTY)) {
                 sFactory.setDatabaseName(info.metaData.getString(DATABASE_NAME_PROPERTY));
+            } else {
+                Log.w(TAG, "Database name not set in AndroidManifest.xml! It's highly recommended that you set this meta-data!");
             }
 
             // TODO log warning that it's not recommended to state database version!
             if(info.metaData.containsKey(DATABASE_VERSION_PROPERTY)) {
+                Log.w(TAG, "Usage of database version property is not recommended! Use table versions for migration. Changing database version will result in dropping all tables and creating them from scratch, losing all the data!");
                 sFactory.setDatabaseVersion(info.metaData.getInt(DATABASE_VERSION_PROPERTY));
             }
 

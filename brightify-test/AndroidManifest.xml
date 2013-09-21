@@ -8,6 +8,7 @@
     <!-- TODO: Decide which minSdkVersion to use -->
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="18" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <instrumentation
         android:targetPackage="com.brightgestures.brightify.test"
         android:name="android.test.InstrumentationTestRunner" />
