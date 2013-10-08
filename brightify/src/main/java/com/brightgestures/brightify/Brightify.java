@@ -3,8 +3,9 @@ package com.brightgestures.brightify;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.brightgestures.brightify.action.Loader;
-import com.brightgestures.brightify.action.Saver;
+import com.brightgestures.brightify.action.load.Loader;
+import com.brightgestures.brightify.action.load.impl.InitialLoaderImpl;
+import com.brightgestures.brightify.action.save.Saver;
 
 public class Brightify extends SQLiteOpenHelper {
 
@@ -12,8 +13,7 @@ public class Brightify extends SQLiteOpenHelper {
 
     protected BrightifyFactory mFactory;
 
-    protected Loader mLoader;
-    protected Saver mSaver;
+    // TODO should we save mSaver and mLoader?
 
     public Brightify(BrightifyFactory factory, Context context) {
         super(context, factory.getDatabaseName(), null, factory.getDatabaseVersion());
@@ -26,17 +26,11 @@ public class Brightify extends SQLiteOpenHelper {
     }
 
     public Loader load() {
-        if(mLoader == null) {
-            mLoader = new Loader(this);
-        }
-        return mLoader;
+        return new InitialLoaderImpl(this);
     }
 
     public Saver save() {
-        if(mSaver == null) {
-            mSaver = new Saver(this);
-        }
-        return mSaver;
+        return new Saver(this);
     }
 
     @Override

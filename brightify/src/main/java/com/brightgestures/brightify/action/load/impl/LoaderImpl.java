@@ -1,31 +1,33 @@
-package com.brightgestures.brightify.action.load;
+package com.brightgestures.brightify.action.load.impl;
 
-import com.brightgestures.brightify.action.Loader;
+import com.brightgestures.brightify.action.load.ListLoader;
+import com.brightgestures.brightify.action.load.Loader;
 import com.brightgestures.brightify.action.load.filter.Closeable;
 import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.Nestable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class FilterLoaderImpl<E> implements Filterable<E>, Nestable, OperatorFilter, Closeable {
+public class LoaderImpl<E> extends Loader implements Filterable<E>, Nestable<E>, OperatorFilter<E>, Closeable<E> {
+    private final List<Class<?>> mGroups = new ArrayList<Class<?>>();
     private final Class<E> mType;
-    private final List<Class<?>> mGroups;
 
     LinkedList<FilterItem> mItems = new LinkedList<FilterItem>();
     int mLevel = 0;
 
-    public FilterLoaderImpl(Class<E> type, List<Class<?>> groups) {
+    public LoaderImpl(Loader parentLoader, Class<E> type) {
+        super(parentLoader);
         mType = type;
-        mGroups = groups;
     }
 
     @Override
-    public <T extends Loader.ListLoader<E> & Closeable & OperatorFilter> T filter(String condition, Object value) {
+    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T filter(String condition, Object value) {
 
         addFilterItem(
                 Condition.create()
@@ -36,7 +38,7 @@ public class FilterLoaderImpl<E> implements Filterable<E>, Nestable, OperatorFil
     }
 
     @Override
-    public <T extends Nestable & Filterable> T and() {
+    public <T extends Nestable<E> & Filterable<E>> T and() {
         addFilterItem(And.create());
 
         return (T) this;
@@ -44,7 +46,7 @@ public class FilterLoaderImpl<E> implements Filterable<E>, Nestable, OperatorFil
 
 
     @Override
-    public <T extends Closeable & OperatorFilter> T and(String condition, Object value) {
+    public <T extends Closeable<E> & OperatorFilter<E>> T and(String condition, Object value) {
         and();
 
         filter(condition, value);
@@ -53,14 +55,14 @@ public class FilterLoaderImpl<E> implements Filterable<E>, Nestable, OperatorFil
     }
 
     @Override
-    public <T extends Nestable & Filterable> T or() {
+    public <T extends Nestable<E> & Filterable<E>> T or() {
         addFilterItem(Or.create());
 
         return (T) this;
     }
 
     @Override
-    public <T extends Closeable & OperatorFilter> T or(String condition, Object value) {
+    public <T extends Closeable<E> & OperatorFilter<E>> T or(String condition, Object value) {
         or();
 
         filter(condition, value);
@@ -69,7 +71,7 @@ public class FilterLoaderImpl<E> implements Filterable<E>, Nestable, OperatorFil
     }
 
     @Override
-    public Filterable nest() {
+    public Filterable<E> nest() {
         addFilterItem(Open.create());
         mLevel++;
 
@@ -77,12 +79,12 @@ public class FilterLoaderImpl<E> implements Filterable<E>, Nestable, OperatorFil
     }
 
     @Override
-    public <T extends Closeable & OperatorFilter> T close() {
+    public <T extends Closeable<E> & OperatorFilter<E>> T close() {
         return close(1);
     }
 
     @Override
-    public <T extends Closeable & OperatorFilter> T close(int level) {
+    public <T extends Closeable<E> & OperatorFilter<E>> T close(int level) {
         if(level < 1) {
             throw new IllegalArgumentException("Level has to be >= 1!");
         }

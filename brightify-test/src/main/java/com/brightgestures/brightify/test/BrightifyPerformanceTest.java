@@ -43,7 +43,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
 
         testObject = null;
 
-        testObject = bfy.load().key(key).now();
+        //testObject = bfy.load().key(key).now();
 
         BrightifyService.factory().deleteDatabase(getContext());
 

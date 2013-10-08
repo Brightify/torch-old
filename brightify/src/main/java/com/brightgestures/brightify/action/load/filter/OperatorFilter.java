@@ -1,12 +1,10 @@
 package com.brightgestures.brightify.action.load.filter;
 
-import com.brightgestures.brightify.action.Loader;
-
 /**
 * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
 */
-public interface OperatorFilter {
-    <T extends Nestable & Filterable> T and();
+public interface OperatorFilter<E> {
+    <T extends Nestable<E> & Filterable<E>> T and();
 
     /**
      * Equal to call "and().filter(condition, value)"
@@ -14,9 +12,9 @@ public interface OperatorFilter {
      * @param value
      * @return
      */
-    <T extends Closeable & OperatorFilter> T and(String condition, Object value);
+    <T extends Closeable<E> & OperatorFilter<E>> T and(String condition, Object value);
 
-    <T extends Nestable & Filterable> T or();
+    <T extends Nestable<E> & Filterable<E>> T or();
 
     /**
      * Equal to call "or().filter(condition, value)"
@@ -24,5 +22,5 @@ public interface OperatorFilter {
      * @param value
      * @return
      */
-    <T extends Closeable & OperatorFilter> T or(String condition, Object value);
+    <T extends Closeable<E> & OperatorFilter<E>> T or(String condition, Object value);
 }

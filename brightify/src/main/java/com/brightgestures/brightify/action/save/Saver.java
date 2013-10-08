@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.action;
+package com.brightgestures.brightify.action.save;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
