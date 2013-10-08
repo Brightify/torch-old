@@ -6,6 +6,9 @@ import android.test.suitebuilder.annotation.SmallTest;
 import com.brightgestures.brightify.BrightifyService;
 import com.brightgestures.brightify.Entities;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import static com.brightgestures.brightify.BrightifyService.factory;
 
 /**

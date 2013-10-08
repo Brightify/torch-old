@@ -76,6 +76,8 @@ public class Saver {
             }
         }
 
+        // public final void async(Callback<E> callback) { }
+
         private Key<E> addEntityToTransaction(SQLiteDatabase db, E entity) {
             EntityMetadata<E> metadata = Entities.getMetadata(entity);
 

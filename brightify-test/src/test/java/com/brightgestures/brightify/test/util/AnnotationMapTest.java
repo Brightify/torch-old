@@ -7,6 +7,8 @@ import com.brightgestures.brightify.util.AnnotationMap;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -29,6 +31,7 @@ public class AnnotationMapTest {
 
         Index indexAnnotation = map.getAnnotation(Index.class);
         assertNotNull(indexAnnotation);
+
     }
 
 }

@@ -8,12 +8,14 @@ public class Key<T> implements Serializable {
 
     private long mId;
     private String mKind;
+    private Class<T> mType;
 
     private Key() {}
 
-    private Key(Class<? extends T> modelClass, long id) {
+    private Key(Class<T> modelClass, long id) {
         mKind = getKind(modelClass);
         mId = id;
+        mType = modelClass;
     }
 
     public long getId() {
@@ -24,7 +26,11 @@ public class Key<T> implements Serializable {
         return mKind;
     }
 
-    public static <T> Key<T> create(Class<? extends T> modelClass, long id) {
+    public Class<T> getType() {
+        return mType;
+    }
+
+    public static <T> Key<T> create(Class<T> modelClass, long id) {
         return new Key<T>(modelClass, id);
     }
 
