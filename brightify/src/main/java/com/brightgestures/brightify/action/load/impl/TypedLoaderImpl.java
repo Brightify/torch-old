@@ -1,6 +1,5 @@
 package com.brightgestures.brightify.action.load.impl;
 
-import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.Result;
 import com.brightgestures.brightify.action.load.ListLoader;
@@ -11,20 +10,20 @@ import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
 import com.brightgestures.brightify.util.ResultWrapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
 * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
 */
-public class TypedLoaderImpl<E> extends Loader implements TypedLoader<E>, Filterable<E> {
-    private final List<Class<?>> mGroups = new ArrayList<Class<?>>();
-    private final Class<E> mType;
+public class TypedLoaderImpl<E> extends Loader implements TypedLoader<E> {
+    protected final Class<?>[] mLoadGroups;
+    protected final Class<E> mType;
 
-    public TypedLoaderImpl(Loader parentLoader, Class<E> type) {
+    public TypedLoaderImpl(Loader parentLoader, Class<E> type, Class<?>... loadGroups) {
         super(parentLoader);
         mType = type;
+        mLoadGroups = loadGroups;
     }
 
     @Override
@@ -40,36 +39,55 @@ public class TypedLoaderImpl<E> extends Loader implements TypedLoader<E>, Filter
     }
 
     @Override
+    public Class<E> getType() {
+        return mType;
+    }
+
+    @Override
     public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> Result<List<E>> ids(Long... ids) {
         // create filter and add all ids
         String columnName = Entities.getMetadata(mType).getIdProperty().getColumnName();
         String condition = columnName + "=";
 
-        T filter = null;
+        T loader = null;
         for(Long id : ids) {
-            if(filter == null) {
-                filter = filter(condition, id);
+            if(loader == null) {
+                loader = filter(condition, id);
                 continue;
             }
-            filter = filter.or(condition, id);
+            loader = loader.or(condition, id);
         }
 
-        return null;
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    @Override
+    public List<E> list() {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        throw new UnsupportedOperationException("Not yet implemented!");
     }
 
     @Override
     public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T filter(String condition, Object value) {
-        return (T) new LoaderImpl<E>(this, mType).filter(condition, value);
+        return (T) new FilterLoaderImpl<E>(this, mType, FilterLoaderImpl.Condition.create().setCondition(condition).setValue(value));
     }
 
     @Override
-    public TypedLoader<E> group(Class<?> group) {
-        return groups(group);
+    public Filterable<E> nest() {
+        return new FilterLoaderImpl<E>(this, mType, FilterLoaderImpl.Open.create(), FilterLoaderImpl.DEFAULT_LEVEL + 1);
     }
 
     @Override
-    public TypedLoader<E> groups(Class<?>... groups) {
-        Collections.addAll(mGroups, groups);
-        return new TypedLoaderImpl<E>(this, mType);
+    public TypedLoader<E> group(Class<?> loagGroup) {
+        return groups(loagGroup);
+    }
+
+    @Override
+    public TypedLoader<E> groups(Class<?>... loadGroups) {
+        return new TypedLoaderImpl<E>(this, mType, loadGroups);
     }
 }

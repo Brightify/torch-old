@@ -7,6 +7,7 @@ import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.EntityMetadata;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Property;
+import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.Result;
 import com.brightgestures.brightify.util.ResultWrapper;
 import com.brightgestures.brightify.util.Serializer;
@@ -106,6 +107,10 @@ public class Saver {
                     values.put(key, (String) value);
                 } else if(TypeUtils.isAssignableFrom(byte[].class, type)) {
                     values.put(key, (byte[]) value);
+                } else if(TypeUtils.isAssignableFrom(Key.class, type)) {
+
+                } else if(TypeUtils.isAssignableFrom(Ref.class, type)) {
+
                 } else if(TypeUtils.isAssignableFrom(Serializable.class, type)) {
                     try {
                         values.put(key, Serializer.serialize(value));

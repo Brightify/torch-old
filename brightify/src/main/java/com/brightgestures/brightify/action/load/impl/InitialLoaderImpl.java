@@ -7,22 +7,20 @@ import com.brightgestures.brightify.action.load.InitialLoader;
 import com.brightgestures.brightify.action.load.Loader;
 import com.brightgestures.brightify.action.load.TypedLoader;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
 * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
 */
 public class InitialLoaderImpl extends Loader implements InitialLoader {
-    private List<Class<?>> mGroups = new ArrayList<Class<?>>();
+    protected final Class<?>[] mLoadGroups;
 
     public InitialLoaderImpl(Brightify brightify) {
         super(brightify, null);
+        mLoadGroups = new Class<?>[0];
     }
 
-    protected InitialLoaderImpl(Loader parentLoader) {
+    protected InitialLoaderImpl(Loader parentLoader, Class<?>... loadGroups) {
         super(parentLoader);
+        mLoadGroups = loadGroups;
     }
 
     @Override
@@ -47,7 +45,6 @@ public class InitialLoaderImpl extends Loader implements InitialLoader {
 
     @Override
     public InitialLoader groups(Class<?>... groups) {
-        Collections.addAll(mGroups, groups);
-        return new InitialLoaderImpl(this);
+        return new InitialLoaderImpl(this, groups);
     }
 }
