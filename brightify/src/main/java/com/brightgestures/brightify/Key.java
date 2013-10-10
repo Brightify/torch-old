@@ -2,11 +2,8 @@ package com.brightgestures.brightify;
 
 import com.brightgestures.brightify.annotation.Entity;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class Key<T> implements Serializable {
     public static final String KEY_KIND_DELIMITER = "___";
@@ -36,70 +33,67 @@ public class Key<T> implements Serializable {
         return mType;
     }
 
-    public static <T> List<Key<T>> keyListFromString(String value) {
-        return (List<Key<T>>) Arrays.asList(keysFromString(value));
+    public static <T> Key<T> keyFromByteArray(byte[] data) {
+        List<Key<T>> keys = keysFromByteArray(data);
+        if(keys.size() == 0) {
+            return null;
+        }
+        if(keys.size() > 1) {
+            throw new IllegalArgumentException("Input value has to contain one id! Containts: " + keys.size());
+        }
+        return keys.iterator().next();
     }
 
-    public static <T> Key<T> keyFromString(String value) {
-        Key<T>[] keys = keysFromString(value);
-        if(keys.length != 1) {
-            throw new IllegalArgumentException("Input value has to contain one id! Containts: " + keys.length);
-        }
-        return keys[0];
-    }
+    public static <T> List<Key<T>> keysFromByteArray(byte[] data) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
+        DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
+        List<Key<T>> keys = new ArrayList<Key<T>>();
 
-    public static <T> Key<T>[] keysFromString(String value) {
-        String[] splitted = value.split(KEY_KIND_DELIMITER);
-
-        if(splitted.length != 2) {
-            throw new IllegalArgumentException("Input value was not key string! Value: " + value);
-        }
-
-        String className = splitted[0];
-        String[] idStrings = splitted[1].split(KEY_ID_DELIMITER);
-
-        Key<T>[] keys = new Key[idStrings.length];
-
-        int i = 0;
-        for(String idString : idStrings) {
-            Long id = Long.parseLong(idString);
-            try {
-                keys[i] = Key.create((Class<T>) Class.forName(className), id);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Input class doesn't exist! Class name: " + className);
+        try {
+            int keyCount = inputStream.readInt();
+            if(keyCount == 0) {
+                return keys;
             }
-            i++;
+
+            String className = inputStream.readUTF();
+            Class<T> entityClass = (Class<T>) Class.forName(className);
+            for(int i = 0; i < keyCount; i++) {
+                long id = inputStream.readLong();
+                Key<T> key = Key.create(entityClass, id);
+                keys.add(key);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e); // TODO this has to be changed
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e); // TODO this has to be changed
         }
 
         return keys;
     }
 
-    public static <T> String keyListToString(List<Key<T>> keys) {
-        return keysToString(keys.toArray(new Key[keys.size()]));
+    public static <T> byte[] keyToByteArray(Key<T> key) {
+        return keysToByteArray(Collections.singletonList(key));
     }
 
-    public static <T> String keyToString(Key<T> key) {
-        return keysToString(key);
-    }
+    public static <T> byte[] keysToByteArray(List<Key<T>> keys) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
 
-    public static <T> String keysToString(Key<T>... keys) {
-        if(keys.length == 0) {
-            return null;
-        }
-        Key<T> firstKey = keys[0];
-        StringBuilder builder = new StringBuilder(firstKey.getType().getName())
-                .append(KEY_KIND_DELIMITER);
+        try {
+            outputStream.writeInt(keys.size());
+            if(keys.size() > 0) {
+                Key<T> firstKey = keys.iterator().next();
+                outputStream.writeUTF(firstKey.getType().getName());
 
-        int i = 0;
-        for(Key<T> key : keys) {
-            if(i > 0) {
-                builder.append(KEY_ID_DELIMITER);
+                for(Key<T> key : keys) {
+                    outputStream.writeLong(key.getId());
+                }
             }
-            builder.append(key.getId());
-            i++;
+        } catch (IOException e) {
+            throw new RuntimeException(e); // TODO this has to be changed
         }
 
-        return builder.toString();
+        return byteArrayOutputStream.toByteArray();
     }
 
     public static <T> Key<T> create(Class<T> modelClass, long id) {
