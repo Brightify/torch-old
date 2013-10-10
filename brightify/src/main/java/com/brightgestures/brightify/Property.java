@@ -23,7 +23,7 @@ public class Property {
     private Class<?>[] loadUnlessGroups;
 
     public Property(Field field) {
-        mColumnName = Helper.deCamelize(field.getName());
+        mColumnName = field.getName();
         mField = field;
 
         field.setAccessible(true);

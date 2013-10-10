@@ -73,7 +73,7 @@ public class EntityMetadata<T> {
         return mProperties;
     }
 
-    public final Class<?> getEntityClass() {
+    public final Class<T> getEntityClass() {
         return mEntityClass;
     }
 

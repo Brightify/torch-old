@@ -3,14 +3,15 @@ package com.brightgestures.brightify.action.load.impl;
 import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Result;
+import com.brightgestures.brightify.action.load.BaseLoader;
 import com.brightgestures.brightify.action.load.InitialLoader;
-import com.brightgestures.brightify.action.load.Loader;
+import com.brightgestures.brightify.action.load.LoadQuery;
 import com.brightgestures.brightify.action.load.TypedLoader;
 
 /**
 * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
 */
-public class InitialLoaderImpl extends Loader implements InitialLoader {
+public class InitialLoaderImpl extends BaseLoader implements InitialLoader {
     protected final Class<?>[] mLoadGroups;
 
     public InitialLoaderImpl(Brightify brightify) {
@@ -18,9 +19,14 @@ public class InitialLoaderImpl extends Loader implements InitialLoader {
         mLoadGroups = new Class<?>[0];
     }
 
-    protected InitialLoaderImpl(Loader parentLoader, Class<?>... loadGroups) {
+    protected InitialLoaderImpl(BaseLoader parentLoader, Class<?>... loadGroups) {
         super(parentLoader);
         mLoadGroups = loadGroups;
+    }
+
+    @Override
+    public void prepareQuery(LoadQuery query) {
+        query.addLoadGroups(mLoadGroups);
     }
 
     @Override

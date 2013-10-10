@@ -11,7 +11,7 @@ import java.util.List;
 /**
 * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
 */
-public interface TypedLoader<E> extends GenericLoader<E>, Filterable<E>, Nestable<E>, ListLoader<E> {
+public interface TypedLoader<E> extends Loader, GenericLoader<E>, Filterable<E>, Nestable<E>, ListLoader<E> {
     Result<E> id(Long id);
 
     <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> Result<List<E>> ids(Long... ids);

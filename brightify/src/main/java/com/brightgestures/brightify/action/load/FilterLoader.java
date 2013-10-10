@@ -8,5 +8,6 @@ import com.brightgestures.brightify.action.load.filter.OperatorFilter;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public interface FilterLoader<E> extends GenericLoader<E>, Filterable<E>, Nestable<E>, OperatorFilter<E>, Closeable<E> {
+public interface FilterLoader<E> extends ListLoader<E>, GenericLoader<E>, Filterable<E>, Nestable<E>,
+        OperatorFilter<E>, Closeable<E> {
 }

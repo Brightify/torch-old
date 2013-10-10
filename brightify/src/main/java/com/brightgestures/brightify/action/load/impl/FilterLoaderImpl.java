@@ -1,18 +1,21 @@
 package com.brightgestures.brightify.action.load.impl;
 
+import com.brightgestures.brightify.action.load.BaseLoader;
 import com.brightgestures.brightify.action.load.FilterLoader;
-import com.brightgestures.brightify.action.load.GenericLoader;
 import com.brightgestures.brightify.action.load.ListLoader;
-import com.brightgestures.brightify.action.load.Loader;
+import com.brightgestures.brightify.action.load.LoadQuery;
 import com.brightgestures.brightify.action.load.filter.Closeable;
 import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.Nestable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
 
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class FilterLoaderImpl<E> extends Loader implements FilterLoader<E> {
+public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E> {
     public static final int DEFAULT_LEVEL = 0;
 
     protected final Class<E> mType;
@@ -27,11 +30,11 @@ public class FilterLoaderImpl<E> extends Loader implements FilterLoader<E> {
         this(parentLoader, parentLoader.mType, filterType, level);
     }
 
-    public FilterLoaderImpl(Loader parentLoader, Class<E> type, FilterType filterType) {
+    public FilterLoaderImpl(BaseLoader<E> parentLoader, Class<E> type, FilterType filterType) {
         this(parentLoader, type, filterType, DEFAULT_LEVEL);
     }
 
-    public FilterLoaderImpl(Loader parentLoader, Class<E> type, FilterType filterType, int level) {
+    public FilterLoaderImpl(BaseLoader<E> parentLoader, Class<E> type, FilterType filterType, int level) {
         super(parentLoader);
         mType = type;
         mLevel = level;
@@ -39,8 +42,28 @@ public class FilterLoaderImpl<E> extends Loader implements FilterLoader<E> {
     }
 
     @Override
+    public void prepareQuery(LoadQuery<E> query) {
+        if(query.getEntityClass() != mType) {
+            throw new IllegalStateException("Type to be loaded differs! Expected: " + mType.getSimpleName() +
+                    ", actual: " + query.getEntityClass().getSimpleName());
+        }
+
+        query.addFilterType(mFilterType);
+    }
+
+    @Override
     public Class<E> getType() {
         return mType;
+    }
+
+    @Override
+    public List<E> list() {
+        throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        throw new UnsupportedOperationException("Not yet implemented!");
     }
 
     @Override
@@ -116,28 +139,49 @@ public class FilterLoaderImpl<E> extends Loader implements FilterLoader<E> {
         return (T) new FilterLoaderImpl<E>(this, filterType, level);
     }
 
-    interface FilterType {
+    public static interface FilterType {
+        String toSQL();
     }
 
     static class Or implements FilterType {
+        @Override
+        public String toSQL() {
+            return " || ";
+        }
+
         public static Or create() {
             return new Or();
         }
     }
 
     static class And implements FilterType {
+        @Override
+        public String toSQL() {
+            return " && ";
+        }
+
         public static And create() {
             return new And();
         }
     }
 
     static class Open implements FilterType {
+        @Override
+        public String toSQL() {
+            return "(";
+        }
+
         public static Open create() {
             return new Open();
         }
     }
 
     static class Close implements FilterType {
+        @Override
+        public String toSQL() {
+            return ")";
+        }
+
         public static Close create() {
             return new Close();
         }
@@ -163,6 +207,11 @@ public class FilterLoaderImpl<E> extends Loader implements FilterLoader<E> {
         public Condition setValue(Object value) {
             mValue = value;
             return this;
+        }
+
+        @Override
+        public String toSQL() {
+            return "";
         }
 
         public static Condition create() {

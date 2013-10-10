@@ -2,8 +2,9 @@ package com.brightgestures.brightify.action.load.impl;
 
 import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.Result;
+import com.brightgestures.brightify.action.load.BaseLoader;
 import com.brightgestures.brightify.action.load.ListLoader;
-import com.brightgestures.brightify.action.load.Loader;
+import com.brightgestures.brightify.action.load.LoadQuery;
 import com.brightgestures.brightify.action.load.TypedLoader;
 import com.brightgestures.brightify.action.load.filter.Closeable;
 import com.brightgestures.brightify.action.load.filter.Filterable;
@@ -16,15 +17,16 @@ import java.util.List;
 /**
 * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
 */
-public class TypedLoaderImpl<E> extends Loader implements TypedLoader<E> {
+public class TypedLoaderImpl<E> extends BaseLoader<E> implements TypedLoader<E> {
     protected final Class<?>[] mLoadGroups;
     protected final Class<E> mType;
 
-    public TypedLoaderImpl(Loader parentLoader, Class<E> type, Class<?>... loadGroups) {
+    public TypedLoaderImpl(BaseLoader<E> parentLoader, Class<E> type, Class<?>... loadGroups) {
         super(parentLoader);
         mType = type;
         mLoadGroups = loadGroups;
     }
+
 
     @Override
     public Result<E> id(Long id) {
@@ -36,6 +38,16 @@ public class TypedLoaderImpl<E> extends Loader implements TypedLoader<E> {
                 return original.iterator().next();
             }
         };
+    }
+
+    @Override
+    public void prepareQuery(LoadQuery<E> query) {
+        if(query.getEntityClass() != mType) {
+            throw new IllegalStateException("Type to be loaded differs! Expected: " + mType.getSimpleName() +
+                    ", actual: " + query.getEntityClass().getSimpleName());
+        }
+
+        query.addLoadGroups(mLoadGroups);
     }
 
     @Override

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.brightgestures.brightify.action.load.InitialLoader;
-import com.brightgestures.brightify.action.load.Loader;
 import com.brightgestures.brightify.action.load.impl.InitialLoaderImpl;
 import com.brightgestures.brightify.action.save.Saver;
 
