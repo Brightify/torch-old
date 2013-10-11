@@ -1,5 +1,7 @@
 package com.brightgestures.brightify.sql.statement;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import com.brightgestures.brightify.sql.IQueryable;
 import com.brightgestures.brightify.sql.Statement;
 
@@ -10,7 +12,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class Select extends Statement {
+public class Select implements IQueryable {
 
     protected List<SelectCore> mSelectCores = new ArrayList<SelectCore>();
     protected List<CompoundOperator> mCompoundOperators = new ArrayList<CompoundOperator>();
@@ -70,6 +72,20 @@ public class Select extends Statement {
 
     public void setOffsetExpression(String offsetExpression) {
         mOffsetExpression = offsetExpression;
+    }
+
+    public String toSQLString() {
+        StringBuilder builder = new StringBuilder();
+
+        query(builder);
+
+        return builder.toString();
+    }
+
+    public Cursor run(SQLiteDatabase db) {
+        String sql = toSQLString();
+
+        return db.rawQuery(sql, null);
     }
 
     @Override

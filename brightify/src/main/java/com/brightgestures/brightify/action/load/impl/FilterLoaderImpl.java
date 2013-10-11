@@ -1,6 +1,12 @@
 package com.brightgestures.brightify.action.load.impl;
 
+import android.database.Cursor;
+import com.brightgestures.brightify.EntityMetadata;
+import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.Property;
+import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.action.load.BaseLoader;
+import com.brightgestures.brightify.action.load.CursorIterator;
 import com.brightgestures.brightify.action.load.FilterLoader;
 import com.brightgestures.brightify.action.load.ListLoader;
 import com.brightgestures.brightify.action.load.LoadQuery;
@@ -8,7 +14,13 @@ import com.brightgestures.brightify.action.load.filter.Closeable;
 import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.Nestable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
+import com.brightgestures.brightify.util.Serializer;
+import com.brightgestures.brightify.util.TypeUtils;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,20 +70,30 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
 
     @Override
     public List<E> list() {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        ArrayList<E> list = new ArrayList<E>();
+
+        for (E e : (Iterable<E>) this) {
+            list.add(e);
+        }
+
+        return list;
     }
 
     @Override
     public Iterator<E> iterator() {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        LoadQuery<E> query = LoadQuery.Builder.build(this);
+
+        Cursor cursor = query.run();
+
+        return new CursorIterator<E>(query.getEntityMetadata(), cursor);
     }
 
     @Override
-    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T filter(String condition, Object value) {
+    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T filter(String condition, Object... values) {
         return createNextLoader(
                 Condition.create()
                         .setCondition(condition)
-                        .setValue(value));
+                        .setValues(values));
     }
 
     @Override
@@ -80,8 +102,8 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
     }
 
     @Override
-    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T and(String condition, Object value) {
-        return and().filter(condition, value);
+    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T and(String condition, Object... values) {
+        return and().filter(condition, values);
     }
 
     @Override
@@ -90,8 +112,8 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
     }
 
     @Override
-    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T or(String condition, Object value) {
-        return or().filter(condition, value);
+    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T or(String condition, Object... values) {
+        return or().filter(condition, values);
     }
 
     @Override
@@ -140,13 +162,13 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
     }
 
     public static interface FilterType {
-        String toSQL();
+        String toSQL(LoadQuery loadQuery);
     }
 
     static class Or implements FilterType {
         @Override
-        public String toSQL() {
-            return " || ";
+        public String toSQL(LoadQuery loadQuery) {
+            return " OR ";
         }
 
         public static Or create() {
@@ -156,8 +178,8 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
 
     static class And implements FilterType {
         @Override
-        public String toSQL() {
-            return " && ";
+        public String toSQL(LoadQuery loadQuery) {
+            return " AND ";
         }
 
         public static And create() {
@@ -167,7 +189,7 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
 
     static class Open implements FilterType {
         @Override
-        public String toSQL() {
+        public String toSQL(LoadQuery loadQuery) {
             return "(";
         }
 
@@ -178,7 +200,7 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
 
     static class Close implements FilterType {
         @Override
-        public String toSQL() {
+        public String toSQL(LoadQuery loadQuery) {
             return ")";
         }
 
@@ -189,7 +211,7 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
 
     static class Condition implements FilterType {
         private String mCondition;
-        private Object mValue;
+        private Object[] mValues;
 
         public String getCondition() {
             return mCondition;
@@ -200,18 +222,21 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
             return this;
         }
 
-        public Object getValue() {
-            return mValue;
+        public Object[] getValues() {
+            return mValues;
         }
 
-        public Condition setValue(Object value) {
-            mValue = value;
+        public Condition setValues(Object... values) {
+            mValues = values;
             return this;
         }
 
         @Override
-        public String toSQL() {
-            return "";
+        public String toSQL(LoadQuery loadQuery) {
+            for(Object value : mValues) {
+                loadQuery.addConditionArg(value.toString());
+            }
+            return mCondition;
         }
 
         public static Condition create() {

@@ -89,7 +89,7 @@ public abstract class BaseLoader<E> implements Loader, ChildLoader {
 
         @SuppressWarnings("unchecked")
         private E createFromCursor(EntityMetadata<E> metadata, Cursor cursor) {
-            E entity = (E) TypeUtils.construct(metadata.getEntityClass());
+            E entity = TypeUtils.construct(metadata.getEntityClass());
 
             for(Property property : metadata.getProperties()) {
                 int index = cursor.getColumnIndex(property.getColumnName());

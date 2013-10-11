@@ -14,7 +14,7 @@ public interface OperatorFilter<E> {
      * @param value
      * @return
      */
-    <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T and(String condition, Object value);
+    <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T and(String condition, Object... values);
 
     <T extends Nestable<E> & Filterable<E>> T or();
 
@@ -24,5 +24,5 @@ public interface OperatorFilter<E> {
      * @param value
      * @return
      */
-    <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T or(String condition, Object value);
+    <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T or(String condition, Object... values);
 }

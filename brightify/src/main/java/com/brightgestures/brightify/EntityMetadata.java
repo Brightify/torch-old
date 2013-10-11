@@ -32,7 +32,7 @@ public class EntityMetadata<T> {
 
         mEntityClass = entityClass;
         mKind = Key.getKind(entityClass);
-        mTableName = Helper.deCamelize(entityClass.getSimpleName());
+        mTableName = Helper.tableNameFromClass(entityClass, false);
         mIndex = entityClass.isAnnotationPresent(Index.class);
 
         Property idProperty = null;

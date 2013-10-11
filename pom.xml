@@ -49,7 +49,7 @@
 		<android.version>4.1.1.4</android.version>
         <android-test.version>4.1.1.4</android-test.version>
 		<android.platform>18</android.platform>
-		<android-maven.version>3.6.0</android-maven.version>
+		<android-maven.version>3.6.1</android-maven.version>
 	
         <junit.version>4.8.1</junit.version>
     </properties>

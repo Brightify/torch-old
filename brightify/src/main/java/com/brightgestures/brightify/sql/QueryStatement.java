@@ -1,8 +1,12 @@
 package com.brightgestures.brightify.sql;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public abstract class Statement implements IQueryable {
+/**
+ * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ */
+public abstract class QueryStatement implements IQueryable {
 
     public String toSQLString() {
         StringBuilder builder = new StringBuilder();
@@ -12,11 +16,4 @@ public abstract class Statement implements IQueryable {
         return builder.toString();
     }
 
-    public void run(SQLiteDatabase db) {
-        String sql = toSQLString();
-
-//        Log.d("Statement", sql);
-
-        db.execSQL(sql);
-    }
 }

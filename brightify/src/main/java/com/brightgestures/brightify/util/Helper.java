@@ -16,13 +16,13 @@ public class Helper {
     }
 
     public static String tableNameFromClass(Class<?> cls, boolean simpleName) {
-        String name = deCamelize(cls.getSimpleName());
         if(!simpleName) {
             String packageName = cls.getPackage().getName().replace('.', '_');
 
-            name = deCamelize(packageName) + "_" + name;
+            return packageName + "_" + cls.getSimpleName();
+        } else {
+            return cls.getSimpleName();
         }
-        return name;
     }
 
 }

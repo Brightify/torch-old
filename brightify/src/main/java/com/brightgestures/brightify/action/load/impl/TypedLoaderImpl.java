@@ -1,8 +1,10 @@
 package com.brightgestures.brightify.action.load.impl;
 
+import android.database.Cursor;
 import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.Result;
 import com.brightgestures.brightify.action.load.BaseLoader;
+import com.brightgestures.brightify.action.load.CursorIterator;
 import com.brightgestures.brightify.action.load.ListLoader;
 import com.brightgestures.brightify.action.load.LoadQuery;
 import com.brightgestures.brightify.action.load.TypedLoader;
@@ -11,6 +13,7 @@ import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
 import com.brightgestures.brightify.util.ResultWrapper;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -75,17 +78,27 @@ public class TypedLoaderImpl<E> extends BaseLoader<E> implements TypedLoader<E> 
 
     @Override
     public List<E> list() {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        ArrayList<E> list = new ArrayList<E>();
+
+        for (E e : (Iterable<E>) this) {
+            list.add(e);
+        }
+
+        return list;
     }
 
     @Override
     public Iterator<E> iterator() {
-        throw new UnsupportedOperationException("Not yet implemented!");
+        LoadQuery<E> query = LoadQuery.Builder.build(this);
+
+        Cursor cursor = query.run();
+
+        return new CursorIterator<E>(query.getEntityMetadata(), cursor);
     }
 
     @Override
-    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T filter(String condition, Object value) {
-        return (T) new FilterLoaderImpl<E>(this, mType, FilterLoaderImpl.Condition.create().setCondition(condition).setValue(value));
+    public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> T filter(String condition, Object... values) {
+        return (T) new FilterLoaderImpl<E>(this, mType, FilterLoaderImpl.Condition.create().setCondition(condition).setValues(values));
     }
 
     @Override

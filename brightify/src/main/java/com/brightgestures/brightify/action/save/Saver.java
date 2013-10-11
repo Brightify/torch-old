@@ -108,9 +108,9 @@ public class Saver {
                 } else if(TypeUtils.isAssignableFrom(byte[].class, type)) {
                     values.put(key, (byte[]) value);
                 } else if(TypeUtils.isAssignableFrom(Key.class, type)) {
-
+                    throw new UnsupportedOperationException("Not implemented!");
                 } else if(TypeUtils.isAssignableFrom(Ref.class, type)) {
-
+                    throw new UnsupportedOperationException("Not implemented!");
                 } else if(TypeUtils.isAssignableFrom(Serializable.class, type)) {
                     try {
                         values.put(key, Serializer.serialize(value));
