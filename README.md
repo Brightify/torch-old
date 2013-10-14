@@ -1,8 +1,8 @@
 IMPORTANT: This project is currently under heavy development and the API is not stable and might change
-with upcoming versions. Once `beta` is released, the API is considered stable and shouldn't change change
-(the only thing that would make the API change is some kind of critical bug).
+with upcoming versions. Once `beta` is released, the API is considered stable and shouldn't change change unless some
+critical bug is found, which fixing would mean changing the API.
 
-# Brightify
+# Brightify [![Build Status](https://travis-ci.org/TadeasKriz/brightify.png?branch=develop)](https://travis-ci.org/TadeasKriz/brightify)
 
 NOTE: This README is currently a draft, some features might not be implemented yet, and some will likely change.
 
@@ -16,10 +16,6 @@ It's recommended to set your own database name. That way you can be sure nothing
 Simply define the following metadata in `<application />` tag in `AndroidManifest.xml` like this
 ```xml
 <meta-data android:name="@string/brightify__DATABASE_NAME" android:value="sample_database" />
-```
-or you can use: (not recommended)
-```xml
-<meta-data android:name="com.brightgestures.brightify.DATABASE_NAME" android:value="sample_database" />
 ```
 
 By default, `Brightify` doesn't create the database (or open if it's already created) and all its structure
@@ -43,9 +39,15 @@ following line to the `<application />` tag inside of `AndroidManifest.xml`
 
 ### Defining entities
 
+TBD
+
 ### Loading entities
 
+TBD
+
 ### Storing entities
+
+TBD
 
 ## License
 
