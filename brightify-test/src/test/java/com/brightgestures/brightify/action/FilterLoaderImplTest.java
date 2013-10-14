@@ -19,38 +19,5 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 public class FilterLoaderImplTest {
 
-    @Test
-    public void andTest() {
-        MainTestActivity activity = Robolectric.buildActivity(MainTestActivity.class).create().get();
-
-
-        //BrightifyService.load(activity);
-
-        BrightifyService.factory().register(TestObject.class);
-
-
-
-        List<TestObject> list = BrightifyService.bfy()
-                .load()
-                .group(ChildLoader.class)
-                .groups(NetPermission.class, FilterLoaderImplTest.class)
-                    .type(TestObject.class)
-                    .group(Entity.class)
-                    .filter("intField>?", 1)
-                    .or()
-                    .nest()
-                        .filter("1=?", 1)
-                        .and()
-                        .filter("2<?", 3)
-                    .close()
-                .list();
-
-        int i = list.size();
-
-/*        Filterable f = new FilterLoaderImpl();
-
-        f.filter("f1", "v1").and().nest().filter("f2", "v2").and().filter("f3", "v3").close();
-*/
-    }
 
 }
