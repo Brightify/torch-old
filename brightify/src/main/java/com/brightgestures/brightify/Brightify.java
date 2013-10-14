@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
+import com.brightgestures.brightify.action.delete.Deleter;
 import com.brightgestures.brightify.action.load.api.InitialLoader;
 import com.brightgestures.brightify.action.load.impl.InitialLoaderImpl;
 import com.brightgestures.brightify.action.save.Saver;
@@ -33,6 +34,10 @@ public class Brightify {
             throw new IllegalStateException("Database is closed, should be opened!");
         }
         return db;
+    }
+
+    public Deleter delete() {
+        return new Deleter(this);
     }
 
     public InitialLoader load() {
