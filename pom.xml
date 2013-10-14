@@ -115,6 +115,8 @@
     					<sdk>
     						<platform>${android.platform}</platform>
     					</sdk>
+                        <androidManifestFile>src/main/AndroidManifest.xml</androidManifestFile>
+                        <resourceDirectory>src/main/res</resourceDirectory>
     				</configuration>
                     <executions>
                         <execution>

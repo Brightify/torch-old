@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.action.load;
+package com.brightgestures.brightify.action.load.api;
 
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Result;

@@ -3,11 +3,9 @@ package com.brightgestures.brightify.test;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
+import com.brightgestures.brightify.BrightifyFactory;
 import com.brightgestures.brightify.BrightifyService;
 import com.brightgestures.brightify.Entities;
-
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import static com.brightgestures.brightify.BrightifyService.factory;
 
@@ -24,61 +22,18 @@ public class BrightifyFactoryTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        BrightifyService.load(getContext());
+        BrightifyService.with(getContext());
 
-        assertFalse(BrightifyService.isDatabaseCreated(getContext()));
-
-        factory().createDatabase(getContext());
-
-        assertTrue(BrightifyService.isDatabaseCreated(getContext()));
+        assertNotNull(factory().forceOpenOrCreateDatabase());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
 
-        assertTrue(BrightifyService.isDatabaseCreated(getContext()));
+        factory().deleteDatabase();
 
-        factory().deleteDatabase(getContext());
-
-        assertFalse(BrightifyService.isDatabaseCreated(getContext()));
-
-        BrightifyService.unload(getContext());
+        BrightifyService.forceUnload();
     }
-
-    @SmallTest
-    public void testPropertiesSetting() {
-        String previousDatabaseName = factory().getDatabaseName();
-        int previousDatabaseVersion = factory().getDatabaseVersion();
-        boolean previousEnableQueryLogging = factory().isEnableQueryLogging();
-
-        factory().setDatabaseName(TEST_DATABASE_NAME);
-        factory().setDatabaseVersion(TEST_DATABASE_VERSION);
-        factory().setEnableQueryLogging(TEST_ENABLE_QUERY_LOGGING);
-
-        assertEquals(TEST_DATABASE_NAME, factory().getDatabaseName());
-        assertEquals(TEST_DATABASE_VERSION, factory().getDatabaseVersion());
-        assertEquals(TEST_ENABLE_QUERY_LOGGING, factory().isEnableQueryLogging());
-
-        factory().setDatabaseName(previousDatabaseName);
-        factory().setDatabaseVersion(previousDatabaseVersion);
-        factory().setEnableQueryLogging(previousEnableQueryLogging);
-
-        assertEquals(previousDatabaseName, factory().getDatabaseName());
-        assertEquals(previousDatabaseVersion, factory().getDatabaseVersion());
-        assertEquals(previousEnableQueryLogging, factory().isEnableQueryLogging());
-    }
-
-    @MediumTest
-    public void testEntityRegistration() {
-        factory().register(ActivityTestObject.class);
-
-        assertNotNull(Entities.getMetadata(ActivityTestObject.class));
-
-        assertNotNull(factory().unregister(ActivityTestObject.class));
-
-        assertNull(Entities.getMetadata(ActivityTestObject.class));
-    }
-
 
 }

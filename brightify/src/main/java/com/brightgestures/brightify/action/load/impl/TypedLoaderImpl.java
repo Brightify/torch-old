@@ -1,19 +1,22 @@
 package com.brightgestures.brightify.action.load.impl;
 
-import android.database.Cursor;
 import com.brightgestures.brightify.Entities;
+import com.brightgestures.brightify.Property;
 import com.brightgestures.brightify.Result;
 import com.brightgestures.brightify.action.load.BaseLoader;
-import com.brightgestures.brightify.action.load.CursorIterator;
-import com.brightgestures.brightify.action.load.ListLoader;
+import com.brightgestures.brightify.action.load.api.DirectionSelector;
+import com.brightgestures.brightify.action.load.api.LimitLoader;
+import com.brightgestures.brightify.action.load.api.ListLoader;
 import com.brightgestures.brightify.action.load.LoadQuery;
-import com.brightgestures.brightify.action.load.TypedLoader;
+import com.brightgestures.brightify.action.load.api.OffsetSelector;
+import com.brightgestures.brightify.action.load.api.OrderLoader;
+import com.brightgestures.brightify.action.load.api.TypedLoader;
 import com.brightgestures.brightify.action.load.filter.Closeable;
 import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
+import com.brightgestures.brightify.util.Callback;
 import com.brightgestures.brightify.util.ResultWrapper;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,6 +39,11 @@ public class TypedLoaderImpl<E> extends BaseLoader<E> implements TypedLoader<E> 
         Result<List<E>> base = ids(id);
 
         return new ResultWrapper<List<E>, E>(base) {
+            @Override
+            public void async(Callback<E> callback) {
+                throw new UnsupportedOperationException("Not implemented!");
+            }
+
             @Override
             protected E wrap(List<E> original) {
                 return original.iterator().next();
@@ -78,22 +86,12 @@ public class TypedLoaderImpl<E> extends BaseLoader<E> implements TypedLoader<E> 
 
     @Override
     public List<E> list() {
-        ArrayList<E> list = new ArrayList<E>();
-
-        for (E e : (Iterable<E>) this) {
-            list.add(e);
-        }
-
-        return list;
+        return prepareResult(this).now();
     }
 
     @Override
     public Iterator<E> iterator() {
-        LoadQuery<E> query = LoadQuery.Builder.build(this);
-
-        Cursor cursor = query.run();
-
-        return new CursorIterator<E>(query.getEntityMetadata(), cursor);
+        return prepareResult(this).iterator();
     }
 
     @Override
@@ -114,5 +112,20 @@ public class TypedLoaderImpl<E> extends BaseLoader<E> implements TypedLoader<E> 
     @Override
     public TypedLoader<E> groups(Class<?>... loadGroups) {
         return new TypedLoaderImpl<E>(this, mType, loadGroups);
+    }
+
+    @Override
+    public <T extends ListLoader<E> & OffsetSelector<E>> T limit(int limit) {
+        return (T) new LimitLoaderImpl<E>(this, mType, limit);
+    }
+
+    @Override
+    public <T extends ListLoader<E> & OrderLoader<E> & DirectionSelector<E> & LimitLoader<E>> T orderBy(Property orderColumn) {
+        return orderBy(orderColumn.getColumnName());
+    }
+
+    @Override
+    public <T extends ListLoader<E> & OrderLoader<E> & DirectionSelector<E> & LimitLoader<E>> T orderBy(String orderColumn) {
+        return (T) new OrderLoaderImpl<E>(this, mType, orderColumn);
     }
 }

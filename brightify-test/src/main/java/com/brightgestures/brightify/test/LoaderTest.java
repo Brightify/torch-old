@@ -1,89 +1,138 @@
 package com.brightgestures.brightify.test;
 
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
-import com.brightgestures.brightify.Brightify;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 import com.brightgestures.brightify.BrightifyService;
 import com.brightgestures.brightify.Key;
-import com.brightgestures.brightify.action.load.ListLoader;
+import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.brightgestures.brightify.BrightifyService.bfy;
-import static com.brightgestures.brightify.BrightifyService.factory;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class LoaderTest extends AndroidTestCase {
 
+    private Map<Key<TestObject>, TestObject> savedDataMap;
+    private ArrayList<TestObject> savedData;
+
+    private TestObject testObject;
+    private TestObject testObject1;
+    private TestObject testObject2;
+    private TestObject testObject3;
+
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        BrightifyService.load(getContext());
+        BrightifyService.with(getContext())
+                .register(TestObject.class);
 
-        assertFalse(BrightifyService.isDatabaseCreated(getContext()));
+        BrightifyService.factory().forceOpenOrCreateDatabase();
 
-        factory().register(ActivityTestObject.class);
+        testObject = createTestObject();
+        testObject.intField = -10;
 
-        factory().createDatabase(getContext());
+        testObject1 = createTestObject();
+        testObject1.intField = 10;
 
-        assertTrue(BrightifyService.isDatabaseCreated(getContext()));
+        testObject2 = createTestObject();
+        testObject2.intField = 100;
+
+        testObject3 = createTestObject();
+        testObject3.intField = 1000;
+
+        savedData = new ArrayList<TestObject>();
+        savedData.add(testObject);
+        savedData.add(testObject1);
+        savedData.add(testObject2);
+        savedData.add(testObject3);
+
+        savedDataMap = bfy().save().entities(savedData).now();
+        assertEquals(4, savedDataMap.size());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
 
-        assertTrue(BrightifyService.isDatabaseCreated(getContext()));
+        assertTrue(BrightifyService.factory().deleteDatabase());
 
-        factory().deleteDatabase(getContext());
-
-        assertFalse(BrightifyService.isDatabaseCreated(getContext()));
-
-        BrightifyService.unload(getContext());
+        BrightifyService.forceUnload();
     }
 
-    @SmallTest
-    public void testLoader() {
-
-
-        ActivityTestObject testObject = createTestObject();
-        testObject.intField = -10;
-        ActivityTestObject testObject1 = createTestObject();
-        testObject1.intField = 10;
-        ActivityTestObject testObject2 = createTestObject();
-        testObject2.intField = 100;
-        ActivityTestObject testObject3 = createTestObject();
-        testObject3.intField = 1000;
-
-        Map<Key<ActivityTestObject>, ActivityTestObject> saved =
-                bfy(getContext()).save().entities(testObject, testObject1, testObject2, testObject3).now();
-        assertEquals(4, saved.size());
-
-        List<ActivityTestObject> objects = bfy(getContext()).load().type(ActivityTestObject.class).list();
+    @MediumTest
+    public void testLoadAllEntities() {
+        List<TestObject> objects = bfy().load().type(TestObject.class).list();
         assertEquals(4, objects.size());
+        assertEquals(savedData, objects);
+    }
 
-        List<ActivityTestObject> objectsFiltered = bfy(getContext()).load().type(ActivityTestObject.class)
-                .filter("intField>?", 10).list();
+    @MediumTest
+    public void testLoadFilteredEntities() {
+        List<TestObject> objectsFiltered = bfy().load().type(TestObject.class)
+                .filter("intField > ?", 10).list();
         assertEquals(2, objectsFiltered.size());
 
-        List<ActivityTestObject> objectsFiltered1 = bfy(getContext()).load().type(ActivityTestObject.class)
+        List<TestObject> objectsFiltered1 = bfy().load().type(TestObject.class)
                 .filter("intField NOT IN (?, ?)", 10, 100).list();
         assertEquals(2, objectsFiltered1.size());
     }
 
-    private ActivityTestObject createTestObject() {
-        ActivityTestObject testObject = new ActivityTestObject();
+    @MediumTest
+    public void testLoadOrderedDescending() {
+        List<TestObject> objectsOrdered = bfy().load().type(TestObject.class)
+                .orderBy("intField").desc().list();
+
+        ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
+
+        Collections.reverse(saved);
+
+        assertEquals(4, objectsOrdered.size());
+        assertEquals(saved, objectsOrdered);
+    }
+
+    @MediumTest
+    public void testLoadLimited() {
+        List<TestObject> objectsLimited = bfy().load().type(TestObject.class)
+                .limit(2).list();
+
+        ArrayList<TestObject> saved = new ArrayList<TestObject>();
+        saved.add(testObject);
+        saved.add(testObject1);
+
+        assertEquals(2, objectsLimited.size());
+        assertEquals(saved, objectsLimited);
+
+        List<TestObject> objectsLimitedWithOffset = bfy().load().type(TestObject.class)
+                .limit(2).offset(1).list();
+
+        saved.clear();
+        saved.add(testObject1);
+        saved.add(testObject2);
+
+        assertEquals(2, objectsLimitedWithOffset.size());
+        assertEquals(saved, objectsLimitedWithOffset);
+    }
+
+    private TestObject createTestObject() {
+        TestObject testObject = new TestObject();
 
         testObject.id = null;
-        testObject.stringField = "hello from sunny los angeles!";
+        testObject.stringField = UUID.randomUUID().toString();
         testObject.longField = 98765432123456789L;
         testObject.intField = 123456789;
 
         return testObject;
     }
-
 }

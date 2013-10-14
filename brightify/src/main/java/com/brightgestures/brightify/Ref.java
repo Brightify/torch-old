@@ -2,32 +2,30 @@ package com.brightgestures.brightify;
 
 import android.content.Context;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class Ref<T> {
+public class Ref<ENTITY> {
 
     protected final Brightify mBrightify;
 
-    protected Key<T> mKey;
-    protected T mValue;
+    protected Key<ENTITY> mKey;
+    protected ENTITY mValue;
     protected boolean mLoaded = false;
 
-    public Ref(Context context, Key<T> key) {
-        this(BrightifyService.bfy(context), key);
+    public Ref(Key<ENTITY> key) {
+        this(BrightifyService.bfy(), key);
     }
 
-    public Ref(Brightify brightify, Key<T> key) {
+    public Ref(Brightify brightify, Key<ENTITY> key) {
         mBrightify = brightify;
         mKey = key;
     }
 
-    public T get() {
+    public ENTITY get() {
         if(mValue == null && !mLoaded) {
             mValue = mBrightify.load().key(mKey).now();
             mLoaded = true;
@@ -39,7 +37,7 @@ public class Ref<T> {
         return mLoaded;
     }
 
-    public static <T> String refToString(Ref<T> ref) {
+    public static <ENTITY> String refToString(Ref<ENTITY> ref) {
         if(ref != null) {
             return refsToString(ref);
         } else {
@@ -47,7 +45,7 @@ public class Ref<T> {
         }
     }
 
-    public static <T> String refToString(Brightify brightify, boolean saveValue, Ref<T> ref) {
+    public static <ENTITY> String refToString(Brightify brightify, boolean saveValue, Ref<ENTITY> ref) {
         if(ref != null) {
             return refsToString(brightify, saveValue, ref);
         } else {
@@ -55,11 +53,11 @@ public class Ref<T> {
         }
     }
 
-    public static <T> String refsToString(Ref<T>... refs) {
+    public static <ENTITY> String refsToString(Ref<ENTITY>... refs) {
         return refsToString(null, false, refs);
     }
 
-    public static <T> String refsToString(Brightify brightify, boolean saveValues, Ref<T>... refs) {
+    public static <ENTITY> String refsToString(Brightify brightify, boolean saveValues, Ref<ENTITY>... refs) {
         if(saveValues && brightify == null) {
             throw new IllegalArgumentException("Cannot save values without Brightify instance!");
         }
@@ -68,21 +66,21 @@ public class Ref<T> {
         }
 
         if(saveValues) {
-            LinkedList<T> entities = new LinkedList<T>();
+            LinkedList<ENTITY> entities = new LinkedList<ENTITY>();
 
-            for(Ref<T> ref : refs) {
+            for(Ref<ENTITY> ref : refs) {
                 entities.addLast(ref.mValue);
             }
 
-            Map<Key<T>, T> keyMap =  brightify.save().entities(entities).now();
+            Map<Key<ENTITY>, ENTITY> keyMap =  brightify.save().entities(entities).now();
 
             int i =0;
-            for(Key<T> key : keyMap.keySet()) {
+            for(Key<ENTITY> key : keyMap.keySet()) {
                 refs[i].mKey = key;
                 i++;
             }
         } else {
-            for(Ref<T> ref : refs) {
+            for(Ref<ENTITY> ref : refs) {
 //                if(ref.mKey.getId() == null)
             }
         }
@@ -90,13 +88,13 @@ public class Ref<T> {
         throw new UnsupportedOperationException("Not implemented!");
     }
 
-    public static <T> Ref<T> create(Context context, Key<T> key) {
-        return new Ref<T>(context, key);
+    public static <ENTITY> Ref<ENTITY> create(Key<ENTITY> key) {
+        return new Ref<ENTITY>(key);
     }
 
-    public static <T> Ref<T> create(Context context, T entity) {
-        Key<T> key = Key.create(entity);
-        return new Ref<T>(context, key);
+    public static <ENTITY> Ref<ENTITY> create(ENTITY entity) {
+        Key<ENTITY> key = Key.create(entity);
+        return new Ref<ENTITY>(key);
     }
 
 

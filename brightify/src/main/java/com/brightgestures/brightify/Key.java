@@ -5,20 +5,20 @@ import com.brightgestures.brightify.annotation.Entity;
 import java.io.*;
 import java.util.*;
 
-public class Key<T> implements Serializable {
+public class Key<ENTITY> implements Serializable {
     public static final String KEY_KIND_DELIMITER = "___";
     public static final String KEY_ID_DELIMITER = ",";
 
     private long mId;
     private String mKind;
-    private Class<T> mType;
+    private Class<ENTITY> mType;
 
     private Key() {}
 
-    private Key(Class<T> modelClass, long id) {
-        mKind = getKind(modelClass);
+    private Key(Class<ENTITY> entityClass, long id) {
+        mKind = getKind(entityClass);
         mId = id;
-        mType = modelClass;
+        mType = entityClass;
     }
 
     public long getId() {
@@ -29,7 +29,7 @@ public class Key<T> implements Serializable {
         return mKind;
     }
 
-    public Class<T> getType() {
+    public Class<ENTITY> getType() {
         return mType;
     }
 
@@ -96,12 +96,12 @@ public class Key<T> implements Serializable {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public static <T> Key<T> create(Class<T> modelClass, long id) {
-        return new Key<T>(modelClass, id);
+    public static <ENTITY> Key<ENTITY> create(Class<ENTITY> entityClass, long id) {
+        return new Key<ENTITY>(entityClass, id);
     }
 
-    public static <T> Key<T> create(T model) {
-        return Entities.keyOf(model);
+    public static <ENTITY> Key<ENTITY> create(ENTITY entity) {
+        return Entities.keyOf(entity);
     }
 
     public static String getKind(Class<?> clazz) {

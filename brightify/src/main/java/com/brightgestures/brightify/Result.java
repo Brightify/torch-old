@@ -1,7 +1,10 @@
 package com.brightgestures.brightify;
 
-public abstract interface Result<T> {
+import com.brightgestures.brightify.util.Callback;
 
-    public abstract T now();
+public interface Result<ENTITY> {
 
+    ENTITY now();
+
+    void async(Callback<ENTITY> callback);
 }

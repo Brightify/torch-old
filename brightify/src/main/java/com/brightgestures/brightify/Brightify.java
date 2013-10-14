@@ -3,26 +3,36 @@ package com.brightgestures.brightify;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.brightgestures.brightify.action.load.InitialLoader;
+import android.os.Handler;
+import com.brightgestures.brightify.action.load.api.InitialLoader;
 import com.brightgestures.brightify.action.load.impl.InitialLoaderImpl;
 import com.brightgestures.brightify.action.save.Saver;
+import com.brightgestures.brightify.util.Callback;
 
-public class Brightify extends SQLiteOpenHelper {
+public class Brightify {
 
-    protected final Context mContext;
-
-    protected BrightifyFactory mFactory;
+    protected final BrightifyFactory mFactory;
 
     // TODO should we save mSaver and mLoader?
 
-    public Brightify(BrightifyFactory factory, Context context) {
-        super(context, factory.getDatabaseName(), null, factory.getDatabaseVersion());
-        mContext = context;
+    public Brightify(BrightifyFactory factory) {
         mFactory = factory;
     }
 
     public BrightifyFactory getFactory() {
         return mFactory;
+    }
+
+    /**
+     * Shorthand for {@link DatabaseEngine#getDatabase()} from {@link BrightifyFactory#getDatabaseEngine()}.
+     * @return ReadWrite database
+     */
+    public SQLiteDatabase getDatabase() {
+        SQLiteDatabase db = mFactory.getDatabaseEngine().getDatabase();
+        if(!db.isOpen()) {
+            throw new IllegalStateException("Database is closed, should be opened!");
+        }
+        return db;
     }
 
     public InitialLoader load() {
@@ -31,21 +41,5 @@ public class Brightify extends SQLiteOpenHelper {
 
     public Saver save() {
         return new Saver(this);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        mFactory.createTables(db);
-
-        BrightifyService.setDatabaseCreated(mContext);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        BrightifyService.setDatabaseNotCreated(mContext);
-
-        mFactory.dropTables(db);
-
-        onCreate(db);
     }
 }

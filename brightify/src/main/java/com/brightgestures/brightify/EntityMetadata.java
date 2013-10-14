@@ -14,9 +14,9 @@ import java.util.List;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class EntityMetadata<T> {
+public class EntityMetadata<ENTITY> {
 
-    private final Class<T> mEntityClass;
+    private final Class<ENTITY> mEntityClass;
     private final String mKind;
     private final String mTableName;
     private final Property mIdProperty;
@@ -25,7 +25,7 @@ public class EntityMetadata<T> {
 
     private boolean mIndex;
 
-    public EntityMetadata(Class<T> entityClass) {
+    public EntityMetadata(Class<ENTITY> entityClass) {
         if(!entityClass.isAnnotationPresent(Entity.class)) {
             throw new IllegalArgumentException("Model has to be annotated with @Entity!");
         }
@@ -73,7 +73,7 @@ public class EntityMetadata<T> {
         return mProperties;
     }
 
-    public final Class<T> getEntityClass() {
+    public final Class<ENTITY> getEntityClass() {
         return mEntityClass;
     }
 
@@ -81,15 +81,15 @@ public class EntityMetadata<T> {
         return mKind;
     }
 
-    public final Key<T> getKey(T entity) {
+    public final Key<ENTITY> getKey(ENTITY entity) {
         return Key.create(mEntityClass, getId(entity));
     }
 
-    public final Long getId(T entity) {
+    public final Long getId(ENTITY entity) {
         return (Long) mIdProperty.get(entity);
     }
 
-    public final void setId(T entity, Long id) {
+    public final void setId(ENTITY entity, Long id) {
         mIdProperty.set(entity, id);
     }
 

@@ -12,7 +12,7 @@ import com.brightgestures.brightify.Key;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
- */
+ *
 public class BrightifyPerformanceTest extends AndroidTestCase {
 
     @Override
@@ -33,26 +33,26 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         super.tearDown();
 
     }
-
+*
     public void testOrmPerformance() {
         try {
             Debug.startMethodTracing("testOrmPerformance");
 
-            BrightifyService.load(getContext());
+//            BrightifyService.load(getContext());
 
-            BrightifyService.factory().register(ActivityTestObject.class);
+            BrightifyService.factory().register(TestObject.class);
 
-            Brightify bfy = BrightifyService.bfy(mContext);
+            Brightify bfy = BrightifyService.bfy();
 
-            ActivityTestObject testObject = createTestObject();
+            TestObject testObject = createTestObject();
 
-            Key<ActivityTestObject> key = bfy.save().entity(testObject).now();
+            Key<TestObject> key = bfy.save().entity(testObject).now();
 
-            ActivityTestObject newTestObject = bfy.load().key(key).now();
+            TestObject newTestObject = bfy.load().key(key).now();
 
         } finally {
-            BrightifyService.factory().deleteDatabase(getContext());
-            BrightifyService.unload(getContext());
+//            BrightifyService.factory().deleteDatabase(getContext());
+//            BrightifyService.unload(getContext());
             Debug.stopMethodTracing();
         }
     }
@@ -82,7 +82,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         SQLiteDatabase db = helper.getWritableDatabase();
 
 
-        ActivityTestObject testObject = createTestObject();
+        TestObject testObject = createTestObject();
 
         ContentValues values = new ContentValues();
         values.put("id", testObject.id);
@@ -106,7 +106,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
 
         cursor.moveToFirst();
 
-        testObject = new ActivityTestObject();
+        testObject = new TestObject();
 
         testObject.id = cursor.getLong(0);
         testObject.intField = cursor.getInt(1);
@@ -120,8 +120,8 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         Debug.stopMethodTracing();
     }
 
-    private ActivityTestObject createTestObject() {
-        ActivityTestObject testObject = new ActivityTestObject();
+    private TestObject createTestObject() {
+        TestObject testObject = new TestObject();
 
         testObject.id = null;
         testObject.stringField = "hello from sunny los angeles!";
@@ -129,5 +129,6 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         testObject.intField = 123456789;
 
         return testObject;
-    }
+    }*
 }
+*/

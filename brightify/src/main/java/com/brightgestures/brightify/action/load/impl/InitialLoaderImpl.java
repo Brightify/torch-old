@@ -4,9 +4,9 @@ import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Result;
 import com.brightgestures.brightify.action.load.BaseLoader;
-import com.brightgestures.brightify.action.load.InitialLoader;
+import com.brightgestures.brightify.action.load.api.InitialLoader;
 import com.brightgestures.brightify.action.load.LoadQuery;
-import com.brightgestures.brightify.action.load.TypedLoader;
+import com.brightgestures.brightify.action.load.api.TypedLoader;
 
 /**
 * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>

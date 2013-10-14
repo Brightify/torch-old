@@ -1,26 +1,19 @@
 package com.brightgestures.brightify.action.load.impl;
 
-import android.database.Cursor;
-import com.brightgestures.brightify.EntityMetadata;
-import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Property;
-import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.action.load.BaseLoader;
-import com.brightgestures.brightify.action.load.CursorIterator;
-import com.brightgestures.brightify.action.load.FilterLoader;
-import com.brightgestures.brightify.action.load.ListLoader;
+import com.brightgestures.brightify.action.load.api.DirectionSelector;
+import com.brightgestures.brightify.action.load.api.FilterLoader;
+import com.brightgestures.brightify.action.load.api.LimitLoader;
+import com.brightgestures.brightify.action.load.api.ListLoader;
 import com.brightgestures.brightify.action.load.LoadQuery;
+import com.brightgestures.brightify.action.load.api.OffsetSelector;
+import com.brightgestures.brightify.action.load.api.OrderLoader;
 import com.brightgestures.brightify.action.load.filter.Closeable;
 import com.brightgestures.brightify.action.load.filter.Filterable;
 import com.brightgestures.brightify.action.load.filter.Nestable;
 import com.brightgestures.brightify.action.load.filter.OperatorFilter;
-import com.brightgestures.brightify.util.Serializer;
-import com.brightgestures.brightify.util.TypeUtils;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,22 +63,12 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
 
     @Override
     public List<E> list() {
-        ArrayList<E> list = new ArrayList<E>();
-
-        for (E e : (Iterable<E>) this) {
-            list.add(e);
-        }
-
-        return list;
+        return prepareResult(this).now();
     }
 
     @Override
     public Iterator<E> iterator() {
-        LoadQuery<E> query = LoadQuery.Builder.build(this);
-
-        Cursor cursor = query.run();
-
-        return new CursorIterator<E>(query.getEntityMetadata(), cursor);
+        return prepareResult(this).iterator();
     }
 
     @Override
@@ -143,6 +126,21 @@ public class FilterLoaderImpl<E> extends BaseLoader<E> implements FilterLoader<E
         } while (level > 0);
 
         return (T) loader;
+    }
+
+    @Override
+    public <T extends ListLoader<E> & OffsetSelector<E>> T limit(int limit) {
+        return (T) new LimitLoaderImpl<E>(this, mType, limit);
+    }
+
+    @Override
+    public <T extends ListLoader<E> & OrderLoader<E> & DirectionSelector<E> & LimitLoader<E>> T orderBy(Property orderColumn) {
+        return orderBy(orderColumn.getColumnName());
+    }
+
+    @Override
+    public <T extends ListLoader<E> & OrderLoader<E> & DirectionSelector<E> & LimitLoader<E>> T orderBy(String orderColumn) {
+        return (T) new OrderLoaderImpl<E>(this, mType, orderColumn);
     }
 
     protected <T> T createNextLoader(FilterType filterType) {

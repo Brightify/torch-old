@@ -1,13 +1,7 @@
 package com.brightgestures.brightify.action;
 
-import android.test.mock.MockContext;
-import com.brightgestures.brightify.Brightify;
-import com.brightgestures.brightify.BrightifyFactory;
 import com.brightgestures.brightify.BrightifyService;
-import com.brightgestures.brightify.action.load.ChildLoader;
-import com.brightgestures.brightify.action.load.InitialLoader;
-import com.brightgestures.brightify.action.load.LoadQuery;
-import com.brightgestures.brightify.action.load.impl.InitialLoaderImpl;
+import com.brightgestures.brightify.action.load.api.ChildLoader;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.test.MainTestActivity;
 import com.brightgestures.brightify.test.TestObject;
@@ -17,7 +11,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
 import java.net.NetPermission;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,13 +24,13 @@ public class FilterLoaderImplTest {
         MainTestActivity activity = Robolectric.buildActivity(MainTestActivity.class).create().get();
 
 
-        BrightifyService.load(activity);
+        //BrightifyService.load(activity);
 
         BrightifyService.factory().register(TestObject.class);
 
 
 
-        List<TestObject> list = BrightifyService.bfy(activity)
+        List<TestObject> list = BrightifyService.bfy()
                 .load()
                 .group(ChildLoader.class)
                 .groups(NetPermission.class, FilterLoaderImplTest.class)

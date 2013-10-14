@@ -4,20 +4,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.brightgestures.brightify.model.TableMetadata;
+import com.brightgestures.brightify.util.Callback;
 
 import java.util.LinkedList;
 
 
 public class BrightifyService {
     private static final String TAG = BrightifyService.class.getSimpleName();
-
-    private static final String DATABASE_NAME_PROPERTY = "com.brainwashstudio.brightify.DATABASE_NAME";
-    private static final String DATABASE_VERSION_PROPERTY = "com.brainwashstudio.brightify.DATABASE_VERSION";
-    private static final String ENABLE_QUERY_LOGGING_PROPERTY = "com.brainwashstudio.brightify.ENABLE_QUERY_LOGGING";
-    private static final String CURRENT_DATABASE_PREFERENCE = "com.brainwashstudio.brightify.CURRENT_DATABASE";
 
     private static BrightifyFactory sFactory;
 
@@ -28,57 +25,69 @@ public class BrightifyService {
         }
     };
 
-    public static void load(Context context) {
-        sFactory = new BrightifyFactory();
-
-        sFactory.register(TableMetadata.class);
-
-        try {
-            ApplicationInfo info = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-
-            if(info == null || info.metaData == null) {
-                return;
+    /**
+     * Using this method the database will get opened (or created if it doesn't yet exist) in background.
+     * In order to get all async callbacks delivered on UI Thread, you have to call this on UI Thread
+     *
+     * This overrides the {@link FactoryConfiguration#IMMEDIATE_DATABASE_CREATION_PROPERTY} setting.
+     * @param callback will be called when database is opened or on failure
+     * @return
+     */
+    public static AsyncInitializer asyncInit(final Callback<Void> callback) {
+        return new AsyncFactoryBuilder(new Callback<BrightifyFactory>() {
+            @Override
+            public void onSuccess(BrightifyFactory factory) {
+                sFactory = factory;
+                callback.onSuccess(null);
             }
 
-            // TODO log warning about missing database name property!
-            if(info.metaData.containsKey(DATABASE_NAME_PROPERTY)) {
-                sFactory.setDatabaseName(info.metaData.getString(DATABASE_NAME_PROPERTY));
-            } else {
-                Log.w(TAG, "Database name not set in AndroidManifest.xml! It's highly recommended that you set this meta-data!");
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Could not initialize database in background!", e);
+                callback.onFailure(e);
             }
-
-            // TODO log warning that it's not recommended to state database version!
-            if(info.metaData.containsKey(DATABASE_VERSION_PROPERTY)) {
-                Log.w(TAG, "Usage of database version property is not recommended! Use table versions for migration. Changing database version will result in dropping all tables and creating them from scratch, losing all the data!");
-                sFactory.setDatabaseVersion(info.metaData.getInt(DATABASE_VERSION_PROPERTY));
-            }
-
-            if(info.metaData.containsKey(ENABLE_QUERY_LOGGING_PROPERTY)) {
-                sFactory.setEnableQueryLogging(info.metaData.getBoolean(ENABLE_QUERY_LOGGING_PROPERTY));
-            }
-
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     /**
-     * Use this to force unload Brightify. Probably used in tests.
-     *
-     * This will NOT delete the database. It will only unload the factory.
-     *
-     * @param context
+     * Loads the BrightifyFactory with passed context. In order to get all async callbacks delivered on UI Thread,
+     * you have to call this on UI Thread
+     * @param context Any context you can provide, {@link android.content.Context#getApplicationContext()} will be used.
+     * @return EntityRegistrar for {@link com.brightgestures.brightify.annotation.Entity} registration
      */
-    public static void unload(Context context) {
-        // TODO go through all opened SQLite databases and close them
+    public static EntityRegistrar with(Context context) {
+        if(sFactory != null) {
+            throw new IllegalStateException("Call BrightifyService#forceUnload if you want to reload BrightifyFactory!");
+        }
+
+        sFactory = new BrightifyFactory(context.getApplicationContext());
+
+        sFactory.setHandler(new Handler());
+
+        return sFactory;
+    }
+
+    /**
+     * Use this to force unload Brightify. Probably used in tests only.
+     *
+     * This will NOT delete the database. It will only unload the factory and unregister all the Entities.
+     */
+    public static void forceUnload() {
+        sFactory.unload();
+
+        STACK.get().clear();
 
         sFactory = null;
     }
 
-    public static Brightify bfy(Context context) {
+    /**
+     * Returns instance of Brightify which can be used to work on.
+     * @return
+     */
+    public static Brightify bfy() {
         LinkedList<Brightify> stack = STACK.get();
         if(stack.isEmpty()) {
-            stack.add(sFactory.begin(context));
+            stack.add(sFactory.begin());
         }
 
         return stack.getLast();
@@ -92,48 +101,15 @@ public class BrightifyService {
         return sFactory != null;
     }
 
-    public static boolean isDatabaseCreated(Context context) {
-        if(!isLoaded()) {
-            load(context);
-        }
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-        String currentDatabase = prefs.getString(CURRENT_DATABASE_PREFERENCE, null);
-        String loadedDatabase = getLoadedDatabaseIdentifier();
-
-        return loadedDatabase.equals(currentDatabase);
-    }
-
-    public static void setDatabaseCreated(Context context) {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-
-        editor.putString(CURRENT_DATABASE_PREFERENCE, getLoadedDatabaseIdentifier());
-
-        editor.commit();
-    }
-
-    public static void setDatabaseNotCreated(Context context) {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-
-        editor.remove(CURRENT_DATABASE_PREFERENCE);
-
-        editor.commit();
-    }
-
-    private static String getLoadedDatabaseIdentifier() {
-        return factory().getDatabaseName() + "_" + factory().getDatabaseVersion();
-    }
-
-    public static void push(Brightify db) {
+    private static void push(Brightify db) {
         STACK.get().add(db);
     }
 
-    public static void pop() {
+    private static void pop() {
         STACK.get().removeLast();
     }
 
-    public static void reset() {
+    private static void reset() {
         STACK.get().clear();
     }
 

@@ -18,24 +18,38 @@ import java.util.Iterator;
 public class CursorIterator<E> implements Iterator<E> {
     protected final EntityMetadata<E> mEntityMetadata;
     protected final Cursor mCursor;
+    protected boolean mFirst = true;
+    protected boolean mHasNext = false;
 
     public CursorIterator(EntityMetadata<E> entityMetadata, Cursor cursor) {
+        if(cursor.isClosed()) {
+            throw new IllegalStateException("The cursor is closed!");
+        }
         mCursor = cursor;
         mEntityMetadata = entityMetadata;
+        if(!mCursor.moveToFirst()) {
+            mCursor.close();
+        }
     }
 
     @Override
-    public boolean hasNext() {
-        return !mCursor.isLast();
+    public boolean hasNext() { // this goes forever when there is no data!
+        return !mCursor.isClosed();
     }
 
     @Override
     public E next() {
-        if(!mCursor.moveToNext()) {
-            return null;
+        if(mCursor.isClosed()) {
+            throw new IllegalStateException("The cursor is closed!");
         }
 
-        return createFromCursor();
+        E entity = createFromCursor();
+
+        if(!mCursor.moveToNext()) {
+            mCursor.close();
+        }
+
+        return entity;
     }
 
     @SuppressWarnings("unchecked")

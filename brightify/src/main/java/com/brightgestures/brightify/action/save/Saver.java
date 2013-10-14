@@ -2,6 +2,7 @@ package com.brightgestures.brightify.action.save;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.EntityMetadata;
@@ -9,6 +10,7 @@ import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Property;
 import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.Result;
+import com.brightgestures.brightify.util.Callback;
 import com.brightgestures.brightify.util.ResultWrapper;
 import com.brightgestures.brightify.util.Serializer;
 import com.brightgestures.brightify.util.TypeUtils;
@@ -18,7 +20,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static com.brightgestures.brightify.BrightifyService.bfy;
 
 public class Saver {
 
@@ -40,6 +45,11 @@ public class Saver {
             protected Key<E> wrap(Map<Key<E>, E> original) {
                 return original.keySet().iterator().next();
             }
+
+            @Override
+            public void async(Callback<Key<E>> callback) {
+                throw new UnsupportedOperationException("Not implemented!");
+            }
         };
     }
 
@@ -57,9 +67,15 @@ public class Saver {
         }
 
         @Override
+        public void async(Callback<Map<Key<E>, E>> callback) {
+            throw new UnsupportedOperationException("Not implemented!");
+        }
+
+        @Override
         public final Map<Key<E>, E> now() {
-            SQLiteDatabase db = mBrightify.getWritableDatabase();
+            SQLiteDatabase db = mBrightify.getDatabase();
             db.beginTransaction();
+
             try {
                 Map<Key<E>, E> results = new HashMap<Key<E>, E>();
 
@@ -67,13 +83,13 @@ public class Saver {
                     Key<E> key = addEntityToTransaction(db, entity);
 
                     results.put(key, entity);
+
                 }
 
                 db.setTransactionSuccessful();
                 return results;
             } finally {
                 db.endTransaction();
-                db.close();
             }
         }
 

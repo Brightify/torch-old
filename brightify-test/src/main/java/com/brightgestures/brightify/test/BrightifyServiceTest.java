@@ -1,38 +1,76 @@
 package com.brightgestures.brightify.test;
 
 import android.content.Context;
+import android.content.Intent;
+import android.test.ActivityInstrumentationTestCase2;
 import android.test.ActivityUnitTestCase;
 import android.test.AndroidTestCase;
+import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import com.brightgestures.brightify.BrightifyService;
+import com.brightgestures.brightify.util.Callback;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class BrightifyServiceTest extends AndroidTestCase {
+public class BrightifyServiceTest extends ActivityInstrumentationTestCase2<MainTestActivity> {
+
+    public BrightifyServiceTest() {
+        super(MainTestActivity.class);
+    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @UiThreadTest
     @MediumTest
-    public void testService() {
-        assertFalse(BrightifyService.isLoaded());
+    public void testInitialization() {
+        BrightifyService.with(getActivity())
+                .register(TestObject.class);
 
-        BrightifyService.load(getContext());
-        assertTrue(BrightifyService.isLoaded());
+        assertNotNull(BrightifyService.factory().forceOpenOrCreateDatabase());
 
-        assertFalse(BrightifyService.isDatabaseCreated(getContext()));
+        BrightifyService.factory().deleteDatabase();
 
-        BrightifyService.setDatabaseCreated(getContext());
-        assertTrue(BrightifyService.isDatabaseCreated(getContext()));
+        BrightifyService.forceUnload();
+    }
 
-        BrightifyService.setDatabaseNotCreated(getContext());
-        assertFalse(BrightifyService.isDatabaseCreated(getContext()));
+    @MediumTest
+    public void testAsyncInitialization() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
 
-        BrightifyService.unload(getContext());
-        assertFalse(BrightifyService.isLoaded());
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                BrightifyService.asyncInit(new Callback<Void>() {
+                    @Override
+                    public void onSuccess(Void data) {
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }).with(getActivity())
+                        .register(TestObject.class)
+                        .submit();
+            }
+        });
+
+
+        assertTrue(latch.await(30, TimeUnit.SECONDS));
+
+        assertNotNull(BrightifyService.bfy().getDatabase());
+
+        BrightifyService.factory().deleteDatabase();
+
+        BrightifyService.forceUnload();
     }
 
     @Override
