@@ -1,0 +1,142 @@
+BrightifyService ::= 'bfy()' Brightify
+
+Brightify ::= (
+	'load()' Loader | 
+	'save()' Saver | 
+	'delete()' Deleter
+)
+
+Loader ::= (
+	(
+		'group(Class<?>)' |
+		'groups(Class<?>...)'
+	) Loader |
+	'type(Class<E>)' (
+		TypedLoader | 
+		FilterLoader |
+		Orderable |
+		Limitable |
+		ListIterable
+	) | (
+		'key(Key<E>)' | 
+		'keys(Key<E>...)' |
+		'keys(Collection<Key<E>>)'
+	) Result
+)
+
+TypedLoader ::= (
+	(
+		'id(long)' | 
+		'ids(Long...)' |
+		'ids(Collection<Long>)'
+	) Result
+)
+
+FilterLoader ::= (
+	(
+		'filter(String, Object...)' | 
+		'filter' '(' EntityFilter ')'
+	) (
+		OperatorFilterLoader |
+		Orderable |
+		Limitable | 
+		ListIterable
+	)
+)
+
+OperatorFilterLoader ::= (
+	(
+		'or()' |
+		'and()'
+	) FilterLoader |
+	(
+		'or(String, Object...)' |
+		'or' '(' EntityFilter ')' |
+		'and(String, Object...)' |
+		'and' '(' EntityFilter ')'
+	) (
+		OperatorFilterLoader |
+		Orderable |
+		Limitable |
+		ListIterable
+	)
+)
+
+Orderable ::= (
+	(
+		'orderBy(String columnName)' |
+		'orderBy(Property columnProperty)'
+	) (
+		Orderable |
+		OrderDirectionSelector |
+		Limitable |
+		ListIterable
+	)
+)
+
+OrderDirectionSelector ::= (
+	'desc' (
+		Orderable |
+		Limitable |
+		ListIterable
+	)
+)
+
+Limitable ::= (
+	'limit(int)' (
+		Offsetable |
+		ListIterable
+	)
+)
+
+Offsetable ::= (
+	'offset(int)' ListIterable
+)
+
+ListIterable ::= (
+	'list()' |
+	'iterator()'
+)
+
+EntityFilter ::= (
+	'EntityFilter' '.' (
+		'create(String, Object...)' |
+		'create' '(' EntityFilter ')'
+	) (
+		'or(String, Object...)' |
+		'or' '(' EntityFilter ')' |
+		'and(String, Object...)' |
+		'and' '(' EntityFilter ')'
+	)*
+)
+
+Saver ::= (
+	(
+		'entity(E)' |
+		'entities(E...)' |
+		'entities(Collection<E>)'
+	) Result
+)
+
+Deleter ::= (
+	(
+		'entity(E)' |
+		'entities(E...)' |
+		'entities(Collection<E>)' |
+		'key(Key<E>)' |
+		'keys(Key<E>...)' |
+		'keys(Collection<Key<E>>)'
+	) Result | 
+	'type(Class<E>)' TypedDeleter
+)
+
+
+TypedDeleter ::= (
+	(
+		'id(long)' |
+		'ids(Long...)' |
+		'ids(Collection<Long>)'
+	) Result
+)
+
+Result ::= 'now()' | 'async(Callback<E>)'
