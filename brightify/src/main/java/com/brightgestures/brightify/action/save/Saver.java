@@ -33,10 +33,6 @@ public class Saver {
         mBrightify = brightify;
     }
 
-    public <E> Result<Map<Key<E>, E>> entities(E... entities) {
-        return entities(Arrays.asList(entities));
-    }
-
     public <E> Result<Key<E>> entity(E entity) {
         Result<Map<Key<E>, E>> base = entities(Collections.singleton(entity));
 
@@ -53,8 +49,11 @@ public class Saver {
         };
     }
 
-    public <E> Result<Map<Key<E>, E>> entities(Iterable<E> entities) {
+    public <E> Result<Map<Key<E>, E>> entities(E... entities) {
+        return entities(Arrays.asList(entities));
+    }
 
+    public <E> Result<Map<Key<E>, E>> entities(Iterable<E> entities) {
         return new SaveResult<E>(entities);
     }
 

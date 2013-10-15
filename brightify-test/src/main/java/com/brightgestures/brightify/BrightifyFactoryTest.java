@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.test;
+package com.brightgestures.brightify;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;

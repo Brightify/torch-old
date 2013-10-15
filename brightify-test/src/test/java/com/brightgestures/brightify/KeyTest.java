@@ -1,6 +1,7 @@
-package com.brightgestures.brightify.test;
+package com.brightgestures.brightify;
 
 import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.test.TestObject;
 import org.junit.Test;
 
 import java.util.ArrayList;

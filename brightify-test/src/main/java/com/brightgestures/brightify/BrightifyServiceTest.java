@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.test;
+package com.brightgestures.brightify;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.test.AndroidTestCase;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import com.brightgestures.brightify.BrightifyService;
+import com.brightgestures.brightify.test.MainTestActivity;
+import com.brightgestures.brightify.test.TestObject;
 import com.brightgestures.brightify.util.Callback;
 
 import java.util.concurrent.CountDownLatch;

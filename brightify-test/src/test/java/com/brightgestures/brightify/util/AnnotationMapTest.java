@@ -1,9 +1,8 @@
-package com.brightgestures.brightify.test.util;
+package com.brightgestures.brightify.util;
 
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Index;
 import com.brightgestures.brightify.test.TestObject;
-import com.brightgestures.brightify.util.AnnotationMap;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;

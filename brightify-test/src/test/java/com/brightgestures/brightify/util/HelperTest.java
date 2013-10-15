@@ -1,7 +1,6 @@
-package com.brightgestures.brightify.test.util;
+package com.brightgestures.brightify.util;
 
 import com.brightgestures.brightify.model.TableMetadata;
-import com.brightgestures.brightify.util.Helper;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

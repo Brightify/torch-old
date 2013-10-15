@@ -1,10 +1,11 @@
-package com.brightgestures.brightify.test;
+package com.brightgestures.brightify.action.load;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 import com.brightgestures.brightify.BrightifyService;
 import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.test.TestObject;
 import org.junit.Test;
 
 import java.util.ArrayList;
