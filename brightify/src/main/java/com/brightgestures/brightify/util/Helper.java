@@ -17,12 +17,14 @@ public class Helper {
 
     public static String tableNameFromClass(Class<?> cls, boolean simpleName) {
         if(!simpleName) {
-            String packageName = cls.getPackage().getName().replace('.', '_');
-
-            return packageName + "_" + cls.getSimpleName();
+            return tableNameFromClassName(cls.getName());
         } else {
-            return cls.getSimpleName();
+            return tableNameFromClassName(cls.getSimpleName());
         }
+    }
+
+    public static String tableNameFromClassName(String name) {
+        return name.replace('.', '_');
     }
 
 }

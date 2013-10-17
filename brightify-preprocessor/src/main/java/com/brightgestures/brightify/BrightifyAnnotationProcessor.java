@@ -1,7 +1,9 @@
 package com.brightgestures.brightify;
 
+import com.brightgestures.brightify.annotation.Accessor;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Ignore;
+import com.brightgestures.brightify.util.Helper;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -11,6 +13,8 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -164,6 +168,20 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             String metadataName = mElement.getSimpleName() + "Metadata";
             String metadataFullName = "com.brightgestures.brightify.metadata." + metadataName;
 
+            List<? extends Element> children = mElement.getEnclosedElements();
+
+            Types types = processingEnv.getTypeUtils();
+            Elements elements = processingEnv.getElementUtils();
+
+            Map<Element, Boolean> readableProperties;
+            Map<Element, String> fieldSetterMapping;
+
+            List<Property> properties = new ArrayList<Property>();
+
+            for(Element child : children) {
+                Property property = new Property();
+
+            }
 
             append("/* Generated on ").append(new Date()).append(" by BrightifyAnnotationProcessor */");
             line("package com.brightgestures.brightify.metadata;");
@@ -177,19 +195,19 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             line("public class ").append(metadataName).append(" extends EntityMetadata<").append(entityName).append(">").nest();
             emptyLine();
             line("@Override");
+            line("public void createTable(SQLiteDatabase db)").nest();
+            line("CreateTable createTable = new CreateTable();");
+            line("createTable.setTableName(").append(Helper.tableNameFromClassName(entityFullName)).append(");");
+            for(Element child : children) {
+
+            }
+
+            unNest();
+            emptyLine();
+            line("@Override");
             line("public ").append(entityName).append(" createFromCursor(Cursor cursor)").nest();
             line(entityName).append(" entity = new ").append(entityName).append("();");
             emptyLine();
-            List<? extends Element> children = mElement.getEnclosedElements();
-
-            Types types = processingEnv.getTypeUtils();
-            Elements elements = processingEnv.getElementUtils();
-
-            Map<Element, Boolean> readableProperties;
-            Map<Element, String> fieldSetterMapping;
-
-            List<Property> properties = new ArrayList<Property>();
-
             for(Element child : children) {
                 Ignore ignore = child.getAnnotation(Ignore.class);
                 if(ignore != null) {
@@ -262,32 +280,43 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
                 String columnName = childName;
 
                 if(child.getKind() == ElementKind.METHOD) {
+                    Accessor accessor = child.getAnnotation(Accessor.class);
+                    if(accessor != null && accessor.type() == Accessor.Type.GET) {
+                        if(!accessor.name().equals("")) {
+                            columnName = accessor.name();
+                        } else {
+                            columnName = child.getSimpleName().toString();
+                        }
+
+                        line("values.put(\"").append(columnName).append("\", entity.").append(childName).append(");").append(" // ").append(child.asType());
+                    } else if(childName.startsWith("get") && childName.length() > 3) {
+                        columnName = childName.substring(3);
+                    }
+
                     // && (childName.startsWith("get") || childName.startsWith("is")
                 } else if(child.getKind().isField()) {
                     TypeMirror childType = child.asType();
 
+                    ArrayType t = types.getArrayType(types.getPrimitiveType(TypeKind.BYTE));
+                    if(childType instanceof ArrayType) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, childType + " : " + t + " == " + (types.isSameType(childType, t) ? "yes" : "no"), child);
+                    }
                     if(childType == typeOf(Key.class)) {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Keys are not yet supported!", child);
                     } else if(childType == typeOf(Ref.class)) {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Refs are not yet supported!", child);
                     } else if(
-                                childType == typeOf(Boolean.class) ||
-                                childType == typeOf(boolean.class) ||
-                                childType == typeOf(Byte.class) ||
-                                childType == typeOf(byte.class) ||
-                                childType == typeOf(Short.class) ||
-                                childType == typeOf(short.class) ||
-                                childType == typeOf(Integer.class) ||
-                                childType == typeOf(int.class) ||
-                                childType == typeOf(Long.class) ||
-                                childType == typeOf(long.class) ||
-                                childType == typeOf(Float.class) ||
-                                childType == typeOf(float.class) ||
-                                childType == typeOf(Double.class) ||
-                                childType == typeOf(double.class) ||
-                                childType == typeOf(String.class) ||
-                                childType == typeOf(byte[].class)) {
-                        line("values.put(\"").append(columnName).append("\", entity.").append(childName).append(");");
+                                types.isSameType(childType, typeOf(Boolean.class)) ||
+                                types.isSameType(childType, typeOf(Byte.class)) ||
+                                types.isSameType(childType, typeOf(Short.class)) ||
+                                types.isSameType(childType, typeOf(Integer.class)) ||
+                                types.isSameType(childType, typeOf(Long.class)) ||
+                                types.isSameType(childType, typeOf(Float.class)) ||
+                                types.isSameType(childType, typeOf(Double.class)) ||
+                                types.isSameType(childType, typeOf(String.class)) ||
+                                (childType.getKind() == TypeKind.ARRAY &&
+                                    types.isSameType(childType, types.getArrayType(types.getPrimitiveType(TypeKind.BYTE))))) {
+                        line("values.put(\"").append(columnName).append("\", entity.").append(childName).append(");").append(" // ").append(child.asType());
                     } else if(types.isAssignable(childType, elements.getTypeElement("java.io.Serializable").asType())) {
                         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Serializable objects not yet supported!", child);
                     } else {
@@ -298,7 +327,8 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
                 }
 //
 
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, child + " of type " + child.asType(), child);
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, child + " of type " + child.asType(),
+                        child);
             }
 
             line("return values;");

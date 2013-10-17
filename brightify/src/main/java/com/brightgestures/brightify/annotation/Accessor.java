@@ -17,7 +17,7 @@ public @interface Accessor {
      * Use this if your getter/setter doesn't follow standard "getX()/isX()/setX(X x)".
      * Remember, compilation will fail if you won't supply both GET and SET type!
      */
-    String name();
+    String name() default "";
 
     /**
      * Type of the accessor.
