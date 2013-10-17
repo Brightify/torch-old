@@ -44,6 +44,12 @@
             <version>2.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.brightgestures.brightify</groupId>
+            <artifactId>brightify-preprocessor</artifactId>
+            <version>${parent.version}</version>
+            <optional>true</optional>
+        </dependency>
 	</dependencies>
     
 	<build>
@@ -67,6 +73,11 @@
 	        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor>com.brightgestures.brightify.BrightifyAnnotationProcessor</annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

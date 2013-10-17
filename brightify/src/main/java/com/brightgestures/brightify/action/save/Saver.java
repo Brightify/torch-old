@@ -2,10 +2,9 @@ package com.brightgestures.brightify.action.save;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Entities;
-import com.brightgestures.brightify.EntityMetadata;
+import com.brightgestures.brightify.EntityMetadataCompatibility;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Property;
 import com.brightgestures.brightify.Ref;
@@ -20,10 +19,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.brightgestures.brightify.BrightifyService.bfy;
 
 public class Saver {
 
@@ -95,7 +91,7 @@ public class Saver {
         // public final void async(Callback<E> callback) { }
 
         private Key<E> addEntityToTransaction(SQLiteDatabase db, E entity) {
-            EntityMetadata<E> metadata = Entities.getMetadata(entity);
+            EntityMetadataCompatibility<E> metadata = Entities.getMetadata(entity);
 
             ContentValues values = new ContentValues();
 

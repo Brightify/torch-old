@@ -1,7 +1,7 @@
 package com.brightgestures.brightify.action.load;
 
 import android.database.Cursor;
-import com.brightgestures.brightify.EntityMetadata;
+import com.brightgestures.brightify.EntityMetadataCompatibility;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Property;
 import com.brightgestures.brightify.Ref;
@@ -16,12 +16,12 @@ import java.util.Iterator;
 * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
 */
 public class CursorIterator<E> implements Iterator<E> {
-    protected final EntityMetadata<E> mEntityMetadata;
+    protected final EntityMetadataCompatibility<E> mEntityMetadata;
     protected final Cursor mCursor;
     protected boolean mFirst = true;
     protected boolean mHasNext = false;
 
-    public CursorIterator(EntityMetadata<E> entityMetadata, Cursor cursor) {
+    public CursorIterator(EntityMetadataCompatibility<E> entityMetadata, Cursor cursor) {
         if(cursor.isClosed()) {
             throw new IllegalStateException("The cursor is closed!");
         }
@@ -54,7 +54,7 @@ public class CursorIterator<E> implements Iterator<E> {
 
     @SuppressWarnings("unchecked")
     private E createFromCursor() {
-        EntityMetadata<E> metadata = mEntityMetadata;
+        EntityMetadataCompatibility<E> metadata = mEntityMetadata;
         Cursor cursor = mCursor;
 
         E entity = TypeUtils.construct(metadata.getEntityClass());

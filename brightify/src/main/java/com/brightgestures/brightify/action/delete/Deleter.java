@@ -119,7 +119,7 @@ public class Deleter {
                 Map<Key<ENTITY>, Boolean> results = new HashMap<Key<ENTITY>, Boolean>();
 
                 for(Key<ENTITY> key : mKeys) {
-                    EntityMetadata<ENTITY> metadata = Entities.getMetadata(key.getType());
+                    EntityMetadataCompatibility<ENTITY> metadata = Entities.getMetadata(key.getType());
                     long id = key.getId();
 
                     int affected = delete(db, metadata, id);
@@ -156,7 +156,7 @@ public class Deleter {
                 Map<ENTITY, Boolean> results = new HashMap<ENTITY, Boolean>();
 
                 for(ENTITY entity : mEntities) {
-                    EntityMetadata<ENTITY> metadata = Entities.getMetadata(entity);
+                    EntityMetadataCompatibility<ENTITY> metadata = Entities.getMetadata(entity);
                     Long id = metadata.getId(entity);
 
                     int affected = delete(db, metadata, id);
@@ -177,7 +177,7 @@ public class Deleter {
         }
     }
 
-    private static <ENTITY> int delete(SQLiteDatabase db, EntityMetadata<ENTITY> metadata, Long id) {
+    private static <ENTITY> int delete(SQLiteDatabase db, EntityMetadataCompatibility<ENTITY> metadata, Long id) {
         if(id == null) {
             throw new IllegalArgumentException("Can't delete entity without an ID! Is this entity even stored?");
         }

@@ -51,4 +51,8 @@ public @interface Entity {
      */
     boolean useSimpleName() default false;
 
+    /**
+     * Set this to true, to ignore this entity completely.
+     */
+    boolean ignore() default false;
 }

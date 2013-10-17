@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.util.Log;
 import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Entities;
-import com.brightgestures.brightify.EntityMetadata;
+import com.brightgestures.brightify.EntityMetadataCompatibility;
 import com.brightgestures.brightify.Property;
 import com.brightgestures.brightify.action.load.api.GenericLoader;
 import com.brightgestures.brightify.action.load.api.OrderLoader;
@@ -24,7 +24,7 @@ public class LoadQuery<E> {
     private static final String TAG = LoadQuery.class.getSimpleName();
 
     protected final Brightify mBrightify;
-    protected final EntityMetadata<E> mEntityMetadata;
+    protected final EntityMetadataCompatibility<E> mEntityMetadata;
 
     protected LinkedList<Class<?>> mLoadGroups = new LinkedList<Class<?>>();
     protected LinkedList<FilterLoaderImpl.FilterType> mFilterTypes = new LinkedList<FilterLoaderImpl.FilterType>();
@@ -33,7 +33,7 @@ public class LoadQuery<E> {
     protected Integer mLimit;
     protected Integer mOffset;
 
-    private LoadQuery(Brightify brightify, EntityMetadata<E> entityMetadata) {
+    private LoadQuery(Brightify brightify, EntityMetadataCompatibility<E> entityMetadata) {
         mBrightify = brightify;
         mEntityMetadata = entityMetadata;
     }
@@ -72,7 +72,7 @@ public class LoadQuery<E> {
         return mEntityMetadata.getEntityClass();
     }
 
-    public EntityMetadata<E> getEntityMetadata() {
+    public EntityMetadataCompatibility<E> getEntityMetadata() {
         return mEntityMetadata;
     }
 
@@ -132,7 +132,7 @@ public class LoadQuery<E> {
 
         public static <T extends BaseLoader<E> & GenericLoader<E>, E> LoadQuery<E> build(T lastLoader) {
             Class<E> entityType = lastLoader.getType();
-            EntityMetadata<E> entityMetadata = Entities.getMetadata(entityType);
+            EntityMetadataCompatibility<E> entityMetadata = Entities.getMetadata(entityType);
             LoadQuery<E> loadQuery = new LoadQuery<E>(lastLoader.mBrightify, entityMetadata);
 
             BaseLoader<E> loader = lastLoader;

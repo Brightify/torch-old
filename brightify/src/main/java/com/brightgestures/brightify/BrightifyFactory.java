@@ -2,9 +2,7 @@ package com.brightgestures.brightify;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
-import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Id;
 import com.brightgestures.brightify.annotation.NotNull;
 import com.brightgestures.brightify.annotation.Unique;
@@ -18,7 +16,6 @@ import com.brightgestures.brightify.util.Callback;
 import com.brightgestures.brightify.util.TypeUtils;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 public class BrightifyFactory implements EntityRegistrar, DatabaseEngine.OnCreateDatabaseListener {
 
@@ -59,7 +56,7 @@ public class BrightifyFactory implements EntityRegistrar, DatabaseEngine.OnCreat
 
     @Override
     public <T> EntityRegistrar register(Class<T> entityClass) {
-        EntityMetadata<T> metadata = new EntityMetadata<T>(entityClass);
+        EntityMetadataCompatibility<T> metadata = new EntityMetadataCompatibility<T>(entityClass);
 
         Entities.register(entityClass, metadata);
 
@@ -71,7 +68,7 @@ public class BrightifyFactory implements EntityRegistrar, DatabaseEngine.OnCreat
     }
 
     @Override
-    public <T> EntityMetadata<T> unregister(Class<T> entityClass) {
+    public <T> EntityMetadataCompatibility<T> unregister(Class<T> entityClass) {
         return Entities.unregister(entityClass);
     }
 
@@ -118,14 +115,14 @@ public class BrightifyFactory implements EntityRegistrar, DatabaseEngine.OnCreat
     }
 
     private void createTables(SQLiteDatabase db) {
-        Collection<EntityMetadata<?>> metadataList = Entities.getAllMetadatas();
+        Collection<EntityMetadataCompatibility<?>> metadataList = Entities.getAllMetadatas();
 
-        for(EntityMetadata metadata : metadataList) {
+        for(EntityMetadataCompatibility metadata : metadataList) {
             createTable(db, metadata);
         }
     }
 
-    private <T> void createTable(SQLiteDatabase db, EntityMetadata<T> metadata) {
+    private <T> void createTable(SQLiteDatabase db, EntityMetadataCompatibility<T> metadata) {
         CreateTable createTable = new CreateTable();
         createTable.setTableName(metadata.getTableName());
         for(Property property : metadata.getProperties()) {
@@ -164,14 +161,14 @@ public class BrightifyFactory implements EntityRegistrar, DatabaseEngine.OnCreat
     }
 
     private void dropTables(SQLiteDatabase db) {
-        Collection<EntityMetadata<?>> metadataList = Entities.getAllMetadatas();
+        Collection<EntityMetadataCompatibility<?>> metadataList = Entities.getAllMetadatas();
 
-        for(EntityMetadata metadata : metadataList) {
+        for(EntityMetadataCompatibility metadata : metadataList) {
             createTable(db, metadata);
         }
     }
 
-    private <T> void dropTable(SQLiteDatabase db, EntityMetadata<T> metadata) {
+    private <T> void dropTable(SQLiteDatabase db, EntityMetadataCompatibility<T> metadata) {
         DropTable dropTable = new DropTable();
         dropTable.setTableName(metadata.getTableName());
 

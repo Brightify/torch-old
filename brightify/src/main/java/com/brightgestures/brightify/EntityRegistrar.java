@@ -13,6 +13,6 @@ public interface EntityRegistrar {
      */
     public <ENTITY> EntityRegistrar register(Class<ENTITY> entityClass);
 
-    public <ENTITY> EntityMetadata<ENTITY> unregister(Class<ENTITY> entityClass);
+    public <ENTITY> EntityMetadataCompatibility<ENTITY> unregister(Class<ENTITY> entityClass);
 
 }

@@ -11,6 +11,7 @@
     <modules>
         <module>brightify</module>
         <module>brightify-test</module>
+        <module>brightify-preprocessor</module>
     </modules>
 
     <scm>
