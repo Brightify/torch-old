@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class Entities {
+public class EntitiesCompatibility {
     private static Map<Class<?>, EntityMetadataCompatibility<?>> byClass = new HashMap<Class<?>, EntityMetadataCompatibility<?>>();
     private static Map<String, EntityMetadataCompatibility<?>> byKind = new HashMap<String, EntityMetadataCompatibility<?>>();
 

@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.parser;
+package com.brightgestures.brightify.parse;
 
 import com.brightgestures.brightify.util.MigrationType;
 
@@ -9,10 +9,10 @@ import java.util.List;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class EntityInfo {
-    public Element entityElement;
+    public Element element;
 
-    public String entityName;
-    public String entityFullName;
+    public String name;
+    public String fullName;
     public String tableName;
 
     public boolean delete;

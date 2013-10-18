@@ -6,7 +6,7 @@ package com.brightgestures.brightify;
 public interface EntityRegistrar {
 
     /**
-     * Registers entity into {@link Entities}.
+     * Registers entity into {@link EntitiesCompatibility}.
      * @param entityClass Entity class
      * @param <ENTITY> Type of entity
      * @return

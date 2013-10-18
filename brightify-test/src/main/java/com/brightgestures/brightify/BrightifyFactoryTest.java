@@ -1,11 +1,6 @@
 package com.brightgestures.brightify;
 
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
-import com.brightgestures.brightify.BrightifyFactory;
-import com.brightgestures.brightify.BrightifyService;
-import com.brightgestures.brightify.Entities;
 
 import static com.brightgestures.brightify.BrightifyService.factory;
 

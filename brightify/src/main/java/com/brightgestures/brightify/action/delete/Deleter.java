@@ -119,7 +119,7 @@ public class Deleter {
                 Map<Key<ENTITY>, Boolean> results = new HashMap<Key<ENTITY>, Boolean>();
 
                 for(Key<ENTITY> key : mKeys) {
-                    EntityMetadataCompatibility<ENTITY> metadata = Entities.getMetadata(key.getType());
+                    EntityMetadataCompatibility<ENTITY> metadata = EntitiesCompatibility.getMetadata(key.getType());
                     long id = key.getId();
 
                     int affected = delete(db, metadata, id);
@@ -156,7 +156,7 @@ public class Deleter {
                 Map<ENTITY, Boolean> results = new HashMap<ENTITY, Boolean>();
 
                 for(ENTITY entity : mEntities) {
-                    EntityMetadataCompatibility<ENTITY> metadata = Entities.getMetadata(entity);
+                    EntityMetadataCompatibility<ENTITY> metadata = EntitiesCompatibility.getMetadata(entity);
                     Long id = metadata.getId(entity);
 
                     int affected = delete(db, metadata, id);

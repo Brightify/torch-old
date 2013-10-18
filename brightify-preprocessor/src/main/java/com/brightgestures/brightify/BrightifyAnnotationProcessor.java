@@ -3,8 +3,11 @@ package com.brightgestures.brightify;
 import com.brightgestures.brightify.annotation.Accessor;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Ignore;
-import com.brightgestures.brightify.parser.EntityParseException;
-import com.brightgestures.brightify.parser.EntityParser;
+import com.brightgestures.brightify.generate.EntitiesGenerator;
+import com.brightgestures.brightify.generate.EntityMetadataGenerator;
+import com.brightgestures.brightify.parse.EntityInfo;
+import com.brightgestures.brightify.parse.EntityParseException;
+import com.brightgestures.brightify.parse.EntityParser;
 import com.brightgestures.brightify.util.Helper;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -21,84 +24,42 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-@SupportedAnnotationTypes({"com.brightgestures.brightify.annotation.Entity"})
+@SupportedAnnotationTypes({ "com.brightgestures.brightify.annotation.Entity" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class BrightifyAnnotationProcessor extends AbstractProcessor {
-
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Entity.class);
-        new EntitiesCreator(elements).processElements();
+
+        EntityParser parser = new EntityParser(processingEnv);
+        Set<EntityInfo> entityInfoSet = new HashSet<EntityInfo>();
+
+        for(Element element : elements) {
+            try {
+                entityInfoSet.add(parser.parseEntity(element));
+            } catch (EntityParseException e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.getElement());
+            }
+        }
+
+        EntityMetadataGenerator metadataGenerator = new EntityMetadataGenerator(processingEnv);
+        for(EntityInfo entityInfo : entityInfoSet) {
+            metadataGenerator.generateMetadata(entityInfo);
+        }
+
+        EntitiesGenerator entitiesGenerator = new EntitiesGenerator(processingEnv);
+        entitiesGenerator.generateEntities(entityInfoSet);
+
         return true;
     }
-
-    public class Creator {
-        private StringBuilder mBuilder = new StringBuilder();
-        private int mLevel = 0;
-
-        protected Creator append(Object value) {
-            mBuilder.append(value);
-            return this;
-        }
-
-        protected Creator line(Object value) {
-            emptyLine();
-
-            for(int i = 0; i < mLevel; i++) {
-                mBuilder.append("    ");
-            }
-            mBuilder.append(value);
-
-            return this;
-        }
-
-        protected Creator emptyLine() {
-            mBuilder.append("\n");
-            return this;
-        }
-
-        protected Creator nest() {
-            mBuilder.append(" {");
-            mLevel++;
-            return this;
-        }
-
-        protected Creator unNest() {
-            mLevel--;
-            line("}");
-            return this;
-        }
-
-        protected void save(String name) {
-            Writer writer = null;
-            try {
-                writer = processingEnv.getFiler().createSourceFile(name).openWriter();
-
-                writer.write(mBuilder.toString());
-
-                writer.flush();
-                writer.close();
-
-            } catch (IOException e) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-            }
-        }
-    }
-
-    public class EntitiesCreator extends Creator {
+/*
+    public class EntitiesCreator extends SourceFileGenerator {
         private final Set<? extends Element> mElements;
 
         public EntitiesCreator(Set<? extends Element> elements) {
@@ -115,7 +76,7 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             }
 
 
-            append("/* Generated on ").append(new Date()).append(" by BrightifyAnnotationProcessor */");
+            append("/* Generated on ").append(new Date()).append(" by BrightifyAnnotationProcessor *");
             line("package com.brightgestures.brightify;");
             emptyLine();
             line("import java.util.Map;");
@@ -150,7 +111,7 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
     }
 
-    public class EntityMapperCreator extends Creator {
+    public class EntityMapperCreator extends SourceFileGenerator {
         private final Element mElement;
         public EntityMapperCreator(Element element) {
             mElement = element;
@@ -172,8 +133,8 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
             String className = mElement.toString();
 
-            String entityName = mElement.getSimpleName().toString();
-            String entityFullName = mElement.toString();
+            String name = mElement.getSimpleName().toString();
+            String fullName = mElement.toString();
             String metadataName = mElement.getSimpleName() + "Metadata";
             String metadataFullName = "com.brightgestures.brightify.metadata." + metadataName;
 
@@ -192,21 +153,21 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
             }
 
-            append("/* Generated on ").append(new Date()).append(" by BrightifyAnnotationProcessor */");
+            append("/* Generated on ").append(new Date()).append(" by BrightifyAnnotationProcessor *");
             line("package com.brightgestures.brightify.metadata;");
             emptyLine();
-            line("import ").append(entityFullName).append(";");
+            line("import ").append(fullName).append(";");
             emptyLine();
             line("import android.database.Cursor;");
             line("import android.content.ContentValues;");
             line("import com.brightgestures.brightify.EntityMetadata;");
             emptyLine();
-            line("public class ").append(metadataName).append(" extends EntityMetadata<").append(entityName).append(">").nest();
+            line("public class ").append(metadataName).append(" extends EntityMetadata<").append(name).append(">").nest();
             emptyLine();
             line("@Override");
             line("public void createTable(SQLiteDatabase db)").nest();
             line("CreateTable createTable = new CreateTable();");
-            line("createTable.setTableName(").append(Helper.tableNameFromClassName(entityFullName)).append(");");
+            line("createTable.setTableName(").append(Helper.tableNameFromClassName(fullName)).append(");");
             for(Element child : children) {
 
             }
@@ -214,8 +175,8 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             unNest();
             emptyLine();
             line("@Override");
-            line("public ").append(entityName).append(" createFromCursor(Cursor cursor)").nest();
-            line(entityName).append(" entity = new ").append(entityName).append("();");
+            line("public ").append(name).append(" createFromCursor(Cursor cursor)").nest();
+            line(name).append(" entity = new ").append(name).append("();");
             emptyLine();
             for(Element child : children) {
                 Ignore ignore = child.getAnnotation(Ignore.class);
@@ -266,7 +227,7 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
                 } else {
                     throw new IllegalStateException("Type '" + type.toString() + "' cannot be restored from database!");
                 }
-*/
+*
                // processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, child + " of type " + child.asType(), child);
 
             }
@@ -276,7 +237,7 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             unNest();
 
             line("@Override");
-            line("public ContentValues toContentValues(").append(entityName).append(" entity)").nest();
+            line("public ContentValues toContentValues(").append(name).append(" entity)").nest();
             line("ContentValues values = new ContentValues();");
 
             for(Element child : children) {
@@ -349,12 +310,6 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             return false;
         }
 
-        private TypeMirror typeOf(Class cls) {
-
-
-            Element el = processingEnv.getElementUtils().getTypeElement(cls.getName());
-            return  el.asType();
-        }
     }
 
     public static class Property {
@@ -366,6 +321,6 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
         enum Type {
             FIELD, METHOD
         }
-    }
+    }*/
 
 }

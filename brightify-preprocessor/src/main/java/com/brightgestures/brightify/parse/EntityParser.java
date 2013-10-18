@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.parser;
+package com.brightgestures.brightify.parse;
 
 import com.brightgestures.brightify.annotation.Accessor;
 import com.brightgestures.brightify.annotation.Entity;
@@ -16,7 +16,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import java.util.ArrayList;
@@ -56,14 +55,14 @@ public class EntityParser {
         }
         EntityInfo info = new EntityInfo();
 
-        info.entityName = entity.getSimpleName().toString();
-        info.entityFullName = entity.toString();
+        info.name = entity.getSimpleName().toString();
+        info.fullName = entity.toString();
 
-        String tableName = info.entityFullName;
+        String tableName = info.fullName;
         if(!entityAnnotation.name().equals("")) {
             info.tableName = entityAnnotation.name();
         } else if(entityAnnotation.useSimpleName()) {
-            info.tableName = info.entityName;
+            info.tableName = info.name;
         }
         info.tableName = Helper.tableNameFromClassName(tableName); // TODO create own helper here in brightify-preprocessor
         info.delete = entityAnnotation.delete();
@@ -221,6 +220,7 @@ public class EntityParser {
                 }
             }
         }
+        info.properties = new ArrayList<Property>(propertyMap.values());
         if(info.idProperty == null) {
             throw new EntityParseException(entity, "Entity %s doesn't contain a @Id Long field!", entity.getSimpleName());
         }

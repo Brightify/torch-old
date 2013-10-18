@@ -29,7 +29,7 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
 
     @Override
     public <T extends AsyncEntityRegistrar & AsyncSubmit, ENTITY> T register(Class<ENTITY> entityClass) {
-        Entities.register(entityClass);
+        EntitiesCompatibility.register(entityClass);
         return (T) this;
     }
 

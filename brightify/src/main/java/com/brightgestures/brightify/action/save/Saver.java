@@ -3,7 +3,7 @@ package com.brightgestures.brightify.action.save;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import com.brightgestures.brightify.Brightify;
-import com.brightgestures.brightify.Entities;
+import com.brightgestures.brightify.EntitiesCompatibility;
 import com.brightgestures.brightify.EntityMetadataCompatibility;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Property;
@@ -91,7 +91,7 @@ public class Saver {
         // public final void async(Callback<E> callback) { }
 
         private Key<E> addEntityToTransaction(SQLiteDatabase db, E entity) {
-            EntityMetadataCompatibility<E> metadata = Entities.getMetadata(entity);
+            EntityMetadataCompatibility<E> metadata = EntitiesCompatibility.getMetadata(entity);
 
             ContentValues values = new ContentValues();
 

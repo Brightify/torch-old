@@ -1,6 +1,5 @@
-package com.brightgestures.brightify.parser;
+package com.brightgestures.brightify.parse;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 
 /**

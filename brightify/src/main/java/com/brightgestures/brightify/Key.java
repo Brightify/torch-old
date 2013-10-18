@@ -101,7 +101,7 @@ public class Key<ENTITY> implements Serializable {
     }
 
     public static <ENTITY> Key<ENTITY> create(ENTITY entity) {
-        return Entities.keyOf(entity);
+        return EntitiesCompatibility.keyOf(entity);
     }
 
     public static String getKind(Class<?> clazz) {

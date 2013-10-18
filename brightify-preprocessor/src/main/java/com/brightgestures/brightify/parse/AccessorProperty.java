@@ -1,4 +1,4 @@
-package com.brightgestures.brightify.parser;
+package com.brightgestures.brightify.parse;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>

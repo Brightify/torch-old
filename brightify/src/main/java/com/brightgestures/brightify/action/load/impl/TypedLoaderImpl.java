@@ -1,6 +1,6 @@
 package com.brightgestures.brightify.action.load.impl;
 
-import com.brightgestures.brightify.Entities;
+import com.brightgestures.brightify.EntitiesCompatibility;
 import com.brightgestures.brightify.Property;
 import com.brightgestures.brightify.Result;
 import com.brightgestures.brightify.action.load.BaseLoader;
@@ -69,7 +69,7 @@ public class TypedLoaderImpl<E> extends BaseLoader<E> implements TypedLoader<E> 
     @Override
     public <T extends ListLoader<E> & Closeable<E> & OperatorFilter<E>> Result<List<E>> ids(Long... ids) {
         // create filter and add all ids
-        String columnName = Entities.getMetadata(mType).getIdProperty().getColumnName();
+        String columnName = EntitiesCompatibility.getMetadata(mType).getIdProperty().getColumnName();
         String condition = columnName + "=";
 
         T loader = null;
