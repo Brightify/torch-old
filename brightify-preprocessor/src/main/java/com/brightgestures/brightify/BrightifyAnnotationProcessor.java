@@ -3,6 +3,8 @@ package com.brightgestures.brightify;
 import com.brightgestures.brightify.annotation.Accessor;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Ignore;
+import com.brightgestures.brightify.parser.EntityParseException;
+import com.brightgestures.brightify.parser.EntityParser;
 import com.brightgestures.brightify.util.Helper;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -14,7 +16,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -156,6 +157,14 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
         }
 
         public boolean processEntity() {
+            EntityParser parser = new EntityParser(processingEnv);
+
+            try {
+                parser.parseEntity(mElement);
+            } catch (EntityParseException e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.getElement());
+                return false;
+            }
             Entity entityAnnotation = mElement.getAnnotation(Entity.class);
             if(entityAnnotation.ignore()) {
                 return true;

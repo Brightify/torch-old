@@ -13,9 +13,10 @@ public @interface Entity {
     /**
      * Overrides the default table name.
      *
-     * This is not recommended, because it might collide with another table. The default table name is {@code decamelized}
-     * entity name, prepended by it's package name. For example, {@code com.brightgestures.brightify.model.BrightifySystemModel}
-     * will become {@code com_brightgestures_brightify_model_brightify_system_model}
+     * This is not recommended, because it might collide with another table. The default table name is entity name,
+     * prepended by it's package name, with dots replaced by underscores. For example,
+     * {@code com.brightgestures.brightify.model.BrightifySystemModel} will become
+     * {@code com_brightgestures_brightify_model_BrightifySystemModel}
      * @return
      */
     String name() default "";

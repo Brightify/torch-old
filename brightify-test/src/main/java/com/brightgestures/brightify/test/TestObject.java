@@ -33,9 +33,18 @@ public class TestObject implements Serializable {
         return 23;
     }
 
-    @Accessor(type = Accessor.Type.GET)
+    public void setTestName(int testName) {
+
+    }
+
+    @Accessor(type = Accessor.Type.GET, name = "testMethod")
     public long testMethod() {
         return 500;
+    }
+
+    @Accessor(type = Accessor.Type.SET, name = "testMethod")
+    public void halelujah(long ttttt) {
+
     }
 
     @Override

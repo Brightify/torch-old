@@ -25,6 +25,6 @@ public @interface Accessor {
     Type type();
 
     enum Type {
-        GET, SET
+        GET, SET, INFERRED
     }
 }
