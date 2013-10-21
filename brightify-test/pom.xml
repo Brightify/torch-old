@@ -7,9 +7,7 @@
         <artifactId>brightify-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-	
-    <artifactId>brightify-test</artifactId>
-	<name>Brightify Tests</name>
+	<artifactId>brightify-test</artifactId>
 	<packaging>apk</packaging>
 	
 	<dependencies>
@@ -30,13 +28,14 @@
         </dependency>
         <dependency>
             <groupId>com.brightgestures.brightify</groupId>
-            <artifactId>brightify</artifactId>
+            <artifactId>brightify-core</artifactId>
             <type>apklib</type>
         </dependency>
         <dependency>
             <groupId>com.brightgestures.brightify</groupId>
-            <artifactId>brightify</artifactId>
+            <artifactId>brightify-core</artifactId>
             <type>jar</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.robolectric</groupId>
@@ -46,9 +45,9 @@
         </dependency>
         <dependency>
             <groupId>com.brightgestures.brightify</groupId>
-            <artifactId>brightify-preprocessor</artifactId>
+            <artifactId>brightify-compiler</artifactId>
             <version>${parent.version}</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 	</dependencies>
     

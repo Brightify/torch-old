@@ -9,9 +9,11 @@
 	<packaging>pom</packaging>
 
     <modules>
-        <module>brightify</module>
+        <module>brightify-api</module>
+        <module>brightify-compiler</module>
+        <module>brightify-core</module>
         <module>brightify-test</module>
-        <module>brightify-preprocessor</module>
+        <module>brightify-bridge</module>
     </modules>
 
     <scm>
@@ -77,13 +79,13 @@
             </dependency>
             <dependency>
                 <groupId>com.brightgestures.brightify</groupId>
-                <artifactId>brightify</artifactId>
+                <artifactId>brightify-core</artifactId>
                 <version>${project.version}</version>
                 <type>apklib</type>
             </dependency>
             <dependency>
                 <groupId>com.brightgestures.brightify</groupId>
-                <artifactId>brightify</artifactId>
+                <artifactId>brightify-core</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
                 <type>jar</type>

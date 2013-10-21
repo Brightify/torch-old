@@ -26,8 +26,6 @@ public class TestObject implements Serializable {
     public Boolean booleanField = true;
     public boolean booleanPrimitiveField = false;
 
-    public TestObject testObjectSerializable = null;
-
     @Accessor(name = "testName", type = Accessor.Type.GET)
     public int a() {
         return 23;

@@ -36,8 +36,7 @@ public class LoaderTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        BrightifyService.with(getContext())
-                .register(TestObject.class);
+        BrightifyService.with(getContext());
 
         BrightifyService.factory().forceOpenOrCreateDatabase();
 

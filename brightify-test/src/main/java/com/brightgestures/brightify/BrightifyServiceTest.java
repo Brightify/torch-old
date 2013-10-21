@@ -32,8 +32,7 @@ public class BrightifyServiceTest extends ActivityInstrumentationTestCase2<MainT
     @UiThreadTest
     @MediumTest
     public void testInitialization() {
-        BrightifyService.with(getActivity())
-                .register(TestObject.class);
+        BrightifyService.with(getActivity());
 
         assertNotNull(BrightifyService.factory().forceOpenOrCreateDatabase());
 
