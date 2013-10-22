@@ -57,6 +57,19 @@ public class EntityParser {
 
         info.name = entity.getSimpleName().toString();
         info.fullName = entity.toString();
+        String[] entityPackages = info.fullName.split("\\.");
+        if(entityPackages.length == 1) {
+            info.packageName = null;
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for(int i = 0; i < entityPackages.length - 1; i++) {
+                if(i > 0) {
+                    builder.append(".");
+                }
+                builder.append(entityPackages[i]);
+            }
+            info.packageName = builder.toString();
+        }
 
         String tableName = info.fullName;
         if(!entityAnnotation.name().equals("")) {
@@ -157,6 +170,11 @@ public class EntityParser {
                     throw new EntityParseException(child, "Property %s already defined by field!", columnName);
                 }
 
+                Index indexAnnotation = child.getAnnotation(Index.class);
+                Id idAnnotation = child.getAnnotation(Id.class);
+                NotNull notNullAnnotation = child.getAnnotation(NotNull.class);
+                Unique uniqueAnnotation = child.getAnnotation(Unique.class);
+
                 if(methodType == Accessor.Type.GET) {
                     if(property.getterName != null || property.getterFullName != null) {
                         throw new EntityParseException(child, "Getter for property %s already defined!", columnName);
@@ -176,6 +194,20 @@ public class EntityParser {
 
                     property.getterName = childName;
                     property.getterFullName = childFullName;
+
+                    if(indexAnnotation != null) {
+                        property.index = true;
+                    }
+                    if(idAnnotation != null) {
+                        property.id = idAnnotation;
+                    }
+                    if(notNullAnnotation != null) {
+                        property.notNull = true;
+                    }
+                    if(uniqueAnnotation != null) {
+                        property.unique = true;
+                    }
+
                 } else if(methodType == Accessor.Type.SET) {
                     if(property.setterName != null || property.setterFullName != null) {
                         throw new EntityParseException(child, "Setter for property %s already defined", columnName);
@@ -197,12 +229,30 @@ public class EntityParser {
 
                     property.setterName = childName;
                     property.setterFullName = childFullName;
+
+                    if(indexAnnotation != null) {
+                        throw new EntityParseException(child, "@Index can't be on setter! Place it on getter instead.");
+                    }
+                    if(idAnnotation != null) {
+                        throw new EntityParseException(child, "@Id can't be on setter! Place it on getter instead.");
+                    }
+                    if(notNullAnnotation != null) {
+                        throw new EntityParseException(child, "@NotNull can't be on setter! Place it on getter instead.");
+                    }
+                    if(uniqueAnnotation != null) {
+                        throw new EntityParseException(child, "@Unique can't be on setter! Place it on getter instead.");
+                    }
                 }
 
                 property.columnName = columnName;
-                if(!property.index) {
-                    property.index = child.getAnnotation(Index.class) != null;
+
+                if(property.id != null && info.idProperty != property) {
+                    if(info.idProperty != null) {
+                        throw new EntityParseException(child, "Duplicate @Id definition in entity %s!", entity.getSimpleName());
+                    }
+                    info.idProperty = property;
                 }
+
                 if(!modification) {
                     propertyMap.put(columnName, property);
                 }

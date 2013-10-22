@@ -14,14 +14,6 @@ public interface BrightifyFactory extends DatabaseEngine.OnCreateDatabaseListene
 
     Brightify begin();
 
-    void setHandler(Handler handler);
-
-    <E> boolean asyncSuccessCallback(Callback<E> callback, E data);
-
-    <E> boolean asyncFailedCallback(Callback<E> callback, Exception exception);
-
-    boolean runOnUiThread(Runnable runnable);
-
     SQLiteDatabase forceOpenOrCreateDatabase();
 
     boolean deleteDatabase();

@@ -25,6 +25,8 @@ import java.util.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
+    private static final List<String> testsss = new ArrayList<>();
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if(annotations.size() == 0) {
@@ -38,8 +40,10 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
         Set<EntityInfo> entityInfoSet = new HashSet<EntityInfo>();
 
         for(Element element : elements) {
+            testsss.add(element.toString());
             try {
-                Class.forName(element.toString(), false, ClassLoader.getSystemClassLoader());
+                // TODO move this somewhere else, maybe to metadata generator?
+                Class.forName(element.toString() + "Metadata", false, ClassLoader.getSystemClassLoader());
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
                         "Entity " + element.getSimpleName() + "already on classpath.", element);
                 continue;
@@ -59,8 +63,9 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             metadataGenerator.generateMetadata(entityInfo);
         }
 
-        EntityMetadataMapGenerator entityMetadataMapGenerator = new EntityMetadataMapGenerator(processingEnv);
-        entityMetadataMapGenerator.generateEntities(entityInfoSet);
+        // No more
+        //EntityMetadataMapGenerator entityMetadataMapGenerator = new EntityMetadataMapGenerator(processingEnv);
+        //entityMetadataMapGenerator.generateEntities(entityInfoSet);
 
         return true;
     }

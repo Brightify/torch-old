@@ -12,6 +12,6 @@ public interface AsyncInitializer {
      *
      * @param context Any context, {@link android.content.Context#getApplicationContext()} will be used.
      */
-    AsyncFactoryBuilder with(Context context);
+    AsyncEntityRegistrarSubmit with(Context context);
 
 }

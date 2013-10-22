@@ -126,7 +126,7 @@ public class LoadQuery<ENTITY> {
         }
 
         public Configuration<ENTITY> addEntityFilter(EntityFilter filter) {
-//            mEntityFilters.addLast(filter);
+            mEntityFilters.addLast(filter);
             return this;
         }
 

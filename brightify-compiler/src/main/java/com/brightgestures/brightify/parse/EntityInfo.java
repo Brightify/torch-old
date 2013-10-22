@@ -12,6 +12,7 @@ public class EntityInfo {
     public Element element;
 
     public String name;
+    public String packageName;
     public String fullName;
     public String tableName;
 

@@ -57,8 +57,6 @@ public class BrightifyService {
 
         sFactory = new BrightifyFactoryImpl(context.getApplicationContext());
 
-        sFactory.setHandler(new Handler());
-
         return sFactory;
     }
 

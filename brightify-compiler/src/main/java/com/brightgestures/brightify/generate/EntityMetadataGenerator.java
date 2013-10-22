@@ -17,6 +17,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
@@ -28,15 +29,20 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
     public void generateMetadata(EntityInfo entity) {
 
-        String metadataName = entity.name + "Metadata";
-        String metadataFullName = "com.brightgestures.brightify.metadata." + metadataName;
+        String metadataPostfix = "Metadata";
+        String metadataName = entity.name + metadataPostfix;
+        String metadataFullName = entity.fullName + metadataPostfix;
+        String internalMetadataName = metadataFullName.replaceAll("\\.", "_");
+        String internalMetadataFullName = "com.brightgestures.brightify.metadata." + internalMetadataName;
 
         Types types = processingEnv.getTypeUtils();
         Elements elements = processingEnv.getElementUtils();
 
         append("/* Generated on ").append(new Date()).append(" by EntityMetadataGenerator */");
-        line("package com.brightgestures.brightify.metadata;");
-        emptyLine();
+        if(entity.packageName != null && !entity.packageName.equals("")) {
+            line("package ").append(entity.packageName).append(";");
+            emptyLine();
+        }
         line("import ").append(entity.fullName).append(";");
         emptyLine();
         line("import android.database.Cursor;");
@@ -226,9 +232,29 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
         line("return values;");
         unNest();
+        emptyLine();
+        line("public static ").append(metadataName).append(" create()").nest();
+        line("return new ").append(metadataName).append("();");
+        unNest();
         unNest();
 
         save(metadataFullName);
+
+        append("/* Generated on ").append(new Date()).append(" by EntityMetadataGenerator */");
+        line("package com.brightgestures.brightify.metadata;");
+        emptyLine();
+        line("import ").append(metadataFullName).append(";");
+        line("import com.brightgestures.brightify.internal.EntityMetadataProvider;");
+        line("import com.brightgestures.brightify.Entities;");
+        emptyLine();
+        line("public class ").append(internalMetadataName).append(" implements EntityMetadataProvider").nest();
+        emptyLine();
+        line("static").nest();
+        line("Entities.registerMetadata(").append(metadataName).append(".create());");
+        unNest();
+        unNest();
+
+        save(internalMetadataFullName);
     }
 
 

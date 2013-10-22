@@ -9,19 +9,18 @@ import com.brightgestures.brightify.annotation.Id;
 @Entity
 public class TableMetadata {
 
-    @Id
-    public Long id;
-
+    private Long id;
     private String tableName;
     private Integer version;
 
-    /*public Long getId() {
+    @Id
+    public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }*/
+    }
 
     public String getTableName() {
         return tableName;
