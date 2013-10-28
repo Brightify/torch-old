@@ -1,5 +1,6 @@
 package com.brightgestures.brightify.model;
 
+import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Id;
 
@@ -13,6 +14,8 @@ public class TableMetadata {
     private String tableName;
     private Integer version;
 
+    private Ref<TableDetails> details;
+    
     @Id
     public Long getId() {
         return id;

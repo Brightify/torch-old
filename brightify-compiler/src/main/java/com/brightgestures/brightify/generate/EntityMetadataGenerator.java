@@ -50,6 +50,8 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         line("import com.brightgestures.brightify.sql.statement.CreateTable;");
         line("import android.content.ContentValues;");
         line("import com.brightgestures.brightify.EntityMetadata;");
+        line("import com.brightgestures.brightify.Key;");
+        line("import com.brightgestures.brightify.util.Serializer;");
         emptyLine();
         line("import com.brightgestures.brightify.sql.affinity.IntegerAffinity;");
         line("import com.brightgestures.brightify.sql.affinity.NoneAffinity;");
@@ -164,30 +166,33 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
             // TODO think of a way to not add this line when type is not supported
             line("int index = cursor.getColumnIndex(\"").append(property.columnName).append("\");");
             if(types.isSameType(propertyType, typeOf(Key.class))) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Keys are not yet supported!", entity.element); // TODO: should be property.element!
+                //processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Keys are not yet supported!", entity.element); // TODO: should be property.element!
+                line("entity.").append(property.setValue("Key.keyFromByteArray(cursor.getBlob(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Ref.class))) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Refs are not yet supported!", entity.element); // TODO: should be property.element!
+                // line("entity.").append(property.setValue("")).append(";");
             } else if(types.isSameType(propertyType, typeOf(Boolean.class))) {
-                line("entity.").append(property.setValue("cursor.getInt(index) > 0")).append(";");
+                line("entity.").append(property.setValue("cursor.getInt(index) > 0")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Byte.class))) {
-                line("entity.").append(property.setValue("(Byte) cursor.getInt(index)")).append(";");
+                line("entity.").append(property.setValue("(Byte) cursor.getInt(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Short.class))) {
-                line("entity.").append(property.setValue("cursor.getShort(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getShort(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Integer.class))) {
-                line("entity.").append(property.setValue("cursor.getInt(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getInt(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Long.class))) {
-                line("entity.").append(property.setValue("cursor.getLong(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getLong(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Float.class))) {
-                line("entity.").append(property.setValue("cursor.getFloat(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getFloat(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Double.class))) {
-                line("entity.").append(property.setValue("cursor.getDouble(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getDouble(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(String.class))) {
-                line("entity.").append(property.setValue("cursor.getString(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getString(index)")).append(";").append(" // ").append(property.type);
             } else if(propertyType.getKind() == TypeKind.ARRAY &&
                 types.isSameType(propertyType, types.getArrayType(types.getPrimitiveType(TypeKind.BYTE)))) {
-                line("entity.").append(property.setValue("cursor.getBlob(index)")).append(";");
+                line("entity.").append(property.setValue("cursor.getBlob(index)")).append(";").append(" // ").append(property.type);
             } else if(types.isAssignable(propertyType, elements.getTypeElement("java.io.Serializable").asType())) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Serializable objects not yet supported!", entity.element); // TODO: should be property.element!
+                line("entity.").append(property.setValue("Serializer.deserialize(cursor.getBlob(index)," + propertyType + ".class)")).append(";").append(" // ").append(property.type);
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type + " is not supported!", entity.element); // TODO: should be property.element!
             }
@@ -209,6 +214,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
             if(types.isSameType(propertyType, typeOf(Key.class))) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Keys are not yet supported!", entity.element); // TODO: should be property.element!
+                line("values.put(\"").append(property.columnName).append("\", Key.keyToByteArray(entity.").append(property.getValue()).append("));").append(" // ").append(property.type);
             } else if(types.isSameType(propertyType, typeOf(Ref.class))) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Refs are not yet supported!", entity.element); // TODO: should be property.element!
             } else if(
@@ -244,10 +250,9 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         line("package com.brightgestures.brightify.metadata;");
         emptyLine();
         line("import ").append(metadataFullName).append(";");
-        line("import com.brightgestures.brightify.internal.EntityMetadataProvider;");
         line("import com.brightgestures.brightify.Entities;");
         emptyLine();
-        line("public class ").append(internalMetadataName).append(" implements EntityMetadataProvider").nest();
+        line("public class ").append(internalMetadataName).nest();
         emptyLine();
         line("static").nest();
         line("Entities.registerMetadata(").append(metadataName).append(".create());");
