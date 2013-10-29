@@ -1,6 +1,6 @@
 package com.brightgestures.brightify.util;
 
-import com.brightgestures.brightify.model.TableMetadata;
+import com.brightgestures.brightify.model.Table;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,6 +24,6 @@ public class HelperTest {
     @Test
     public void testTableNameFromClass() {
         assertEquals("com_brightgestures_brightify_util_HelperTest", Helper.tableNameFromClass(HelperTest.class, false));
-        assertEquals("com_brightgestures_brightify_model_TableMetadata", Helper.tableNameFromClass(TableMetadata.class, false));
+        assertEquals("com_brightgestures_brightify_model_TableMetadata", Helper.tableNameFromClass(Table.class, false));
     }
 }
