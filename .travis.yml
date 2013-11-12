@@ -2,7 +2,7 @@ language: java
 jdk: oraclejdk7
 env:
   matrix:
-    - ANDROID_SDKS=android-18,sysimg-18 ANDROID_TARGET=android-18 ANDROID_ABI=armeabi-v7a
+    - ANDROID_SDKS=sysimg-16 ANDROID_TARGET=android-16 ANDROID_ABI=x86
 before_install:
 # Maven 3.1.1
   - wget http://www.us.apache.org/dist/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
@@ -12,12 +12,15 @@ before_install:
   - mvn --version
 # Android
   - sudo apt-get update -qq
-  - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq libstdc++6:i386 lib32z1; fi
-  - wget -O android-sdk.tgz http://dl.google.com/android/android-sdk_r22.0.4-linux.tgz
-  - tar xzf android-sdk.tgz
+  - if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null; fi
+  - wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz
+  - tar xzf android-sdk_r21.1-linux.tgz
   - export ANDROID_HOME=$PWD/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-  - echo y | android update sdk --filter platform-tools,build-tools-18.1.0,android-18,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null
+
+  - android update sdk --filter platform-tools,android-16,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null
+
+#  - echo y | android update sdk --filter platform-tools,build-tools-18.1.0,android-18,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - mksdcard -l test_sdcard 64M test.sdcard
   - emulator -avd test -sdcard test.sdcard -no-skin -no-audio -no-window &
@@ -27,4 +30,4 @@ before_script:
   - ./wait_for_emulator
 
 install: mvn install -DskipTests=true -B -e -X
-script: mvn install -e -X -Dandroid.device=test
+script: mvn install -e -X -B -Dandroid.device=test
