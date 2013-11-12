@@ -26,4 +26,5 @@ before_script:
   - chmod +x ./wait_for_emulator
   - ./wait_for_emulator
 
+install: mvn install -DskipTests=true -B -e -X
 script: mvn install -e -X -Dandroid.device=test
