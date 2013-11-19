@@ -16,7 +16,7 @@ public class TestObject implements Serializable {
     @Id
     public Long id;
 
-    public byte[] byteArrayField = new byte[1024];
+    //public byte[] byteArrayField = new byte[1024];
 
     public Integer intField = 1;
     public int intPrimitiveField = 100;

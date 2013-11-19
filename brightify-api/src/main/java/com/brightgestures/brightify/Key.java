@@ -34,7 +34,11 @@ public class Key<ENTITY> implements Serializable {
     }
 
     public static <T> Key<T> keyFromByteArray(byte[] data) {
-        List<Key<T>> keys = keysFromByteArray(data);
+        return keyFromByteArray(data, null);
+    }
+
+    public static <T> Key<T> keyFromByteArray(byte[] data, Class<T> entityClass) {
+        List<Key<T>> keys = keysFromByteArray(data, entityClass);
         if(keys.size() == 0) {
             return null;
         }
@@ -45,6 +49,11 @@ public class Key<ENTITY> implements Serializable {
     }
 
     public static <T> List<Key<T>> keysFromByteArray(byte[] data) {
+        return keysFromByteArray(data, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<Key<T>> keysFromByteArray(byte[] data, Class<T> entityClass) {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
         DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
         List<Key<T>> keys = new ArrayList<Key<T>>();
@@ -56,7 +65,12 @@ public class Key<ENTITY> implements Serializable {
             }
 
             String className = inputStream.readUTF();
-            Class<T> entityClass = (Class<T>) Class.forName(className);
+            if(entityClass == null) {
+                entityClass = (Class<T>) Class.forName(className);
+            } else if(!entityClass.getName().equals(className)) {
+                throw new IllegalStateException("Loaded key of different entity class!");
+            }
+
             for(int i = 0; i < keyCount; i++) {
                 long id = inputStream.readLong();
                 Key<T> key = Key.create(entityClass, id);
@@ -89,6 +103,7 @@ public class Key<ENTITY> implements Serializable {
                     outputStream.writeLong(key.getId());
                 }
             }
+            outputStream.flush();
         } catch (IOException e) {
             throw new RuntimeException(e); // TODO this has to be changed
         }

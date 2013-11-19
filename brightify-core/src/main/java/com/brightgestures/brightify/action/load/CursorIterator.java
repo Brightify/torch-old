@@ -43,7 +43,13 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
             throw new IllegalStateException("The cursor is closed!");
         }
 
-        ENTITY entity = mEntityMetadata.createFromCursor(mCursor);
+        ENTITY entity;
+        try {
+            entity = mEntityMetadata.createFromCursor(mCursor);
+        } catch (Exception e) {
+            // FIXME handle the exception better
+            throw new RuntimeException(e);
+        }
 
         if(!mCursor.moveToNext()) {
             mCursor.close();

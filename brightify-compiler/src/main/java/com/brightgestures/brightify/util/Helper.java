@@ -1,5 +1,7 @@
 package com.brightgestures.brightify.util;
 
+import android.database.Cursor;
+
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
@@ -26,5 +28,6 @@ public class Helper {
     public static String tableNameFromClassName(String name) {
         return name.replace('.', '_');
     }
+
 
 }

@@ -2,9 +2,8 @@ package com.brightgestures.brightify;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import com.brightgestures.brightify.model.TableMetadataMetadata;
-import com.brightgestures.brightify.util.AsyncRunner;
-import com.brightgestures.brightify.util.Callback;
+import com.brightgestures.brightify.model.TableDetailsMetadata;
+import com.brightgestures.brightify.model.TableMetadata;
 
 import java.util.Collection;
 
@@ -22,7 +21,8 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
         mContext = applicationContext;
         mConfiguration = configuration;
         // We need to register our metadata
-        Entities.registerMetadata(new TableMetadataMetadata());
+        Entities.registerMetadata(new TableMetadata());
+        Entities.registerMetadata(new TableDetailsMetadata());
         // TODO what about the CursorFactory (currently null = default)?
         mDatabaseEngine = new DatabaseEngineImpl(applicationContext, configuration.getDatabaseName(), null);
         mDatabaseEngine.setOnCreateDatabaseListener(this);

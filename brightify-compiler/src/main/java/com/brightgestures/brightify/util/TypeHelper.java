@@ -1,71 +1,150 @@
 package com.brightgestures.brightify.util;
 
-import com.brightgestures.brightify.Key;
-import com.brightgestures.brightify.Ref;
-import com.brightgestures.brightify.sql.affinity.IntegerAffinity;
-import com.brightgestures.brightify.sql.affinity.NoneAffinity;
-import com.brightgestures.brightify.sql.affinity.RealAffinity;
-import com.brightgestures.brightify.sql.affinity.TextAffinity;
+import com.brightgestures.brightify.parse.Property;
+import com.brightgestures.brightify.sql.TypeName;
+import com.brightgestures.brightify.type.CollectionTypeSet;
+import com.brightgestures.brightify.type.GenericTypeSet;
+import com.brightgestures.brightify.type.InternalTypeSet;
+import com.brightgestures.brightify.SupportedType;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import javax.tools.Diagnostic;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class TypeHelper {
+    private final ProcessingEnvironment environment;
+    private final List<SupportedType> supportedTypes = new LinkedList<>();
 
-    private static final Map<TypeMirror, Class> TYPE_TO_AFFINITY = new HashMap<TypeMirror, Class>();
-    private static ProcessingEnvironment sEnvironment;
+    public TypeHelper(ProcessingEnvironment environment) {
+        this.environment = environment;
 
+        addSupportedTypes(GenericTypeSet.getAll(this));
+        addSupportedTypes(InternalTypeSet.getAll(this));
+        addSupportedTypes(CollectionTypeSet.getAll(this));
+    }
+
+    private void addSupportedTypes(SupportedType[] supportedTypes) {
+        Collections.addAll(this.supportedTypes, supportedTypes);
+    }
+
+    private void addSupportedTypes(Iterable<? extends SupportedType> supportedTypes) {
+        for(SupportedType supportedType : supportedTypes) {
+            this.supportedTypes.add(supportedType);
+        }
+    }
+
+    public ProcessingEnvironment getProcessingEnvironment() {
+        return environment;
+    }
+
+    public TypeMirror getWrappedType(Property property) {
+        return getWrappedType(property.type);
+    }
+
+    public TypeMirror getWrappedType(TypeMirror propertyType) {
+        if (propertyType.getKind().isPrimitive()) {
+            propertyType = environment.getTypeUtils().boxedClass(
+                    (PrimitiveType) propertyType).asType();
+        }
+        return propertyType;
+    }
+
+    public Class<? extends TypeName> affinityClassFromProperty(Property property) {
+        SupportedType supportedTypeSet = supportedTypeSet(property);
+
+        if (supportedTypeSet != null) {
+            return supportedTypeSet.getAffinity(property);
+        } else {
+            return null;
+        }
+    }
+
+    public String affinityFromProperty(Property property) {
+        return "new " + affinityClassFromProperty(property).getName() + "()";
+    }
+
+    public TypeMirror typeOf(Class cls) {
+        return environment.getElementUtils().getTypeElement(cls.getName()).asType();
+    }
+
+    private DeclaredType listOf(Class<?> bound) {
+        return listOf(bound != null ? typeOf(bound) : null);
+    }
+
+    private DeclaredType listOf(TypeMirror bound) {
+        return environment.getTypeUtils().getDeclaredType(environment.getElementUtils().getTypeElement(
+                "java.util.List"), bound);
+    }
+
+    public SupportedType supportedTypeSet(Property property) {
+        for (SupportedType supportedType : supportedTypes) {
+            if (supportedType.isSupported(property)) {
+                return supportedType;
+            }
+        }
+
+        environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type +
+                                                                      " is not supported (see @Marshall annotation)");
+        return null;
+    }
+
+
+/*
     public static void prepare(ProcessingEnvironment environment) {
         sEnvironment = environment;
 
+        addSupportedClass(Boolean.class, IntegerAffinity.class, "cursor.getInt(index) > 0");
+        addSupportedClass(Byte.class, IntegerAffinity.class, "(Byte) cursor.getInt(index)");
+        addSupportedClass(Short.class, IntegerAffinity.class, "cursor.getShort(index)");
+        addSupportedClass(Integer.class, IntegerAffinity.class, "cursor.getInt(index)");
+        addSupportedClass(Long.class, IntegerAffinity.class, "cursor.getLong(index)");
 
-        TYPE_TO_AFFINITY.put(typeOf(Byte.class), IntegerAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Short.class), IntegerAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Integer.class), IntegerAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Long.class), IntegerAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Boolean.class), IntegerAffinity.class);
+        addSupportedClass(Float.class, RealAffinity.class, "cursor.getFloat(index)");
+        addSupportedClass(Double.class, RealAffinity.class, "cursor.getDouble(index)");
 
-        TYPE_TO_AFFINITY.put(typeOf(CharSequence.class), TextAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(String.class), TextAffinity.class);
+        addSupportedClass(String.class, TextAffinity.class, "cursor.getString(index)");
 
-        TYPE_TO_AFFINITY.put(typeOf(Key.class), NoneAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Ref.class), NoneAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Serializable.class), NoneAffinity.class);
+//        addSupportedClass(byte[].class, "cursor.getBlob(index)");
+        addSupportedClass(Key.class, "Key.keyFromByteArray(cursor.getBlob(index)");
+        addSupportedType(listOf(String.class), "", "");
 
-        TYPE_TO_AFFINITY.put(typeOf(Float.class), RealAffinity.class);
-        TYPE_TO_AFFINITY.put(typeOf(Double.class), RealAffinity.class);
     }
 
-    public static Class affinityClassFromTypeMirror(TypeMirror mirror) {
-        if(mirror.getKind().isPrimitive()) {
-            mirror = sEnvironment.getTypeUtils().boxedClass((PrimitiveType) mirror).asType();
-        }
-        if(TYPE_TO_AFFINITY.containsKey(mirror)) {
-            return TYPE_TO_AFFINITY.get(mirror);
-        } else if(sEnvironment.getTypeUtils().isAssignable(mirror, typeOf(Serializable.class))) {
-            return TYPE_TO_AFFINITY.get(typeOf(Serializable.class));
-        } else {
-            throw new IllegalArgumentException("Type \"" + mirror + "\" isn't supported! " +
-                    "You can store custom object only if they implements Serializable interface." +
-                    "Although it's recommended that you can use Keys/Refs");
-        }
+    private static void addSupportedClass(Class<?> cls, String fromCursor) {
+        addSupportedClass(cls, NoneAffinity.class, fromCursor);
     }
 
-    public static String affinityFromTypeMirror(TypeMirror mirror) {
-        return "new " + affinityClassFromTypeMirror(mirror).getSimpleName() + "()";
+    private static void addSupportedClass(Class<?> cls, Class<? extends TypeName> affinity, String fromCursor) {
+        addSupportedClass(cls, affinity, fromCursor, "%getter%");
     }
 
-    public static TypeMirror typeOf(Class cls) {
-        Element element = sEnvironment.getElementUtils().getTypeElement(cls.getName());
-        return element.asType();
+    private static void addSupportedClass(Class<?> cls, Class<? extends TypeName> affinity, String fromCursor,
+                                          String toCursor) {
+        addSupportedType(typeOf(cls), affinity, fromCursor, toCursor);
     }
+
+    private static void addSupportedType(TypeMirror typeMirror, String fromCursor, String toCursor) {
+        addSupportedType(typeMirror, NoneAffinity.class, fromCursor, toCursor);
+    }
+
+    private static void addSupportedType(TypeMirror typeMirror, Class<? extends TypeName> affinity, String fromCursor,
+                                         String toCursor) {
+        assert !SUPPORTED_TYPES_.contains(typeMirror);
+
+        SUPPORTED_TYPES_.add(typeMirror);
+        TYPE_TO_AFFINITY.put(typeMirror, affinity);
+        FROM_CURSOR.put(typeMirror, fromCursor);
+        TO_CURSOR.put(typeMirror, toCursor);
+    }
+*/
+
 
 }

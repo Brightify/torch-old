@@ -45,14 +45,15 @@ public class Entities {
     public static <ENTITY> void registerMetadata(EntityMetadata<ENTITY> metadata) {
         Class<ENTITY> entityClass = metadata.getEntityClass();
         String tableName = metadata.getTableName();
-        if(byClass.containsKey(entityClass)) { // TODO should this be IllegalArgumentException ?
-            throw new IllegalStateException("This entity's metadata are already registered! Class: " + entityClass.getName());
+        if(!byClass.containsKey(entityClass)) { // TODO should this be IllegalArgumentException ?
+            byClass.put(entityClass, metadata);
+            // throw new IllegalStateException("This entity's metadata are already registered! Class: " + entityClass.getName());
         }
-        if(byTableName.containsKey(tableName)) {
-            throw new IllegalStateException("This table name is already registered! Table name:" + tableName);
+        if(!byTableName.containsKey(tableName)) {
+            byTableName.put(tableName, metadata);
+            // throw new IllegalStateException("This table name is already registered! Table name:" + tableName);
         }
-        byClass.put(entityClass, metadata);
-        byTableName.put(tableName, metadata);
+
     }
 
 }

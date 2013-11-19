@@ -34,8 +34,13 @@ public class SaveResultImpl<ENTITY> implements SaveResult<ENTITY> {
             EntityMetadata<ENTITY> metadata = Entities.getMetadata(entityClass);
 
             for(ENTITY entity : mEntities) {
-                ContentValues values = metadata.toContentValues(entity);
-
+                ContentValues values;
+                try {
+                    values = metadata.toContentValues(entity);
+                } catch(Exception e) {
+                    // FIXME handle the exception better
+                    throw new RuntimeException(e);
+                }
                 long id = db.replaceOrThrow(metadata.getTableName(), null, values);
                 if(id == -1) {
                     throw new IllegalStateException("Error when storing data into database!");

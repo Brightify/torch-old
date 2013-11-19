@@ -1,12 +1,11 @@
 package com.brightgestures.brightify;
 
 import com.brightgestures.brightify.annotation.Entity;
-import com.brightgestures.brightify.generate.EntityMetadataMapGenerator;
 import com.brightgestures.brightify.generate.EntityMetadataGenerator;
+import com.brightgestures.brightify.generate.Field;
 import com.brightgestures.brightify.parse.EntityInfo;
 import com.brightgestures.brightify.parse.EntityParseException;
 import com.brightgestures.brightify.parse.EntityParser;
-import com.brightgestures.brightify.util.TypeHelper;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -27,12 +26,27 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
     private static final List<String> testsss = new ArrayList<>();
 
+    private final List<String> imports = new ArrayList<>();
+    private final List<Field> fields = new ArrayList<>();
+
+    public void addImport(Class<?> importClass) {
+        addImport(importClass.getName());
+    }
+
+    public void addImport(String importName) {
+        imports.add(importName);
+    }
+
+    public void addField(Field field) {
+        fields.add(field);
+    }
+
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if(annotations.size() == 0) {
             return false;
         }
-        TypeHelper.prepare(processingEnv);
 
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Entity.class);
 

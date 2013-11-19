@@ -1,30 +1,28 @@
 package com.brightgestures.brightify.generate;
 
-import com.brightgestures.brightify.Key;
-import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.SourceFileGenerator;
 import com.brightgestures.brightify.parse.EntityInfo;
 import com.brightgestures.brightify.parse.Property;
+import com.brightgestures.brightify.SupportedType;
 import com.brightgestures.brightify.util.Helper;
 import com.brightgestures.brightify.util.TypeHelper;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
  */
 public class EntityMetadataGenerator extends SourceFileGenerator {
+
+    private final TypeHelper typeHelper;
+
     public EntityMetadataGenerator(ProcessingEnvironment processingEnvironment) {
         super(processingEnvironment);
+
+        this.typeHelper = new TypeHelper(processingEnvironment);
     }
 
     public void generateMetadata(EntityInfo entity) {
@@ -53,11 +51,6 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         line("import com.brightgestures.brightify.Key;");
         line("import com.brightgestures.brightify.util.Serializer;");
         emptyLine();
-        line("import com.brightgestures.brightify.sql.affinity.IntegerAffinity;");
-        line("import com.brightgestures.brightify.sql.affinity.NoneAffinity;");
-        line("import com.brightgestures.brightify.sql.affinity.NumericAffinity;");
-        line("import com.brightgestures.brightify.sql.affinity.RealAffinity;");
-        line("import com.brightgestures.brightify.sql.affinity.TextAffinity;");
         line("import com.brightgestures.brightify.sql.constraint.ColumnConstraint;");
         line("import com.brightgestures.brightify.sql.ColumnDef;");
         line("import com.brightgestures.brightify.sql.statement.CreateTable;");
@@ -118,7 +111,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
             line("ColumnDef columnDef = new ColumnDef();");
             line("columnDef.setName(\"").append(property.columnName).append("\");");
-            String typeAffinity = TypeHelper.affinityFromTypeMirror(property.type);
+            String typeAffinity = typeHelper.affinityFromProperty(property);
             if(typeAffinity == null) {
                 throw new RuntimeException("Unsupported type " + property.type + "!"); // throw?
             }
@@ -153,10 +146,22 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         unNest();
         emptyLine();
         line("@Override");
-        line("public ").append(entity.name).append(" createFromCursor(Cursor cursor)").nest();
+        line("public ").append(entity.name).append(" createFromCursor(Cursor cursor) throws Exception").nest();
         line(entity.name).append(" entity = new ").append(entity.name).append("();");
         emptyLine();
         for(Property property : entity.properties) {
+            SupportedType supportedTypeSet = typeHelper.supportedTypeSet(property);
+            if(supportedTypeSet == null) {
+                continue;
+            }
+
+            newLineNest();
+            line("int index = cursor.getColumnIndex(\"").append(property.columnName).append("\");");
+            supportedTypeSet.read(property, this);
+            unNest();
+            emptyLine();
+
+            /*
             TypeMirror propertyType = property.type;
             if(propertyType.getKind().isPrimitive()) {
                 propertyType = types.boxedClass((PrimitiveType) propertyType).asType();
@@ -190,23 +195,35 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
             } else if(propertyType.getKind() == TypeKind.ARRAY &&
                 types.isSameType(propertyType, types.getArrayType(types.getPrimitiveType(TypeKind.BYTE)))) {
                 line("entity.").append(property.setValue("cursor.getBlob(index)")).append(";").append(" // ").append(property.type);
+            } else if(types.isAssignable(propertyType, elements.getTypeElement("java.util.Collection").asType())) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Collections not yet supported! Type: " + propertyType, entity.element);
             } else if(types.isAssignable(propertyType, elements.getTypeElement("java.io.Serializable").asType())) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Serializable objects not yet supported!", entity.element); // TODO: should be property.element!
                 line("entity.").append(property.setValue("Serializer.deserialize(cursor.getBlob(index)," + propertyType + ".class)")).append(";").append(" // ").append(property.type);
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type + " is not supported!", entity.element); // TODO: should be property.element!
-            }
-            unNest();
-            emptyLine();
+            }*/
         }
         line("return entity;");
         unNest();
 
         line("@Override");
-        line("public ContentValues toContentValues(").append(entity.name).append(" entity)").nest();
+        line("public ContentValues toContentValues(").append(entity.name).append(" entity) throws Exception").nest();
         line("ContentValues values = new ContentValues();");
 
         for(Property property : entity.properties) {
+            SupportedType supportedTypeSet = typeHelper.supportedTypeSet(property);
+            if(supportedTypeSet == null) {
+                continue;
+            }
+
+            newLineNest();
+            supportedTypeSet.write(property, this);
+            unNest();
+            emptyLine();
+
+            /*
+
             TypeMirror propertyType = property.type;
             if(propertyType.getKind().isPrimitive()) {
                 propertyType = types.boxedClass((PrimitiveType) propertyType).asType();
@@ -233,7 +250,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Serializable objects not yet supported!", entity.element); // TODO: should be property.element!
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type + " is not supported!", entity.element); // TODO: should be property.element!
-            }
+            }*/
         }
 
         line("return values;");
@@ -260,11 +277,5 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         unNest();
 
         save(internalMetadataFullName);
-    }
-
-
-    private TypeMirror typeOf(Class cls) {
-        Element element = processingEnv.getElementUtils().getTypeElement(cls.getName());
-        return element.asType();
     }
 }
