@@ -1,6 +1,6 @@
 package com.brightgestures.brightify.generate;
 
-import com.brightgestures.brightify.SourceFileGenerator;
+import com.brightgestures.brightify.SourceFile;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
@@ -68,7 +68,7 @@ public class Field {
         return this;
     }
 
-    public void write(SourceFileGenerator generator) {
+    public void write(SourceFile generator) {
         generator.line(protection.getValue());
 
         if(isStatic) {

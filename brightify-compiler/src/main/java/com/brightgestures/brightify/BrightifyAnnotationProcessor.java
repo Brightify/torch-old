@@ -26,22 +26,6 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
     private static final List<String> testsss = new ArrayList<>();
 
-    private final List<String> imports = new ArrayList<>();
-    private final List<Field> fields = new ArrayList<>();
-
-    public void addImport(Class<?> importClass) {
-        addImport(importClass.getName());
-    }
-
-    public void addImport(String importName) {
-        imports.add(importName);
-    }
-
-    public void addField(Field field) {
-        fields.add(field);
-    }
-
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if(annotations.size() == 0) {
