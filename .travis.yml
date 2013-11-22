@@ -22,8 +22,8 @@ before_install:
 
 #  - echo y | android update sdk --filter platform-tools,build-tools-18.1.0,android-18,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - mksdcard -l test_sdcard 64M test.sdcard
-  - emulator -avd test -sdcard test.sdcard -no-skin -no-audio -no-window &
+  - mksdcard -l test_sdcard 64M test_sdcard.bin
+  - emulator -avd test -sdcard test_sdcard.bin -no-skin -no-audio -no-window &
 
 before_script:
   - chmod +x ./wait_for_emulator
