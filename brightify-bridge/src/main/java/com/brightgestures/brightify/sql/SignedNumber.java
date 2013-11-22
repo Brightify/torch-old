@@ -1,6 +1,6 @@
 package com.brightgestures.brightify.sql;
 
-public class SignedNumber implements IQueryable {
+public class SignedNumber implements SqlQueryPart {
 
     protected int mValue = 0;
     protected Boolean mNegative = null;

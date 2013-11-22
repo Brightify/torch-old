@@ -2,7 +2,7 @@ package com.brightgestures.brightify.sql;
 
 import android.text.TextUtils;
 
-public class IndexedColumn implements IQueryable {
+public class IndexedColumn implements SqlQueryPart {
 
     protected String mColumnName;
     protected String mCollationName = null;

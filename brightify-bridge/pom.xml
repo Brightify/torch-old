@@ -16,6 +16,11 @@
             <artifactId>android</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.brightgestures.brightify</groupId>
+            <artifactId>brightify-api</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

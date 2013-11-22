@@ -12,11 +12,36 @@ import java.util.List;
 @Entity
 public class Table {
 
+    private Long id;
+    private String tableName;
+    private Integer version;
+
     @Id
-    public Long id;
-    public String tableName;
-    public Integer version;
-    public Key<TableDetails> details;
-    public Key uglyKey;
-    public List<Key<TableDetails>> detailList;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    //public Key<TableDetails> details;
+    //public Key uglyKey;
+    //public List<Key<TableDetails>> detailList;
 }

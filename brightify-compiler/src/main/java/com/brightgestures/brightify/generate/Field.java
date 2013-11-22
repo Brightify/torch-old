@@ -2,17 +2,26 @@ package com.brightgestures.brightify.generate;
 
 import com.brightgestures.brightify.SourceFile;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class Field {
 
-    private Protection protection = Protection.DEFAULT;
-    private boolean isStatic;
-    private boolean isFinal;
-    private String type;
-    private String name;
-    private String value;
+    protected Protection protection = Protection.DEFAULT;
+    protected boolean isStatic;
+    protected boolean isFinal;
+    protected String typeSimpleName;
+    protected String typeFullName;
+    protected List<String> imports = new LinkedList<>();
+    protected String name;
+    protected String value;
+
+    public List<String> getImports() {
+        return imports;
+    }
 
     public Protection getProtection() {
         return protection;
@@ -41,12 +50,23 @@ public class Field {
         return this;
     }
 
-    public String getType() {
-        return type;
+    public String getTypeSimpleName() {
+        return typeSimpleName;
     }
 
-    public Field setType(String type) {
-        this.type = type;
+    public String getTypeFullName() {
+        return typeFullName;
+    }
+
+    public Field setTypeFullName(String typeFullName) {
+        this.typeFullName = typeFullName;
+        imports.clear();
+        if(typeFullName.indexOf('.') != -1) {
+            imports.add(typeFullName);
+            typeSimpleName = typeFullName.substring(typeFullName.lastIndexOf('.') + 1);
+        } else {
+            typeSimpleName = typeFullName;
+        }
         return this;
     }
 
@@ -77,7 +97,7 @@ public class Field {
         if(isFinal) {
             generator.append("final ");
         }
-        generator.append(type).append(" ").append(name).append(" = ").append(value).append(";");
+        generator.append(typeSimpleName).append(" ").append(name).append(" = ").append(value).append(";");
     }
 
     enum Protection {

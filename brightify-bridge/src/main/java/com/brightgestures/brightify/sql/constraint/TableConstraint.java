@@ -1,14 +1,14 @@
 package com.brightgestures.brightify.sql.constraint;
 
+import com.brightgestures.brightify.sql.SqlQueryPart;
 import com.brightgestures.brightify.sql.clause.ConflictClause;
 import com.brightgestures.brightify.sql.clause.ForeignKeyClause;
-import com.brightgestures.brightify.sql.IQueryable;
 import com.brightgestures.brightify.sql.IndexedColumn;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class TableConstraint implements IQueryable {
+public abstract class TableConstraint implements SqlQueryPart {
 
     protected String mName = null;
 

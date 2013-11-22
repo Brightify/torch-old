@@ -1,43 +1,58 @@
 package com.brightgestures.brightify.util;
 
+import com.brightgestures.brightify.marshall.CursorMarshallerInfo;
+import com.brightgestures.brightify.marshall.CursorMarshallerProvider;
+import com.brightgestures.brightify.marshall.StreamMarshallerInfo;
+import com.brightgestures.brightify.marshall.StreamMarshallerProvider;
 import com.brightgestures.brightify.parse.Property;
-import com.brightgestures.brightify.sql.TypeName;
-import com.brightgestures.brightify.type.CollectionTypeSet;
-import com.brightgestures.brightify.type.GenericTypeSet;
-import com.brightgestures.brightify.type.InternalTypeSet;
-import com.brightgestures.brightify.SupportedType;
+import org.reflections.Reflections;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class TypeHelper {
     private final ProcessingEnvironment environment;
-    private final List<SupportedType> supportedTypes = new LinkedList<>();
+    private final Set<CursorMarshallerProvider> cursorMarshallerProviders = new HashSet<>();
+    private final Set<StreamMarshallerProvider> streamMarshallerProviders = new HashSet<>();
 
     public TypeHelper(ProcessingEnvironment environment) {
         this.environment = environment;
 
-        addSupportedTypes(GenericTypeSet.getAll(this));
-        addSupportedTypes(InternalTypeSet.getAll(this));
-        addSupportedTypes(CollectionTypeSet.getAll(this));
-    }
+        Reflections reflections = new Reflections();
+        Set<Class<? extends CursorMarshallerProvider>> cursorMarshallerProviderClasses = reflections.getSubTypesOf(
+                CursorMarshallerProvider.class);
 
-    private void addSupportedTypes(SupportedType[] supportedTypes) {
-        Collections.addAll(this.supportedTypes, supportedTypes);
-    }
+        for (Class<? extends CursorMarshallerProvider> marshallerProviderClass : cursorMarshallerProviderClasses) {
+            try {
+                CursorMarshallerProvider marshallerProvider = marshallerProviderClass.newInstance();
+                cursorMarshallerProviders.add(marshallerProvider);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Couldn't instantiate cursor marshaller provider " + marshallerProviderClass.getSimpleName() +
+                        "!", e);
+            }
+        }
 
-    private void addSupportedTypes(Iterable<? extends SupportedType> supportedTypes) {
-        for(SupportedType supportedType : supportedTypes) {
-            this.supportedTypes.add(supportedType);
+        Set<Class<? extends StreamMarshallerProvider>> streamMarshallerProviderClasses = reflections.getSubTypesOf(
+                StreamMarshallerProvider.class);
+
+        for (Class<? extends StreamMarshallerProvider> marshallerProviderClass : streamMarshallerProviderClasses) {
+            try {
+                StreamMarshallerProvider marshallerProvider = marshallerProviderClass.newInstance();
+                streamMarshallerProviders.add(marshallerProvider);
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Couldn't instantiate stream marshaller provider " + marshallerProviderClass.getSimpleName() +
+                        "!", e);
+            }
         }
     }
 
@@ -57,22 +72,46 @@ public class TypeHelper {
         return propertyType;
     }
 
-    public Class<? extends TypeName> affinityClassFromProperty(Property property) {
-        SupportedType supportedTypeSet = supportedTypeSet(property);
-
-        if (supportedTypeSet != null) {
-            return supportedTypeSet.getAffinity(property);
-        } else {
-            return null;
+    public CursorMarshallerInfo getCursorMarshallerInfo(Property property) {
+        for (CursorMarshallerProvider cursorMarshallerProvider : cursorMarshallerProviders) {
+            if (!cursorMarshallerProvider.isSupported(this, property)) {
+                continue;
+            }
+            CursorMarshallerInfo marshallerInfo = cursorMarshallerProvider.getMarshallerInfo(this, property);
+            if (marshallerInfo == null) {
+                throw new IllegalStateException(
+                        "Marshaller provider " + cursorMarshallerProvider.getClass().getSimpleName() +
+                        " returned null as marshaller info even though it reports type " +
+                        property.type + " as supported!");
+            }
+            return marshallerInfo;
         }
+        return null;
     }
 
-    public String affinityFromProperty(Property property) {
-        return "new " + affinityClassFromProperty(property).getName() + "()";
+    public StreamMarshallerInfo getStreamMarshallerInfo(TypeMirror typeMirror) {
+        for (StreamMarshallerProvider streamMarshallerProvider : streamMarshallerProviders) {
+            if (!streamMarshallerProvider.isSupported(this, typeMirror)) {
+                continue;
+            }
+            StreamMarshallerInfo marshallerInfo = streamMarshallerProvider.getMarshallerInfo(this, typeMirror);
+            if (marshallerInfo == null) {
+                throw new IllegalStateException(
+                        "Marshaller provider " + streamMarshallerProvider.getClass().getSimpleName() +
+                        " returned null as marshaller info even though it reports type " +
+                        typeMirror + " as supported!");
+            }
+            return marshallerInfo;
+        }
+        return null;
+    }
+
+    public TypeElement elementOf(Class cls) {
+        return environment.getElementUtils().getTypeElement(cls.getName());
     }
 
     public TypeMirror typeOf(Class cls) {
-        return environment.getElementUtils().getTypeElement(cls.getName()).asType();
+        return elementOf(cls).asType();
     }
 
     private DeclaredType listOf(Class<?> bound) {
@@ -82,18 +121,6 @@ public class TypeHelper {
     private DeclaredType listOf(TypeMirror bound) {
         return environment.getTypeUtils().getDeclaredType(environment.getElementUtils().getTypeElement(
                 "java.util.List"), bound);
-    }
-
-    public SupportedType supportedTypeSet(Property property) {
-        for (SupportedType supportedType : supportedTypes) {
-            if (supportedType.isSupported(property)) {
-                return supportedType;
-            }
-        }
-
-        environment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type +
-                                                                      " is not supported (see @Marshall annotation)");
-        return null;
     }
 
 
@@ -122,11 +149,13 @@ public class TypeHelper {
         addSupportedClass(cls, NoneAffinity.class, fromCursor);
     }
 
-    private static void addSupportedClass(Class<?> cls, Class<? extends TypeName> affinity, String fromCursor) {
+    private static void addSupportedClass(Class<?> cls, Class<? extends AbstractTypeAffinity> affinity,
+    String fromCursor) {
         addSupportedClass(cls, affinity, fromCursor, "%getter%");
     }
 
-    private static void addSupportedClass(Class<?> cls, Class<? extends TypeName> affinity, String fromCursor,
+    private static void addSupportedClass(Class<?> cls, Class<? extends AbstractTypeAffinity> affinity,
+    String fromCursor,
                                           String toCursor) {
         addSupportedType(typeOf(cls), affinity, fromCursor, toCursor);
     }
@@ -135,7 +164,8 @@ public class TypeHelper {
         addSupportedType(typeMirror, NoneAffinity.class, fromCursor, toCursor);
     }
 
-    private static void addSupportedType(TypeMirror typeMirror, Class<? extends TypeName> affinity, String fromCursor,
+    private static void addSupportedType(TypeMirror typeMirror, Class<? extends AbstractTypeAffinity> affinity,
+    String fromCursor,
                                          String toCursor) {
         assert !SUPPORTED_TYPES_.contains(typeMirror);
 

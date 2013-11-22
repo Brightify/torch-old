@@ -2,7 +2,7 @@ package com.brightgestures.brightify.util;
 
 import com.brightgestures.brightify.BrightifyFactory;
 import com.brightgestures.brightify.Property;
-import com.brightgestures.brightify.sql.TypeName;
+import com.brightgestures.brightify.sql.AbstractTypeAffinity;
 import com.brightgestures.brightify.sql.affinity.*;
 import com.brightgestures.brightify.annotation.Ignore;
 
@@ -28,7 +28,7 @@ public class TypeUtilsCompatibility {
     static final int NOT_SAVEABLE_MODIFIERS = Modifier.FINAL | Modifier.STATIC;
 
     static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER = new HashMap<Class<?>, Class<?>>();
-    static final Map<Class<?>, Class<? extends TypeName>> TYPE_TO_AFFINITY = new HashMap<Class<?>, Class<? extends TypeName>>();
+    static final Map<Class<?>, Class<? extends AbstractTypeAffinity>> TYPE_TO_AFFINITY = new HashMap<Class<?>, Class<? extends AbstractTypeAffinity>>();
 
     static {
         PRIMITIVE_TO_WRAPPER.put(boolean.class, Boolean.class);
@@ -183,7 +183,7 @@ public class TypeUtilsCompatibility {
         }
     }
 
-    public static Class<? extends TypeName> affinityFromClass(Class<?> type) {
+    public static Class<? extends AbstractTypeAffinity> affinityFromClass(Class<?> type) {
         if(type.isPrimitive()) {
             type = PRIMITIVE_TO_WRAPPER.get(type);
         }

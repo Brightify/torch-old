@@ -3,7 +3,7 @@ package com.brightgestures.brightify.type;
 import com.brightgestures.brightify.SourceFileGenerator;
 import com.brightgestures.brightify.SupportedType;
 import com.brightgestures.brightify.parse.Property;
-import com.brightgestures.brightify.sql.TypeName;
+import com.brightgestures.brightify.sql.AbstractTypeAffinity;
 import com.brightgestures.brightify.sql.affinity.NoneAffinity;
 import com.brightgestures.brightify.util.TypeHelper;
 
@@ -89,7 +89,7 @@ public class CollectionTypeSet {
         }
 
         @Override
-        public Class<? extends TypeName> getAffinity(Property property) {
+        public Class<? extends AbstractTypeAffinity> getAffinity(Property property) {
             return NoneAffinity.class;
         }
     }

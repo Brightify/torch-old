@@ -1,11 +1,11 @@
 package com.brightgestures.brightify.sql.clause;
 
-import com.brightgestures.brightify.sql.IQueryable;
+import com.brightgestures.brightify.sql.SqlQueryPart;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ForeignKeyClause implements IQueryable {
+public class ForeignKeyClause implements SqlQueryPart {
 
     protected String mForeignTable;
     protected Collection<String> mColumns = new ArrayList<String>();

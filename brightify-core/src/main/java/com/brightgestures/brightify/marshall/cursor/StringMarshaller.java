@@ -4,37 +4,35 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import com.brightgestures.brightify.marshall.SymetricCursorMarshaller;
 import com.brightgestures.brightify.sql.TypeAffinity;
-import com.brightgestures.brightify.sql.affinity.IntegerAffinity;
+import com.brightgestures.brightify.sql.affinity.TextAffinity;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class ShortMarshaller implements SymetricCursorMarshaller<Short> {
+public class StringMarshaller implements SymetricCursorMarshaller<String> {
 
-    private static ShortMarshaller instance;
+    private static StringMarshaller instance;
 
     @Override
-    public void marshall(ContentValues contentValues, String columnName, Short value) {
+    public void marshall(ContentValues contentValues, String columnName, String value) {
         contentValues.put(columnName, value);
     }
 
     @Override
-    public Short unmarshall(Cursor cursor, String columnName) {
+    public String unmarshall(Cursor cursor, String columnName) {
         int index = cursor.getColumnIndexOrThrow(columnName);
-        if (cursor.isNull(index)) {
-            return null;
-        }
-        return cursor.getShort(index);
+        // FIXME do we need to do the Cursor#isNull check?
+        return cursor.getString(index);
     }
 
     @Override
     public TypeAffinity getAffinity() {
-        return IntegerAffinity.getInstance();
+        return TextAffinity.getInstance();
     }
 
-    public static ShortMarshaller getInstance() {
+    public static StringMarshaller getInstance() {
         if (instance == null) {
-            instance = new ShortMarshaller();
+            instance = new StringMarshaller();
         }
         return instance;
     }

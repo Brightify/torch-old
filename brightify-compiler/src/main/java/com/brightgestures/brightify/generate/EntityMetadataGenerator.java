@@ -33,10 +33,15 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         String internalMetadataName = metadataFullName.replaceAll("\\.", "_");
         String internalMetadataFullName = "com.brightgestures.brightify.metadata." + internalMetadataName;
 
+        MetadataSourceFile sourceFile = new MetadataSourceFile(typeHelper, entity);
+        sourceFile.save(metadataFullName);
+
+
+        /*
         Types types = processingEnv.getTypeUtils();
         Elements elements = processingEnv.getElementUtils();
 
-        append("/* Generated on ").append(new Date()).append(" by EntityMetadataGenerator */");
+        append("/* Generated on ").append(new Date()).append(" by EntityMetadataGenerator /");
         if(entity.packageName != null && !entity.packageName.equals("")) {
             line("package ").append(entity.packageName).append(";");
             emptyLine();
@@ -111,11 +116,11 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
             line("ColumnDef columnDef = new ColumnDef();");
             line("columnDef.setName(\"").append(property.columnName).append("\");");
-            String typeAffinity = typeHelper.affinityFromProperty(property);
+            String typeAffinity = ""; // typeHelper.affinityFromProperty(property);
             if(typeAffinity == null) {
                 throw new RuntimeException("Unsupported type " + property.type + "!"); // throw?
             }
-            line("columnDef.setTypeName(").append(typeAffinity).append(");");
+            line("columnDef.setTypeAffinity(").append(typeAffinity).append(");");
             emptyLine();
             if(property.id != null) {
                 line("ColumnConstraint.PrimaryKey primaryKey = new ColumnConstraint.PrimaryKey();");
@@ -150,7 +155,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         line(entity.name).append(" entity = new ").append(entity.name).append("();");
         emptyLine();
         for(Property property : entity.properties) {
-            SupportedType supportedTypeSet = typeHelper.supportedTypeSet(property);
+            SupportedType supportedTypeSet = null; // typeHelper.supportedTypeSet(property);
             if(supportedTypeSet == null) {
                 continue;
             }
@@ -161,7 +166,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
             unNest();
             emptyLine();
 
-            /*
+
             TypeMirror propertyType = property.type;
             if(propertyType.getKind().isPrimitive()) {
                 propertyType = types.boxedClass((PrimitiveType) propertyType).asType();
@@ -202,7 +207,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
                 line("entity.").append(property.setValue("Serializer.deserialize(cursor.getBlob(index)," + propertyType + ".class)")).append(";").append(" // ").append(property.type);
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type + " is not supported!", entity.element); // TODO: should be property.element!
-            }*/
+            }
         }
         line("return entity;");
         unNest();
@@ -212,7 +217,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         line("ContentValues values = new ContentValues();");
 
         for(Property property : entity.properties) {
-            SupportedType supportedTypeSet = typeHelper.supportedTypeSet(property);
+            SupportedType supportedTypeSet = null; // typeHelper.supportedTypeSet(property);
             if(supportedTypeSet == null) {
                 continue;
             }
@@ -222,7 +227,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
             unNest();
             emptyLine();
 
-            /*
+
 
             TypeMirror propertyType = property.type;
             if(propertyType.getKind().isPrimitive()) {
@@ -250,7 +255,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Serializable objects not yet supported!", entity.element); // TODO: should be property.element!
             } else {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type " + property.type + " is not supported!", entity.element); // TODO: should be property.element!
-            }*/
+            }
         }
 
         line("return values;");
@@ -260,8 +265,8 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         line("return new ").append(metadataName).append("();");
         unNest();
         unNest();
-
-        save(metadataFullName);
+        */
+        //save(metadataFullName);
 
         append("/* Generated on ").append(new Date()).append(" by EntityMetadataGenerator */");
         line("package com.brightgestures.brightify.metadata;");

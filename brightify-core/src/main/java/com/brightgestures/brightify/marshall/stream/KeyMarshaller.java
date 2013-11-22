@@ -1,7 +1,7 @@
 package com.brightgestures.brightify.marshall.stream;
 
 import com.brightgestures.brightify.Key;
-import com.brightgestures.brightify.marshall.StreamMarshaller;
+import com.brightgestures.brightify.marshall.SymetricStreamMarshaller;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,7 +9,7 @@ import java.io.DataOutputStream;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class KeyMarshaller<ENTITY> implements StreamMarshaller<Key<ENTITY>> {
+public class KeyMarshaller<ENTITY> implements SymetricStreamMarshaller<Key<ENTITY>> {
 
     private final Class<ENTITY> entityClass;
 

@@ -3,7 +3,7 @@ package com.brightgestures.brightify.type;
 import com.brightgestures.brightify.SourceFileGenerator;
 import com.brightgestures.brightify.SupportedType;
 import com.brightgestures.brightify.parse.Property;
-import com.brightgestures.brightify.sql.TypeName;
+import com.brightgestures.brightify.sql.AbstractTypeAffinity;
 import com.brightgestures.brightify.sql.affinity.IntegerAffinity;
 import com.brightgestures.brightify.sql.affinity.RealAffinity;
 import com.brightgestures.brightify.sql.affinity.TextAffinity;
@@ -34,10 +34,10 @@ public class GenericTypeSet {
         public final TypeHelper typeHelper;
         public final TypeMirror type;
         public final String readPhrase;
-        public final Class<? extends TypeName> affinity;
+        public final Class<? extends AbstractTypeAffinity> affinity;
 
         private GenericType(TypeHelper typeHelper, TypeMirror type, String readPhrase,
-                            Class<? extends TypeName> affinity) {
+                            Class<? extends AbstractTypeAffinity> affinity) {
             this.typeHelper = typeHelper;
             this.type = type;
             this.readPhrase = readPhrase;
@@ -70,12 +70,12 @@ public class GenericTypeSet {
         }
 
         @Override
-        public Class<? extends TypeName> getAffinity(Property property) {
+        public Class<? extends AbstractTypeAffinity> getAffinity(Property property) {
             return affinity;
         }
 
         public static GenericType create(TypeHelper typeHelper, Class<?> cls, String readPhrase,
-                                         Class<? extends TypeName> affinity) {
+                                         Class<? extends AbstractTypeAffinity> affinity) {
             TypeMirror type = typeHelper.typeOf(cls);
             return new GenericType(typeHelper, type, readPhrase, affinity);
         }

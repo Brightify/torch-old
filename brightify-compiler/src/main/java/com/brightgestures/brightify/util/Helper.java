@@ -1,7 +1,5 @@
 package com.brightgestures.brightify.util;
 
-import android.database.Cursor;
-
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */

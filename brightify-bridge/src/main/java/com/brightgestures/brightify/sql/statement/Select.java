@@ -2,7 +2,7 @@ package com.brightgestures.brightify.sql.statement;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import com.brightgestures.brightify.sql.IQueryable;
+import com.brightgestures.brightify.sql.SqlQueryPart;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class Select implements IQueryable {
+public class Select implements SqlQueryPart {
 
     protected List<SelectCore> mSelectCores = new ArrayList<SelectCore>();
     protected List<CompoundOperator> mCompoundOperators = new ArrayList<CompoundOperator>();
@@ -133,7 +133,7 @@ public class Select implements IQueryable {
         }
     }
 
-    public static class SelectCore implements IQueryable {
+    public static class SelectCore implements SqlQueryPart {
         protected Type mType = null;
         protected List<ResultColumn> mResultColumns = new ArrayList<ResultColumn>();
         protected String mFrom; // TODO implement join-source http://www.sqlite.org/syntaxdiagrams.html#join-source
@@ -244,7 +244,7 @@ public class Select implements IQueryable {
         }
     }
 
-    public static class ResultColumn implements IQueryable {
+    public static class ResultColumn implements SqlQueryPart {
         protected String mExpression = null; // TODO implement expr http://www.sqlite.org/syntaxdiagrams.html#expr
         protected String mAlias = null;
 
@@ -289,7 +289,7 @@ public class Select implements IQueryable {
         }
     }
 
-    public static class JoinOp implements IQueryable {
+    public static class JoinOp implements SqlQueryPart {
         protected boolean mJoin = false;
         protected boolean mNatural = false;
         protected Type mType = null;
@@ -346,7 +346,7 @@ public class Select implements IQueryable {
         }
     }
 
-    public static class JoinConstraint implements IQueryable {
+    public static class JoinConstraint implements SqlQueryPart {
         protected String mExpression; // TODO implement expr http://www.sqlite.org/syntaxdiagrams.html#expr
         protected List<String> mColumns = new ArrayList<String>();
 
@@ -389,7 +389,7 @@ public class Select implements IQueryable {
         }
     }
 
-    public static class OrderingTerm implements IQueryable {
+    public static class OrderingTerm implements SqlQueryPart {
         protected String mExpression; // TODO implement expr http://www.sqlite.org/syntaxdiagrams.html#expr
         protected String mCollationName;
         protected Direction mDirection;
@@ -434,7 +434,7 @@ public class Select implements IQueryable {
         }
     }
 
-    public static class CompoundOperator implements IQueryable {
+    public static class CompoundOperator implements SqlQueryPart {
         protected Type mType = null;
 
         public CompoundOperator(Type type) {

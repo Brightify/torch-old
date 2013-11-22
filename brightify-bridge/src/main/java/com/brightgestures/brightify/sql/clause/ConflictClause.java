@@ -1,8 +1,8 @@
 package com.brightgestures.brightify.sql.clause;
 
-import com.brightgestures.brightify.sql.IQueryable;
+import com.brightgestures.brightify.sql.SqlQueryPart;
 
-public class ConflictClause implements IQueryable {
+public class ConflictClause implements SqlQueryPart {
 
     protected Action mAction = null;
 

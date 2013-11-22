@@ -6,9 +6,9 @@ import com.brightgestures.brightify.sql.constraint.ColumnConstraint;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ColumnDef implements IQueryable {
+public class ColumnDef implements SqlQueryPart {
     protected String mName;
-    protected TypeName mTypeName = null;
+    protected TypeAffinity typeAffinity = null;
     protected Collection<ColumnConstraint> mColumnConstraints = new ArrayList<ColumnConstraint>();
 
     public String getName() {
@@ -19,12 +19,12 @@ public class ColumnDef implements IQueryable {
         mName = name;
     }
 
-    public TypeName getTypeName() {
-        return mTypeName;
+    public TypeAffinity getTypeAffinity() {
+        return typeAffinity;
     }
 
-    public void setTypeName(TypeName typeName) {
-        mTypeName = typeName;
+    public void setTypeAffinity(TypeAffinity typeAffinity) {
+        this.typeAffinity = typeAffinity;
     }
 
     public Collection<ColumnConstraint> getColumnConstraints() {
@@ -45,10 +45,10 @@ public class ColumnDef implements IQueryable {
             throw new IllegalStateException("Name cannot be null or empty!");
         }
         builder.append(mName);
-        if(mTypeName != null) {
+        if(typeAffinity != null) {
             builder.append(" ");
 
-            mTypeName.query(builder);
+            typeAffinity.query(builder);
         }
         if(mColumnConstraints != null) {
             for(ColumnConstraint constraint : mColumnConstraints) {

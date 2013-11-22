@@ -1,8 +1,7 @@
 package com.brightgestures.brightify;
 
-import com.brightgestures.brightify.SourceFileGenerator;
 import com.brightgestures.brightify.parse.Property;
-import com.brightgestures.brightify.sql.TypeName;
+import com.brightgestures.brightify.sql.AbstractTypeAffinity;
 
 
 /**
@@ -15,5 +14,5 @@ public interface SupportedType {
 
     void write(Property property, SourceFileGenerator sourceFileGenerator);
 
-    Class<? extends TypeName> getAffinity(Property property);
+    Class<? extends AbstractTypeAffinity> getAffinity(Property property);
 }

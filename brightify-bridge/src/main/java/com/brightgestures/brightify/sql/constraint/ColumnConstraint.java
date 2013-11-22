@@ -1,11 +1,11 @@
 package com.brightgestures.brightify.sql.constraint;
 
 import android.text.TextUtils;
+import com.brightgestures.brightify.sql.SqlQueryPart;
 import com.brightgestures.brightify.sql.clause.ConflictClause;
 import com.brightgestures.brightify.sql.clause.ForeignKeyClause;
-import com.brightgestures.brightify.sql.IQueryable;
 
-public abstract class ColumnConstraint implements IQueryable {
+public abstract class ColumnConstraint implements SqlQueryPart {
 
     protected String mName = null;
 
