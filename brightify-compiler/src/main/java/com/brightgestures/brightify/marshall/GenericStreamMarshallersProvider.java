@@ -15,16 +15,16 @@ public class GenericStreamMarshallersProvider implements StreamMarshallerProvide
     private final Map<Class<?>, StreamMarshallerInfo> genericStreamMarshallers = new HashMap<>();
 
     public GenericStreamMarshallersProvider() {
-        addSingletonMarshaller(Boolean.class, "com.brightgestures.brightify.marshall.stream.BooleanMarshaller");
-        addSingletonMarshaller(Byte.class, "com.brightgestures.brightify.marshall.stream.ByteMarshaller");
-        addSingletonMarshaller(Short.class, "com.brightgestures.brightify.marshall.stream.ShortMarshaller");
-        addSingletonMarshaller(Integer.class, "com.brightgestures.brightify.marshall.stream.IntegerMarshaller");
-        addSingletonMarshaller(Long.class, "com.brightgestures.brightify.marshall.stream.LongMarshaller");
+        addSingletonMarshaller(Boolean.class, "com.brightgestures.brightify.marshall.stream.BooleanStreamMarshaller");
+        addSingletonMarshaller(Byte.class, "com.brightgestures.brightify.marshall.stream.ByteStreamMarshaller");
+        addSingletonMarshaller(Short.class, "com.brightgestures.brightify.marshall.stream.ShortStreamMarshaller");
+        addSingletonMarshaller(Integer.class, "com.brightgestures.brightify.marshall.stream.IntegerStreamMarshaller");
+        addSingletonMarshaller(Long.class, "com.brightgestures.brightify.marshall.stream.LongStreamMarshaller");
 
-        addSingletonMarshaller(Float.class, "com.brightgestures.brightify.marshall.stream.FloatMarshaller");
-        addSingletonMarshaller(Double.class, "com.brightgestures.brightify.marshall.stream.DoubleMarshaller");
+        addSingletonMarshaller(Float.class, "com.brightgestures.brightify.marshall.stream.FloatStreamMarshaller");
+        addSingletonMarshaller(Double.class, "com.brightgestures.brightify.marshall.stream.DoubleStreamMarshaller");
 
-        addSingletonMarshaller(String.class, "com.brightgestures.brightify.marshall.stream.StringMarshaller");
+        addSingletonMarshaller(String.class, "com.brightgestures.brightify.marshall.stream.StringStreamMarshaller");
     }
 
     private void addSingletonMarshaller(Class<?> cls, String marshallerTypeFullName) {

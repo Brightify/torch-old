@@ -1,9 +1,14 @@
 package com.brightgestures.brightify;
 
-import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.marshall.stream.ArrayListStreamMarshaller;
+import com.brightgestures.brightify.marshall.stream.KeyStreamMarshaller;
 import com.brightgestures.brightify.test.TestObject;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,16 +30,28 @@ public class KeyTest {
     }
 
     @Test
-    public void keyStringConversion() {
+    public void keyStringConversion() throws Exception {
         Key<TestObject> key = Key.create(TestObject.class, 1L);
 
         assertNotNull(key);
 
-        byte[] keyData = Key.keyToByteArray(key);
+        KeyStreamMarshaller<TestObject> marshaller = KeyStreamMarshaller.getInstance(TestObject.class);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+
+        marshaller.marshall(outputStream, key);
+
+        outputStream.flush();
+
+        byte[] keyData = byteArrayOutputStream.toByteArray();
 
 //        assertEquals(TestObject.class.getName() + Key.KEY_KIND_DELIMITER + 1L, keyData);
 
-        Key<TestObject> newKey = Key.keyFromByteArray(keyData);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(keyData);
+        DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
+
+        Key<TestObject> newKey = marshaller.unmarshall(inputStream);
 
         assertNotNull(newKey);
         assertEquals(key.getId(), newKey.getId());
@@ -43,7 +60,7 @@ public class KeyTest {
     }
 
     @Test
-    public void keyListStringConversion() {
+    public void keyListStringConversion() throws Exception {
         Key<TestObject> key1 = Key.create(TestObject.class, 1L);
         Key<TestObject> key2 = Key.create(TestObject.class, 1000L);
 
@@ -51,11 +68,24 @@ public class KeyTest {
         keys.add(key1);
         keys.add(key2);
 
-        byte[] keyData = Key.keysToByteArray(keys);
+        ArrayListStreamMarshaller<Key<TestObject>> marshaller = ArrayListStreamMarshaller.getInstance(
+                KeyStreamMarshaller.getInstance(TestObject.class));
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);
+
+        marshaller.marshall(outputStream, keys);
+
+        outputStream.flush();
+
+        byte[] keyData =  byteArrayOutputStream.toByteArray();
 
         //assertEquals(TestObject.class.getName() + Key.KEY_KIND_DELIMITER + 1L + Key.KEY_ID_DELIMITER + 1000L, keyData);
 
-        List<Key<TestObject>> newKeys = Key.keysFromByteArray(keyData);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(keyData);
+        DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
+
+        List<Key<TestObject>> newKeys = marshaller.unmarshall(inputStream);
 
         assertNotNull(newKeys);
         assertEquals(keys.size(), newKeys.size());

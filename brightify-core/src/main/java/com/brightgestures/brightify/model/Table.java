@@ -16,6 +16,11 @@ public class Table {
     private String tableName;
     private Integer version;
 
+    public Key<TableDetails> details;
+    // FIXME if no generic type argument is set, handle error through messager
+    //public Key uglyKey;
+    //public List<Key<TableDetails>> detailList;
+
     @Id
     public Long getId() {
         return id;
@@ -41,7 +46,4 @@ public class Table {
         this.version = version;
     }
 
-    //public Key<TableDetails> details;
-    //public Key uglyKey;
-    //public List<Key<TableDetails>> detailList;
 }

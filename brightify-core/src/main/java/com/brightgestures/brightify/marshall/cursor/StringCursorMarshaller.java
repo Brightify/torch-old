@@ -9,9 +9,9 @@ import com.brightgestures.brightify.sql.affinity.TextAffinity;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class StringMarshaller implements SymetricCursorMarshaller<String> {
+public class StringCursorMarshaller implements SymetricCursorMarshaller<String> {
 
-    private static StringMarshaller instance;
+    private static StringCursorMarshaller instance;
 
     @Override
     public void marshall(ContentValues contentValues, String columnName, String value) {
@@ -30,9 +30,9 @@ public class StringMarshaller implements SymetricCursorMarshaller<String> {
         return TextAffinity.getInstance();
     }
 
-    public static StringMarshaller getInstance() {
+    public static StringCursorMarshaller getInstance() {
         if (instance == null) {
-            instance = new StringMarshaller();
+            instance = new StringCursorMarshaller();
         }
         return instance;
     }

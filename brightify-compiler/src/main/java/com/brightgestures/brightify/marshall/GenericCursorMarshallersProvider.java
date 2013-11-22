@@ -16,16 +16,16 @@ public class GenericCursorMarshallersProvider implements CursorMarshallerProvide
     private final Map<Class<?>, CursorMarshallerInfo> genericCursorMarshallers = new HashMap<>();
 
     public GenericCursorMarshallersProvider() {
-        addSingletonMarshaller(Boolean.class, "com.brightgestures.brightify.marshall.cursor.BooleanMarshaller");
-        addSingletonMarshaller(Byte.class, "com.brightgestures.brightify.marshall.cursor.ByteMarshaller");
-        addSingletonMarshaller(Short.class, "com.brightgestures.brightify.marshall.cursor.ShortMarshaller");
-        addSingletonMarshaller(Integer.class, "com.brightgestures.brightify.marshall.cursor.IntegerMarshaller");
-        addSingletonMarshaller(Long.class, "com.brightgestures.brightify.marshall.cursor.LongMarshaller");
+        addSingletonMarshaller(Boolean.class, "com.brightgestures.brightify.marshall.cursor.BooleanCursorMarshaller");
+        addSingletonMarshaller(Byte.class, "com.brightgestures.brightify.marshall.cursor.ByteCursorMarshaller");
+        addSingletonMarshaller(Short.class, "com.brightgestures.brightify.marshall.cursor.ShortCursorMarshaller");
+        addSingletonMarshaller(Integer.class, "com.brightgestures.brightify.marshall.cursor.IntegerCursorMarshaller");
+        addSingletonMarshaller(Long.class, "com.brightgestures.brightify.marshall.cursor.LongCursorMarshaller");
 
-        addSingletonMarshaller(Float.class, "com.brightgestures.brightify.marshall.cursor.FloatMarshaller");
-        addSingletonMarshaller(Double.class, "com.brightgestures.brightify.marshall.cursor.DoubleMarshaller");
+        addSingletonMarshaller(Float.class, "com.brightgestures.brightify.marshall.cursor.FloatCursorMarshaller");
+        addSingletonMarshaller(Double.class, "com.brightgestures.brightify.marshall.cursor.DoubleCursorMarshaller");
 
-        addSingletonMarshaller(String.class, "com.brightgestures.brightify.marshall.cursor.StringMarshaller");
+        addSingletonMarshaller(String.class, "com.brightgestures.brightify.marshall.cursor.StringCursorMarshaller");
     }
 
     private void addSingletonMarshaller(Class<?> cls, String marshallerTypeFullName) {

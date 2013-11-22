@@ -1,5 +1,7 @@
 package com.brightgestures.brightify.marshall;
 
+import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.Ref;
 import com.brightgestures.brightify.generate.Field;
 import com.brightgestures.brightify.generate.GenericField;
 import com.brightgestures.brightify.parse.Property;
@@ -8,23 +10,20 @@ import com.brightgestures.brightify.util.TypeHelper;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class CollectionCursorMarshallersProvider implements CursorMarshallerProvider {
+public class InternalCursorMarshallersProvider implements CursorMarshallerProvider {
 
-    private final Map<Class<?>, String> collectionCursorMarshallers = new HashMap<>();
+    private final Map<Class<?>, String> internalCursorMarshallers = new HashMap<>();
     private final Map<TypeMirror, CursorMarshallerInfo> createdMarshallerInfos = new HashMap<>();
 
-    public CollectionCursorMarshallersProvider() {
-        collectionCursorMarshallers.put(List.class, "com.brightgestures.brightify.marshall.cursor.ArrayListCursorMarshaller");
+    public InternalCursorMarshallersProvider() {
+        internalCursorMarshallers.put(Key.class, "com.brightgestures.brightify.marshall.cursor.KeyCursorMarshaller");
+        internalCursorMarshallers.put(Ref.class, "com.brightgestures.brightify.marshall.cursor.RefCursorMarshaller");
     }
 
     @Override
@@ -38,35 +37,28 @@ public class CollectionCursorMarshallersProvider implements CursorMarshallerProv
             return createdMarshallerInfos.get(property.type);
         }
 
-        Class<?> collection = null;
+        Class<?> type = null;
         Types typeUtils = typeHelper.getProcessingEnvironment().getTypeUtils();
         TypeMirror propertyTypeErasure = typeUtils.erasure(property.type);
-        for(Class<?> supportedCollection : collectionCursorMarshallers.keySet()) {
-            if(typeUtils.isSameType(typeUtils.getDeclaredType(typeHelper.elementOf(supportedCollection)), propertyTypeErasure)) {
-                collection = supportedCollection;
+        for(Class<?> supportedType : internalCursorMarshallers.keySet()) {
+            if(typeUtils.isSameType(typeUtils.getDeclaredType(typeHelper.elementOf(supportedType)), propertyTypeErasure)) {
+                type = supportedType;
                 break;
             }
         }
-        if(collection == null) {
+        if(type == null) {
             return null;
         }
 
         DeclaredType declaredType = (DeclaredType) property.type;
-        TypeMirror itemType = declaredType.getTypeArguments().iterator().next();
-        StreamMarshallerInfo itemMarshallerInfo = typeHelper.getStreamMarshallerInfo(itemType);
-        if(itemMarshallerInfo == null) {
-            return null;
-        }
+        TypeMirror entityType = declaredType.getTypeArguments().iterator().next();
 
-        Field itemMarshallerField = itemMarshallerInfo.getField();
+        Field entityField = new Field();
+        entityField.setTypeFullName(entityType.toString());
 
-        Field itemField = new Field();
-        itemField.setTypeFullName("java.lang.String");
-
-        final GenericField field = new GenericField(itemField);
-        field.setTypeFullName(collectionCursorMarshallers.get(collection));
-        field.setValue(field.getErasuredType() + ".getInstance(" + itemMarshallerField.getValue() + ")");
-        field.getImports().addAll(itemMarshallerField.getImports());
+        final GenericField field = new GenericField(entityField);
+        field.setTypeFullName(internalCursorMarshallers.get(type));
+        field.setValue(field.getErasuredType() + ".getInstance(" + entityField.getTypeSimpleName() + ".class)");
 
         CursorMarshallerInfo marshallerInfo = new CursorMarshallerInfo() {
             @Override

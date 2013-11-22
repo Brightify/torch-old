@@ -176,7 +176,6 @@ public class MetadataSourceFile extends SourceFile {
             line("columnDef.setName(\"").append(property.columnName).append("\");");
             line("columnDef.setTypeAffinity(").append(property.columnName).append(MARSHALLER_POSTFIX)
                     .append(".getAffinity());");
-            line("android.util.Log.e(\"BRIGHTIFY\", \"Affinity for ").append(property.columnName).append(" - \" + ").append(property.columnName).append(MARSHALLER_POSTFIX).append(".getAffinity().getName());");
             emptyLine();
             if (property.id != null) {
                 line("ColumnConstraint.PrimaryKey primaryKey = new ColumnConstraint.PrimaryKey();");

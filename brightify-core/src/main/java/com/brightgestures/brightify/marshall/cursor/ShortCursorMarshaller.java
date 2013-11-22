@@ -9,9 +9,9 @@ import com.brightgestures.brightify.sql.affinity.IntegerAffinity;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class ShortMarshaller implements SymetricCursorMarshaller<Short> {
+public class ShortCursorMarshaller implements SymetricCursorMarshaller<Short> {
 
-    private static ShortMarshaller instance;
+    private static ShortCursorMarshaller instance;
 
     @Override
     public void marshall(ContentValues contentValues, String columnName, Short value) {
@@ -32,9 +32,9 @@ public class ShortMarshaller implements SymetricCursorMarshaller<Short> {
         return IntegerAffinity.getInstance();
     }
 
-    public static ShortMarshaller getInstance() {
+    public static ShortCursorMarshaller getInstance() {
         if (instance == null) {
-            instance = new ShortMarshaller();
+            instance = new ShortCursorMarshaller();
         }
         return instance;
     }

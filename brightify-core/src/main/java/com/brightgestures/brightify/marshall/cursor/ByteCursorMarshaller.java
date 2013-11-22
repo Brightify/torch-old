@@ -9,22 +9,23 @@ import com.brightgestures.brightify.sql.affinity.IntegerAffinity;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class IntegerMarshaller implements SymetricCursorMarshaller<Integer> {
+public class ByteCursorMarshaller implements SymetricCursorMarshaller<Byte> {
 
-    private static IntegerMarshaller instance;
+    private static ByteCursorMarshaller instance;
 
     @Override
-    public void marshall(ContentValues contentValues, String columnName, Integer value) {
+    public void marshall(ContentValues contentValues, String columnName, Byte value) {
         contentValues.put(columnName, value);
     }
 
     @Override
-    public Integer unmarshall(Cursor cursor, String columnName) {
+    public Byte unmarshall(Cursor cursor, String columnName) {
         int index = cursor.getColumnIndexOrThrow(columnName);
-        if (cursor.isNull(index)) {
+        if(cursor.isNull(index)) {
             return null;
         }
-        return cursor.getInt(index);
+
+        return (byte) cursor.getInt(index);
     }
 
     @Override
@@ -32,9 +33,9 @@ public class IntegerMarshaller implements SymetricCursorMarshaller<Integer> {
         return IntegerAffinity.getInstance();
     }
 
-    public static IntegerMarshaller getInstance() {
-        if (instance == null) {
-            instance = new IntegerMarshaller();
+    public static ByteCursorMarshaller getInstance() {
+        if(instance == null) {
+            instance = new ByteCursorMarshaller();
         }
         return instance;
     }

@@ -9,22 +9,22 @@ import com.brightgestures.brightify.sql.affinity.IntegerAffinity;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class BooleanMarshaller implements SymetricCursorMarshaller<Boolean> {
+public class LongCursorMarshaller implements SymetricCursorMarshaller<Long> {
 
-    private static BooleanMarshaller instance;
+    private static LongCursorMarshaller instance;
 
     @Override
-    public void marshall(ContentValues contentValues, String columnName, Boolean value) {
+    public void marshall(ContentValues contentValues, String columnName, Long value) {
         contentValues.put(columnName, value);
     }
 
     @Override
-    public Boolean unmarshall(Cursor cursor, String columnName) {
+    public Long unmarshall(Cursor cursor, String columnName) {
         int index = cursor.getColumnIndexOrThrow(columnName);
         if (cursor.isNull(index)) {
             return null;
         }
-        return cursor.getInt(index) > 0;
+        return cursor.getLong(index);
     }
 
     @Override
@@ -32,9 +32,9 @@ public class BooleanMarshaller implements SymetricCursorMarshaller<Boolean> {
         return IntegerAffinity.getInstance();
     }
 
-    public static BooleanMarshaller getInstance() {
+    public static LongCursorMarshaller getInstance() {
         if (instance == null) {
-            instance = new BooleanMarshaller();
+            instance = new LongCursorMarshaller();
         }
         return instance;
     }

@@ -8,9 +8,9 @@ import java.io.DataOutputStream;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class StringMarshaller implements SymetricStreamMarshaller<String> {
+public class StringStreamMarshaller implements SymetricStreamMarshaller<String> {
 
-    private static StringMarshaller instance;
+    private static StringStreamMarshaller instance;
 
     @Override
     public void marshall(DataOutputStream outputStream, String value) throws Exception {
@@ -22,9 +22,9 @@ public class StringMarshaller implements SymetricStreamMarshaller<String> {
         return inputStream.readUTF();
     }
 
-    public static StringMarshaller getInstance() {
+    public static StringStreamMarshaller getInstance() {
         if(instance == null) {
-            instance = new StringMarshaller();
+            instance = new StringStreamMarshaller();
         }
         return instance;
     }
