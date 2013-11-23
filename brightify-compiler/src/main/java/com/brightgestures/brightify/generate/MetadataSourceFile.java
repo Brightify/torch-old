@@ -134,6 +134,7 @@ public class MetadataSourceFile extends SourceFile {
         writeGetEntityId();
         writeSetEntityId();
         writeGetEntityClass();
+        writeCreateKey();
 
         writeCreateMethod();
 
@@ -286,6 +287,13 @@ public class MetadataSourceFile extends SourceFile {
         line("return entityClass;");
         unNest();
         emptyLine();
+    }
+
+    private void writeCreateKey() {
+        override();
+        line("public Key<").append(entity.name).append("> createKey(").append(entity.name).append(" entity)").nest();
+        line("return KeyFactory.create(getEntityClass(), getEntityId(entity));");
+        unNest();
     }
 
     private void writeCreateMethod() {

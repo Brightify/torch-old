@@ -26,9 +26,7 @@ public abstract class EntityMetadata<ENTITY> {
 
     public abstract Class<ENTITY> getEntityClass();
 
-    public Key<ENTITY> createKey(ENTITY entity) {
-        return Key.create(getEntityClass(), getEntityId(entity));
-    }
+    public abstract Key<ENTITY> createKey(ENTITY entity);
 
     public abstract void createTable(SQLiteDatabase db);
 
