@@ -6,8 +6,6 @@ package com.brightgestures.brightify;
 public interface FactoryConfiguration {
     String getDatabaseName();
 
-    boolean isImmediateDatabaseCreation();
-
     boolean isEnableQueryLogging();
 
     public static final class ConfigurationLoadException extends RuntimeException {

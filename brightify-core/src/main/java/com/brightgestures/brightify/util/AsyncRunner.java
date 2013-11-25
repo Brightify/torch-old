@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 public abstract class AsyncRunner {
 
     public static <RESULT> void run(final Task<RESULT> task, final Callback<RESULT> callback) {
-        new CallbackAsyncTask<RESULT>(task, callback).execute();
+        new CallbackAsyncTask<>(task, callback).execute();
     }
 
     public interface Task<RESULT> {

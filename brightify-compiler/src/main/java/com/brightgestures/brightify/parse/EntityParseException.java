@@ -5,7 +5,7 @@ import javax.lang.model.element.Element;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class EntityParseException extends Exception {
+public class EntityParseException extends RuntimeException {
 
     private final Element mElement;
 

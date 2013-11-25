@@ -72,6 +72,16 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
     }
 
     @Override
+    public ENTITY single() {
+        Iterator<ENTITY> iterator = iterator();
+        if(!iterator.hasNext()) {
+            return null;
+        }
+
+        return iterator().next();
+    }
+
+    @Override
     public List<ENTITY> list() {
         return prepareResult().now();
     }
@@ -191,8 +201,8 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         if(ids == null || ids.size() == 0) {
             throw new IllegalArgumentException("There has to be at least one id!");
         }
-        LoaderType.TypedLoaderType typedLoaderType = (LoaderType.TypedLoaderType) mLoaderType;
-        EntityMetadata<ENTITY> metadata = Entities.getMetadata(typedLoaderType.mEntityClass);
+        LoaderType.TypedLoaderType<ENTITY> typedLoaderType = (LoaderType.TypedLoaderType<ENTITY>) mLoaderType;
+        EntityMetadata<ENTITY> metadata = mBrightify.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
         String columnName = metadata.getIdColumnName();
         String condition = columnName + "=";
 

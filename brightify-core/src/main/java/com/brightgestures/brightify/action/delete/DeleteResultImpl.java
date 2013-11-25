@@ -2,7 +2,6 @@ package com.brightgestures.brightify.action.delete;
 
 import android.database.sqlite.SQLiteDatabase;
 import com.brightgestures.brightify.Brightify;
-import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.EntityMetadata;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.util.Callback;
@@ -31,10 +30,12 @@ public class DeleteResultImpl<ENTITY> implements DeleteResult<ENTITY> {
         db.beginTransaction();
         try {
             Map<Key<ENTITY>, Boolean> results = new HashMap<Key<ENTITY>, Boolean>();
-            EntityMetadata<ENTITY> metadata = Entities.getMetadata(mEntityKeys.iterator().next().getType());
-            for(Key<ENTITY> key : mEntityKeys) {
-                int affected = db.delete(metadata.getTableName(), metadata.getIdColumnName() + " = ?", new String[] { String.valueOf(key.getId()) });
-                if(affected > 1) {
+            EntityMetadata<ENTITY> metadata = mBrightify.getFactory().getEntities().getMetadata(
+                    mEntityKeys.iterator().next().getType());
+            for (Key<ENTITY> key : mEntityKeys) {
+                int affected = db.delete(metadata.getTableName(), metadata.getIdColumnName() + " = ?",
+                        new String[] { String.valueOf(key.getId()) });
+                if (affected > 1) {
                     throw new IllegalStateException("Delete command affected more than one row at once!");
                 }
 

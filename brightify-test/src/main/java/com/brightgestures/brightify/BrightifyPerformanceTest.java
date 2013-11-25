@@ -124,7 +124,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         TestObject testObject = new TestObject();
 
         testObject.id = null;
-        testObject.stringField = "hello from sunny los angeles!";
+        testObject.stringField = "hello source sunny los angeles!";
         testObject.longField = 98765432123456789L;
         testObject.intField = 123456789;
 

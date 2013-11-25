@@ -2,16 +2,13 @@ package com.brightgestures.brightify.action.load;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 import com.brightgestures.brightify.BrightifyService;
+import com.brightgestures.brightify.EntitiesImpl;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.test.TestObject;
-import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +33,7 @@ public class LoaderTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        BrightifyService.with(getContext());
+        BrightifyService.with(getContext()).register(TestObject.class);
 
         BrightifyService.factory().forceOpenOrCreateDatabase();
 
@@ -52,7 +49,7 @@ public class LoaderTest extends AndroidTestCase {
         testObject3 = createTestObject();
         testObject3.intField = 1000;
 
-        savedData = new ArrayList<TestObject>();
+        savedData = new ArrayList<>();
         savedData.add(testObject);
         savedData.add(testObject1);
         savedData.add(testObject2);

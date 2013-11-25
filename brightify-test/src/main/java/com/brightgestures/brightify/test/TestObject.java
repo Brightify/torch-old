@@ -4,13 +4,15 @@ import com.brightgestures.brightify.annotation.Accessor;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.annotation.Id;
 import com.brightgestures.brightify.annotation.Index;
+import com.brightgestures.brightify.annotation.Migration;
+import com.brightgestures.brightify.util.MigrationAssistant;
 
 import java.io.Serializable;
 
 /**
 * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
 */
-@Entity
+@Entity(version = 2)
 @Index
 public class TestObject implements Serializable {
     @Id
@@ -25,6 +27,18 @@ public class TestObject implements Serializable {
     public long longPrimitiveField = Long.MIN_VALUE;
     public Boolean booleanField = true;
     public boolean booleanPrimitiveField = false;
+    protected String protectedTest = "protectedTest";
+    String defaultTest = "defaultTest";
+
+    @Accessor(type = Accessor.Type.INFERRED)
+    public String getProtectedTest() {
+        return protectedTest;
+    }
+
+    @Accessor(type = Accessor.Type.INFERRED)
+    public void setProtectedTest(String protectedTest) {
+        this.protectedTest = protectedTest;
+    }
 
     @Accessor(name = "testName", type = Accessor.Type.GET)
     public int a() {
@@ -42,6 +56,11 @@ public class TestObject implements Serializable {
 
     @Accessor(type = Accessor.Type.SET, name = "testMethod")
     public void halelujah(long ttttt) {
+
+    }
+
+    @Migration(source = 1, target = 2)
+    public static void migrate12(MigrationAssistant<TestObject> assistant) {
 
     }
 

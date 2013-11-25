@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-//@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
 public @interface Accessor {
     /**
@@ -22,7 +21,7 @@ public @interface Accessor {
     /**
      * Type of the accessor.
      */
-    Type type();
+    Type type() default Type.INFERRED;
 
     enum Type {
         GET, SET, INFERRED

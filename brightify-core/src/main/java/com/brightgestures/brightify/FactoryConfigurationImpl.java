@@ -14,11 +14,9 @@ public class FactoryConfigurationImpl implements FactoryConfiguration {
     private static final String TAG = FactoryConfigurationImpl.class.getSimpleName();
 
     private static final String DEFAULT_DATABASE_NAME = "brightify_main_database";
-    private static final boolean DEFAULT_IMMEDIATE_DATABASE_CREATION = false;
     private static final boolean DEFAULT_ENABLE_QUERY_LOGGING = false;
 
     private String mDatabaseName = DEFAULT_DATABASE_NAME;
-    private boolean mImmediateDatabaseCreation = DEFAULT_IMMEDIATE_DATABASE_CREATION;
     private boolean mEnableQueryLogging = DEFAULT_ENABLE_QUERY_LOGGING;
 
     private FactoryConfigurationImpl() {
@@ -42,11 +40,6 @@ public class FactoryConfigurationImpl implements FactoryConfiguration {
                 Log.w(TAG, "Database name not set in AndroidManifest.xml! It's highly recommended that you set this meta-data!");
             }
 
-            String immediateDatabaseCreationProperty = context.getString(R.string.brightify__IMMEDIATE_DATABASE_CREATION);
-            if(info.metaData.containsKey(immediateDatabaseCreationProperty)) {
-                configuration.mImmediateDatabaseCreation = info.metaData.getBoolean(immediateDatabaseCreationProperty);
-            }
-
             String enableQueryLoggingProperty = context.getString(R.string.brightify__ENABLE_QUERY_LOGGING);
             if(info.metaData.containsKey(enableQueryLoggingProperty)) {
                 configuration.mEnableQueryLogging = info.metaData.getBoolean(enableQueryLoggingProperty);
@@ -61,11 +54,6 @@ public class FactoryConfigurationImpl implements FactoryConfiguration {
     @Override
     public String getDatabaseName() {
         return mDatabaseName;
-    }
-
-    @Override
-    public boolean isImmediateDatabaseCreation() {
-        return mImmediateDatabaseCreation;
     }
 
     @Override

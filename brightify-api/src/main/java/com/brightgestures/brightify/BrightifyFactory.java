@@ -18,5 +18,11 @@ public interface BrightifyFactory extends DatabaseEngine.OnCreateDatabaseListene
 
     boolean deleteDatabase();
 
-    public void unload();
+    void unload();
+
+    Entities getEntities();
+
+    <ENTITY> BrightifyFactory register(Class<ENTITY> entityClass);
+
+    <ENTITY> BrightifyFactory register(EntityMetadata<ENTITY> metadata);
 }

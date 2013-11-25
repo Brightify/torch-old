@@ -3,6 +3,7 @@ package com.brightgestures.brightify.parse;
 import com.brightgestures.brightify.annotation.Entity;
 
 import javax.lang.model.element.Element;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ public class EntityInfo {
 
     public int version;
     public Entity.MigrationType migrationType;
+    public List<MigrationMethod> migrationMethods = new ArrayList<>();
 
     public List<Property> properties;
     public Property idProperty;

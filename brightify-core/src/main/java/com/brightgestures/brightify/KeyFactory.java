@@ -1,22 +1,18 @@
 package com.brightgestures.brightify;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class KeyFactory {
 
     /**
-     *
-     *
      * @param entityClass
      * @param id
      * @param <ENTITY>
      * @return
      */
     public static <ENTITY> Key<ENTITY> create(Class<ENTITY> entityClass, Long id) {
-        if(id == null) {
+        if (id == null) {
             throw new IllegalArgumentException("Cannot create Key with null ID!");
         }
 
@@ -25,13 +21,9 @@ public class KeyFactory {
 
     public static <ENTITY> Key<ENTITY> create(ENTITY entity) {
         Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
-        EntityMetadata<ENTITY> metadata = Entities.getMetadata(entityClass);
+        EntityMetadata<ENTITY> metadata = BrightifyService.factory().getEntities().getMetadata(entityClass);
 
-
-
-        Long id = metadata.getEntityId(entity);
-
-        return create(entityClass, id);
+        return metadata.createKey(entity);
     }
 
 }

@@ -9,6 +9,7 @@ public class AccessorProperty extends Property {
     public String getterFullName;
     public String setterName;
     public String setterFullName;
+    public boolean forced;
 
     @Override
     public String setValue(String value) {

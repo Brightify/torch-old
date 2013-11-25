@@ -22,16 +22,16 @@ public class KeyTest {
 
     @Test
     public void testCreate() throws Exception {
-        Key<TestObject> key = Key.create(TestObject.class, 1L);
+        Key<TestObject> key = KeyFactory.create(TestObject.class, 1L);
 
         assertNotNull(key);
         assertEquals(1L, key.getId());
-        assertEquals("TestObject", key.getKind());
+        assertEquals("TestObject", key.getType().getSimpleName());
     }
 
     @Test
     public void keyStringConversion() throws Exception {
-        Key<TestObject> key = Key.create(TestObject.class, 1L);
+        Key<TestObject> key = KeyFactory.create(TestObject.class, 1L);
 
         assertNotNull(key);
 
@@ -55,14 +55,13 @@ public class KeyTest {
 
         assertNotNull(newKey);
         assertEquals(key.getId(), newKey.getId());
-        assertEquals(key.getKind(), newKey.getKind());
         assertEquals(key.getType(), newKey.getType());
     }
 
     @Test
     public void keyListStringConversion() throws Exception {
-        Key<TestObject> key1 = Key.create(TestObject.class, 1L);
-        Key<TestObject> key2 = Key.create(TestObject.class, 1000L);
+        Key<TestObject> key1 = KeyFactory.create(TestObject.class, 1L);
+        Key<TestObject> key2 = KeyFactory.create(TestObject.class, 1000L);
 
         List<Key<TestObject>> keys = new ArrayList<Key<TestObject>>();
         keys.add(key1);
@@ -97,11 +96,9 @@ public class KeyTest {
         assertNotNull(newKey2);
 
         assertEquals(key1.getId(), newKey1.getId());
-        assertEquals(key1.getKind(), newKey1.getKind());
         assertEquals(key1.getType(), newKey1.getType());
 
         assertEquals(key2.getId(), newKey2.getId());
-        assertEquals(key2.getKind(), newKey2.getKind());
         assertEquals(key2.getType(), newKey2.getType());
     }
 }

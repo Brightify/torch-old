@@ -2,6 +2,7 @@ package com.brightgestures.brightify.action.load;
 
 import android.database.Cursor;
 import com.brightgestures.brightify.Brightify;
+import com.brightgestures.brightify.util.AsyncRunner;
 import com.brightgestures.brightify.util.Callback;
 
 import java.util.Iterator;
@@ -22,14 +23,19 @@ public class LoadResultImpl<ENTITY> implements LoadResult<ENTITY> {
 
     @Override
     public void async(Callback<List<ENTITY>> callback) {
-        throw new UnsupportedOperationException("Not implemented!");
+        AsyncRunner.run(new AsyncRunner.Task<List<ENTITY>>() {
+            @Override
+            public List<ENTITY> doWork() throws Exception {
+                return now();
+            }
+        }, callback);
     }
 
     @Override
     public Iterator<ENTITY> iterator() {
         Cursor cursor = mLoadQuery.run(mBrightify);
 
-        return new CursorIterator<ENTITY>(mLoadQuery.getEntityMetadata(), cursor);
+        return new CursorIterator<>(mLoadQuery.getEntityMetadata(), cursor);
     }
 
     @Override

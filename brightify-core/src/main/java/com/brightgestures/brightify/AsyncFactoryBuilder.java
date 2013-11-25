@@ -1,56 +1,63 @@
 package com.brightgestures.brightify;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteException;
-import android.os.Handler;
 import com.brightgestures.brightify.util.AsyncRunner;
 import com.brightgestures.brightify.util.Callback;
 
-import java.util.concurrent.Executors;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistrar, AsyncSubmit,
-
         AsyncEntityRegistrarSubmit {
 
-    private Callback<BrightifyFactory> mCallback;
-    private Context mContext;
+    private Callback<BrightifyFactory> callback;
+    private Context context;
+    private boolean submitted;
+    private List<EntityMetadata<?>> metadatas = new LinkedList<>();
 
     AsyncFactoryBuilder(Callback<BrightifyFactory> callback) {
-        mCallback = callback;
+        this.callback = callback;
+    }
+
+    public boolean isSubmitted() {
+        return submitted;
     }
 
     @Override
     public AsyncEntityRegistrarSubmit with(Context context) {
-        mContext = context.getApplicationContext();
+        this.context = context.getApplicationContext();
         return this;
     }
 
     @Override
     public <ENTITY> AsyncEntityRegistrarSubmit register(Class<ENTITY> entityClass) {
-        Entities.findAndRegisterMetadata(entityClass);
+        EntityMetadata<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
+        metadatas.add(metadata);
         return this;
     }
 
     @Override
     public <ENTITY> AsyncEntityRegistrarSubmit register(EntityMetadata<ENTITY> metadata) {
-        Entities.registerMetadata(metadata);
+        metadatas.add(metadata);
         return this;
     }
 
     @Override
     public void submit() {
+        submitted = true;
+
         AsyncRunner.run(new AsyncRunner.Task<BrightifyFactory>() {
             @Override
             public BrightifyFactory doWork() throws Exception {
-                BrightifyFactory factory = new BrightifyFactoryImpl(mContext);
+                BrightifyFactory factory = new BrightifyFactoryImpl(context, metadatas);
 
                 factory.forceOpenOrCreateDatabase();
 
                 return factory;
             }
-        }, mCallback);
+        }, callback);
     }
 }

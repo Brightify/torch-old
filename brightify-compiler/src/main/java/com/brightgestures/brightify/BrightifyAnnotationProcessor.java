@@ -50,7 +50,10 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
             }
 
             try {
-                entityInfoSet.add(parser.parseEntity(element));
+                EntityInfo entityInfo = parser.parseEntity(element);
+                if(entityInfo != null) {
+                    entityInfoSet.add(entityInfo);
+                }
             } catch (EntityParseException e) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.getElement());
             }
@@ -234,7 +237,7 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
                         e.printStackTrace();
                     }
                 } else {
-                    throw new IllegalStateException("Type '" + type.toString() + "' cannot be restored from database!");
+                    throw new IllegalStateException("Type '" + type.toString() + "' cannot be restored source database!");
                 }
 *
                // processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, child + " of type " + child.asType(), child);

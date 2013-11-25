@@ -2,40 +2,68 @@ package com.brightgestures.brightify;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import com.brightgestures.brightify.annotation.Entity;
+import com.brightgestures.brightify.model.Table;
 import com.brightgestures.brightify.model.TableDetailsMetadata;
 import com.brightgestures.brightify.model.TableMetadata;
+import com.brightgestures.brightify.util.MigrationAssistant;
+import com.brightgestures.brightify.util.MigrationAssistantImpl;
 
 import java.util.Collection;
+import java.util.List;
 
 public class BrightifyFactoryImpl implements BrightifyFactory {
 
-    protected final Context mContext;
-    protected final FactoryConfiguration mConfiguration;
-    protected final DatabaseEngine mDatabaseEngine;
+    protected final Context context;
+    protected final FactoryConfiguration configuration;
+    protected final DatabaseEngine databaseEngine;
+
+    protected final TableMetadata tableMetadata = new TableMetadata();
+    protected final TableDetailsMetadata tableDetailsMetadata = new TableDetailsMetadata();
+    protected final EntitiesImpl entities = new EntitiesImpl();
 
     BrightifyFactoryImpl(Context applicationContext) {
-        this(applicationContext, FactoryConfigurationImpl.create(applicationContext));
+        this(applicationContext, null);
     }
 
-    BrightifyFactoryImpl(Context applicationContext, FactoryConfiguration configuration) {
-        mContext = applicationContext;
-        mConfiguration = configuration;
-        // We need to register our metadata
-        Entities.registerMetadata(new TableMetadata());
-        Entities.registerMetadata(new TableDetailsMetadata());
+    BrightifyFactoryImpl(Context applicationContext, List<EntityMetadata<?>> metadatas) {
+        this(applicationContext, metadatas, FactoryConfigurationImpl.create(applicationContext));
+    }
+
+    BrightifyFactoryImpl(Context applicationContext, List<EntityMetadata<?>> metadatas,
+                         FactoryConfiguration configuration) {
+        context = applicationContext;
+        this.configuration = configuration;
         // TODO what about the CursorFactory (currently null = default)?
-        mDatabaseEngine = new DatabaseEngineImpl(applicationContext, configuration.getDatabaseName(), null);
-        mDatabaseEngine.setOnCreateDatabaseListener(this);
+        databaseEngine = new DatabaseEngineImpl(applicationContext, configuration.getDatabaseName(), null);
+        databaseEngine.setOnCreateDatabaseListener(this);
+        if(configuration.isEnableQueryLogging()) {
+            Settings.enableQueryLogging();
+        }
+
+        registerInternalEntities();
+
+        if (metadatas != null) {
+            for (EntityMetadata<?> metadata : metadatas) {
+                register(metadata);
+            }
+        }
+    }
+
+    private void registerInternalEntities() {
+        // We need to register our metadata
+        entities.registerMetadata(tableMetadata);
+        entities.registerMetadata(tableDetailsMetadata);
     }
 
     @Override
     public FactoryConfiguration getConfiguration() {
-        return mConfiguration;
+        return configuration;
     }
 
     @Override
     public DatabaseEngine getDatabaseEngine() {
-        return mDatabaseEngine;
+        return databaseEngine;
     }
 
     @Override
@@ -43,15 +71,11 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
         return new BrightifyImpl(this);
     }
 
-    public <ENTITY> void register(EntityMetadata<ENTITY> metadata) {
-        throw new UnsupportedOperationException("Not implemented!");
-    }
-
     @Override
     public void onCreateDatabase(SQLiteDatabase db) {
-        Collection<EntityMetadata<?>> metadatas = Entities.getAllMetadatas();
+        Collection<EntityMetadata<?>> metadatas = entities.getAllMetadatas();
 
-        for(EntityMetadata<?> metadata : metadatas) {
+        for (EntityMetadata<?> metadata : metadatas) {
             metadata.createTable(db);
         }
     }
@@ -59,19 +83,65 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
     @Override
     public SQLiteDatabase forceOpenOrCreateDatabase() {
         // This will force create the database
-        return mDatabaseEngine.getDatabase();
+        return databaseEngine.getDatabase();
     }
 
     @Override
     public boolean deleteDatabase() {
-        return mDatabaseEngine.deleteDatabase();
+        return databaseEngine.deleteDatabase();
     }
 
     @Override
     public void unload() {
-        EntitiesCompatibility.unregisterAll();
+        // Entities.unregisterAll();
 
-        mDatabaseEngine.close();
+        entities.clear();
+
+        databaseEngine.close();
     }
 
+    @Override
+    public Entities getEntities() {
+        return entities;
+    }
+
+    @Override
+    public <ENTITY> BrightifyFactory register(Class<ENTITY> entityClass) {
+        EntityMetadata<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
+        return register(metadata);
+    }
+
+    @Override
+    public <ENTITY> BrightifyFactory register(EntityMetadata<ENTITY> metadata) {
+        entities.registerMetadata(metadata);
+
+        Table table = begin().load().type(Table.class).filter("tableName = ?", metadata.getTableName()).single();
+        if(table == null) {
+            table = new Table();
+            table.setTableName(metadata.getTableName());
+            table.setVersion(metadata.getVersion());
+        } else if(table.getVersion() != metadata.getVersion()) {
+            MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<>(this, metadata);
+            if(metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
+                migrationAssistant.dropCreateTable();
+            } else {
+                try {
+                    metadata.migrate(migrationAssistant, table.getVersion(), metadata.getVersion());
+                } catch(Exception e) {
+                    if(metadata.getMigrationType() == Entity.MigrationType.TRY_MIGRATE) {
+                        e.printStackTrace();
+                        migrationAssistant.dropCreateTable();
+                    } else {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            table.setVersion(metadata.getVersion());
+
+            begin().save().entity(table);
+        }
+
+
+        return this;
+    }
 }

@@ -6,6 +6,7 @@ import com.brightgestures.brightify.Brightify;
 import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.EntityMetadata;
 import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.KeyFactory;
 import com.brightgestures.brightify.util.Callback;
 
 import java.util.HashMap;
@@ -31,7 +32,10 @@ public class SaveResultImpl<ENTITY> implements SaveResult<ENTITY> {
         try {
             Map<Key<ENTITY>, ENTITY> results = new HashMap<Key<ENTITY>, ENTITY>();
             Class<ENTITY> entityClass = (Class<ENTITY>) mEntities.iterator().next().getClass();
-            EntityMetadata<ENTITY> metadata = Entities.getMetadata(entityClass);
+            EntityMetadata<ENTITY> metadata = mBrightify.getFactory().getEntities().getMetadata(entityClass);
+            if(metadata == null) {
+                throw new IllegalStateException("Entity not registered!");
+            }
 
             for(ENTITY entity : mEntities) {
                 ContentValues values;
@@ -48,7 +52,7 @@ public class SaveResultImpl<ENTITY> implements SaveResult<ENTITY> {
 
                 metadata.setEntityId(entity, id);
 
-                Key<ENTITY> key = Key.create(entityClass, id);
+                Key<ENTITY> key = KeyFactory.create(entityClass, id);
 
                 results.put(key, entity);
             }

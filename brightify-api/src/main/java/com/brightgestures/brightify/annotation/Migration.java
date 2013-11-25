@@ -1,13 +1,16 @@
 package com.brightgestures.brightify.annotation;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 public @interface Migration {
-    int from();
-    int to();
+
+    /**
+     * Version of Entity
+     * @return
+     */
+    int source();
+
+    int target();
 }

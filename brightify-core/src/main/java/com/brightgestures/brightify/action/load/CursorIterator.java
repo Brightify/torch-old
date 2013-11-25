@@ -11,6 +11,7 @@ import com.brightgestures.brightify.util.TypeUtilsCompatibility;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
 * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
@@ -40,7 +41,7 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
     @Override
     public ENTITY next() {
         if(mCursor.isClosed()) {
-            throw new IllegalStateException("The cursor is closed!");
+            throw new NoSuchElementException("The cursor is closed!");
         }
 
         ENTITY entity;

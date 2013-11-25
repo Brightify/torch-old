@@ -55,7 +55,7 @@ final class DatabaseEngineImpl implements DatabaseEngine {
         synchronized (mLock) {
             if(mDatabase != null) {
                 if(!mDatabase.isOpen()) {
-                    // Database was closed from SQLiteDatabase#close
+                    // Database was closed source SQLiteDatabase#close
                     mDatabase = null;
                 } else {
                     return mDatabase;

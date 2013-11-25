@@ -1,6 +1,7 @@
 package com.brightgestures.brightify.marshall.stream;
 
 import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.KeyFactory;
 import com.brightgestures.brightify.marshall.SymetricStreamMarshaller;
 
 import java.io.DataInputStream;
@@ -35,7 +36,7 @@ public class KeyStreamMarshaller<ENTITY> implements SymetricStreamMarshaller<Key
 
         long id = LongStreamMarshaller.getInstance().unmarshall(inputStream);
 
-        return Key.create(entityClass, id);
+        return KeyFactory.create(entityClass, id);
     }
 
     public static <ENTITY> KeyStreamMarshaller<ENTITY> getInstance(Class<ENTITY> entityClass) {

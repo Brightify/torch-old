@@ -9,4 +9,6 @@ public interface ListLoader<ENTITY> extends Iterable<ENTITY> {
 
     List<ENTITY> list();
 
+    ENTITY single();
+
 }

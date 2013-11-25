@@ -3,6 +3,8 @@ package com.brightgestures.brightify;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.brightgestures.brightify.annotation.Entity;
+import com.brightgestures.brightify.util.MigrationAssistant;
 
 import java.io.IOException;
 
@@ -20,6 +22,10 @@ public abstract class EntityMetadata<ENTITY> {
 
     public abstract String getTableName();
 
+    public abstract int getVersion();
+
+    public abstract Entity.MigrationType getMigrationType();
+
     public abstract Long getEntityId(ENTITY entity);
 
     public abstract void setEntityId(ENTITY entity, Long id);
@@ -33,4 +39,6 @@ public abstract class EntityMetadata<ENTITY> {
     public abstract ENTITY createFromCursor(Cursor cursor) throws Exception;
 
     public abstract ContentValues toContentValues(ENTITY entity) throws Exception;
+
+    public abstract void migrate(MigrationAssistant<ENTITY> assistant, int sourceVersion, int targetVersion) throws Exception;
 }

@@ -51,7 +51,7 @@ public class LoadQuery<ENTITY> {
                 loader.prepareQuery(configuration);
             }
 
-            EntityMetadata<ENTITY> metadata = Entities.getMetadata(configuration.mEntityClass);
+            EntityMetadata<ENTITY> metadata = lastLoader.mBrightify.getFactory().getEntities().getMetadata(configuration.mEntityClass);
 
             StringBuilder builder = new StringBuilder();
 
@@ -98,7 +98,7 @@ public class LoadQuery<ENTITY> {
             String sql = builder.toString();
             String[] selectionArgs = selectionArgsList.toArray(new String[selectionArgsList.size()]);
 
-            return new LoadQuery<ENTITY>(metadata, sql, selectionArgs);
+            return new LoadQuery<>(metadata, sql, selectionArgs);
         }
     }
 

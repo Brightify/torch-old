@@ -281,6 +281,6 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
         unNest();
         unNest();
 
-        save(internalMetadataFullName);
+//        save(internalMetadataFullName);
     }
 }

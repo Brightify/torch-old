@@ -3,6 +3,7 @@ package com.brightgestures.brightify.generate;
 import com.brightgestures.brightify.SourceFile;
 import com.brightgestures.brightify.marshall.CursorMarshallerInfo;
 import com.brightgestures.brightify.parse.EntityInfo;
+import com.brightgestures.brightify.parse.MigrationMethod;
 import com.brightgestures.brightify.parse.Property;
 import com.brightgestures.brightify.util.TypeHelper;
 
@@ -28,6 +29,7 @@ public class MetadataSourceFile extends SourceFile {
         super(typeHelper.getProcessingEnvironment());
         this.typeHelper = typeHelper;
         this.entity = entity;
+
         addCommonImports();
         parseEntity();
     }
@@ -48,7 +50,7 @@ public class MetadataSourceFile extends SourceFile {
 
     public MetadataSourceFile addField(Field field) {
         fields.add(field);
-        for(String importName : field.getImports()) {
+        for (String importName : field.getImports()) {
             addImport(importName);
         }
         return this;
@@ -61,6 +63,10 @@ public class MetadataSourceFile extends SourceFile {
         addImport("android.content.ContentValues");
         addImport("com.brightgestures.brightify.EntityMetadata");
         addImport("com.brightgestures.brightify.Key");
+        addImport("com.brightgestures.brightify.KeyFactory");
+        addImport("com.brightgestures.brightify.annotation.Entity");
+        addImport("com.brightgestures.brightify.util.MigrationAssistant");
+        addImport("com.brightgestures.brightify.util.MigrationException");
 
         addImport("com.brightgestures.brightify.sql.constraint.ColumnConstraint");
         addImport("com.brightgestures.brightify.sql.ColumnDef");
@@ -127,10 +133,13 @@ public class MetadataSourceFile extends SourceFile {
         writeCreateTable();
         writeFromCursor();
         writeToContentValues();
+        writeMigrate();
 
         writeGetIdColumnName();
         writeGetColumns();
         writeGetTableName();
+        writeGetVersion();
+        writeGetMigrationType();
         writeGetEntityId();
         writeSetEntityId();
         writeGetEntityClass();
@@ -154,6 +163,9 @@ public class MetadataSourceFile extends SourceFile {
         }
         unNest().append(";");
         line("public static final String tableName = \"").append(entity.tableName).append("\";");
+        line("public static final int version = ").append(entity.version).append(";");
+        line("public static final Entity.MigrationType migrationType = Entity.MigrationType.").append(
+                entity.migrationType).append(";");
         line("public static final Class<").append(entity.name).append("> entityClass = ").append(entity.name).append(
                 ".class;");
         emptyLine();
@@ -241,6 +253,33 @@ public class MetadataSourceFile extends SourceFile {
         emptyLine();
     }
 
+    private void writeMigrate() {
+        override();
+        line("public void migrate(MigrationAssistant<")
+                .append(entity.name)
+                .append("> assistant, int sourceVersion, int targetVersion) throws Exception")
+                .nest();
+        for (MigrationMethod migrationMethod : entity.migrationMethods) {
+            line("if (sourceVersion == ")
+                    .append(migrationMethod.getFromVersion())
+                    .append(" && targetVersion >= ")
+                    .append(migrationMethod.getFromVersion())
+                    .append(")")
+                    .nest();
+            line(entity.name)
+                    .append(".")
+                    .append(migrationMethod.getExecutable().getSimpleName())
+                    .append("(assistant);");
+            line("sourceVersion = ").append(migrationMethod.getFromVersion()).append(";");
+            unNest();
+        }
+        line("if (sourceVersion != targetVersion)").nest();
+        line("throw new MigrationException(\"Unable to migrate entity!\");");
+        unNest();
+        unNest();
+        emptyLine();
+    }
+
     private void writeGetIdColumnName() {
         override();
         line("public String getIdColumnName()").nest();
@@ -261,6 +300,22 @@ public class MetadataSourceFile extends SourceFile {
         override();
         line("public String getTableName()").nest();
         line("return tableName;");
+        unNest();
+        emptyLine();
+    }
+
+    private void writeGetVersion() {
+        override();
+        line("public int getVersion()").nest();
+        line("return version;");
+        unNest();
+        emptyLine();
+    }
+
+    private void writeGetMigrationType() {
+        override();
+        line("public Entity.MigrationType getMigrationType()").nest();
+        line("return migrationType;");
         unNest();
         emptyLine();
     }
