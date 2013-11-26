@@ -6,40 +6,54 @@ import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.model.Table;
 import com.brightgestures.brightify.model.TableDetailsMetadata;
 import com.brightgestures.brightify.model.TableMetadata;
-import com.brightgestures.brightify.util.MigrationAssistant;
 import com.brightgestures.brightify.util.MigrationAssistantImpl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class BrightifyFactoryImpl implements BrightifyFactory {
+    private static final String TAG = BrightifyFactoryImpl.class.getSimpleName();
 
     protected final Context context;
-    protected final FactoryConfiguration configuration;
     protected final DatabaseEngine databaseEngine;
 
-    protected final TableMetadata tableMetadata = new TableMetadata();
-    protected final TableDetailsMetadata tableDetailsMetadata = new TableDetailsMetadata();
+    protected final TableMetadata tableMetadata = TableMetadata.create();
+    protected final TableDetailsMetadata tableDetailsMetadata = TableDetailsMetadata.create();
     protected final EntitiesImpl entities = new EntitiesImpl();
 
-    BrightifyFactoryImpl(Context applicationContext) {
-        this(applicationContext, null);
+    protected final boolean initialized;
+
+    private String databaseName = Settings.DEFAULT_DATABASE_NAME;
+
+    public BrightifyFactoryImpl(Context context) {
+        this(context, null);
     }
 
-    BrightifyFactoryImpl(Context applicationContext, List<EntityMetadata<?>> metadatas) {
-        this(applicationContext, metadatas, FactoryConfigurationImpl.create(applicationContext));
+    public BrightifyFactoryImpl(Context context, Set<EntityMetadata<?>> metadatas) {
+        this(context, metadatas, new BasicFactoryConfiguration());
     }
 
-    BrightifyFactoryImpl(Context applicationContext, List<EntityMetadata<?>> metadatas,
-                         FactoryConfiguration configuration) {
-        context = applicationContext;
-        this.configuration = configuration;
+    /**
+     * You shouldn't need to initialize the factory yourself, but if you need to do so, remember that the context you
+     * pass in will be stored in this instance of the factory. If you want to use the factory through multiple
+     * activities (storing it at static level), you should use application context to avoid memory leaks.
+     *
+     * @param context Context which will be used to open database with.
+     * @param metadatas Optional set of {@link com.brightgestures.brightify.EntityMetadata} to directly register.
+     * @param configuration
+     */
+    public BrightifyFactoryImpl(Context context, Set<EntityMetadata<?>> metadatas,
+                                FactoryConfiguration configuration) {
+        this.context = context;
+        configuration.configureFactory(this);
+
         // TODO what about the CursorFactory (currently null = default)?
-        databaseEngine = new DatabaseEngineImpl(applicationContext, configuration.getDatabaseName(), null);
+        databaseEngine = new DatabaseEngineImpl(context, getDatabaseName(), null);
         databaseEngine.setOnCreateDatabaseListener(this);
-        if(configuration.isEnableQueryLogging()) {
-            Settings.enableQueryLogging();
-        }
+
+        verifyConfiguration();
+        initialized = true;
 
         registerInternalEntities();
 
@@ -56,9 +70,8 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
         entities.registerMetadata(tableDetailsMetadata);
     }
 
-    @Override
-    public FactoryConfiguration getConfiguration() {
-        return configuration;
+    private void verifyConfiguration() {
+        // TODO When there is more configuration, verify it
     }
 
     @Override
@@ -116,19 +129,19 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
         entities.registerMetadata(metadata);
 
         Table table = begin().load().type(Table.class).filter("tableName = ?", metadata.getTableName()).single();
-        if(table == null) {
+        if (table == null) {
             table = new Table();
             table.setTableName(metadata.getTableName());
             table.setVersion(metadata.getVersion());
-        } else if(table.getVersion() != metadata.getVersion()) {
+        } else if (table.getVersion() != metadata.getVersion()) {
             MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<>(this, metadata);
-            if(metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
+            if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
                 migrationAssistant.dropCreateTable();
             } else {
                 try {
                     metadata.migrate(migrationAssistant, table.getVersion(), metadata.getVersion());
-                } catch(Exception e) {
-                    if(metadata.getMigrationType() == Entity.MigrationType.TRY_MIGRATE) {
+                } catch (Exception e) {
+                    if (metadata.getMigrationType() == Entity.MigrationType.TRY_MIGRATE) {
                         e.printStackTrace();
                         migrationAssistant.dropCreateTable();
                     } else {
@@ -143,5 +156,23 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
 
 
         return this;
+    }
+
+    @Override
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    @Override
+    public void setDatabaseName(String databaseName) throws IllegalStateException, IllegalArgumentException {
+        if (initialized) {
+            throw new IllegalStateException("This factory has already been initialized, cannot change database name!");
+        }
+
+        if (databaseName == null || databaseName.equals("")) {
+            throw new IllegalArgumentException("Database name cannot be empty or null!");
+        }
+
+        this.databaseName = databaseName;
     }
 }

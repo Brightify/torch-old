@@ -6,39 +6,33 @@ import android.database.sqlite.SQLiteDatabase;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.util.MigrationAssistant;
 
-import java.io.IOException;
-
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public abstract class EntityMetadata<ENTITY> {
+public interface EntityMetadata<ENTITY> {
+    String getIdColumnName();
 
-    public EntityMetadata() {
-    }
+    String[] getColumns();
 
-    public abstract String getIdColumnName();
+    String getTableName();
 
-    public abstract String[] getColumns();
+    int getVersion();
 
-    public abstract String getTableName();
+    Entity.MigrationType getMigrationType();
 
-    public abstract int getVersion();
+    Long getEntityId(ENTITY entity);
 
-    public abstract Entity.MigrationType getMigrationType();
+    void setEntityId(ENTITY entity, Long id);
 
-    public abstract Long getEntityId(ENTITY entity);
+    Class<ENTITY> getEntityClass();
 
-    public abstract void setEntityId(ENTITY entity, Long id);
+    Key<ENTITY> createKey(ENTITY entity);
 
-    public abstract Class<ENTITY> getEntityClass();
+    void createTable(SQLiteDatabase db);
 
-    public abstract Key<ENTITY> createKey(ENTITY entity);
+    ENTITY createFromCursor(Cursor cursor) throws Exception;
 
-    public abstract void createTable(SQLiteDatabase db);
+    ContentValues toContentValues(ENTITY entity) throws Exception;
 
-    public abstract ENTITY createFromCursor(Cursor cursor) throws Exception;
-
-    public abstract ContentValues toContentValues(ENTITY entity) throws Exception;
-
-    public abstract void migrate(MigrationAssistant<ENTITY> assistant, int sourceVersion, int targetVersion) throws Exception;
+    void migrate(MigrationAssistant<ENTITY> assistant, int sourceVersion, int targetVersion) throws Exception;
 }

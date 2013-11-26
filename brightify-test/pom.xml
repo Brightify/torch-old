@@ -29,13 +29,7 @@
         <dependency>
             <groupId>com.brightgestures.brightify</groupId>
             <artifactId>brightify-core</artifactId>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-            <groupId>com.brightgestures.brightify</groupId>
-            <artifactId>brightify-core</artifactId>
             <type>jar</type>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.robolectric</groupId>

@@ -21,8 +21,5 @@
         <uses-library android:name="android.test.runner" />
 
         <activity android:name=".MainTestActivity"/>
-
-        <meta-data android:name="@string/brightify__DATABASE_NAME" android:value="test" />
-        <meta-data android:name="@string/brightify__ENABLE_QUERY_LOGGING" android:value="true" />
     </application>
 </manifest>

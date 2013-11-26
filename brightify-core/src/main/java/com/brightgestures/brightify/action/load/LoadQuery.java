@@ -3,8 +3,8 @@ package com.brightgestures.brightify.action.load;
 import android.database.Cursor;
 import android.util.Log;
 import com.brightgestures.brightify.Brightify;
-import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.EntityMetadata;
+import com.brightgestures.brightify.Settings;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -15,26 +15,26 @@ import java.util.LinkedList;
 public class LoadQuery<ENTITY> {
     private static final String TAG = LoadQuery.class.getSimpleName();
 
-    protected final EntityMetadata<ENTITY> mEntityMetadata;
-    protected final String mSql;
-    protected final String[] mSelectionArgs;
+    protected final EntityMetadata<ENTITY> entityMetadata;
+    protected final String sql;
+    protected final String[] selectionArgs;
 
     public LoadQuery(EntityMetadata<ENTITY> entityMetadata, String sql, String... selectionArgs) {
-        mEntityMetadata = entityMetadata;
-        mSql = sql;
-        mSelectionArgs = selectionArgs;
+        this.entityMetadata = entityMetadata;
+        this.sql = sql;
+        this.selectionArgs = selectionArgs;
     }
 
     public EntityMetadata<ENTITY> getEntityMetadata() {
-        return mEntityMetadata;
+        return entityMetadata;
     }
 
     public Cursor run(Brightify brightify) {
-        if(brightify.getFactory().getConfiguration().isEnableQueryLogging()) {
-            Log.d(TAG, mSql);
+        if(Settings.isQueryLoggingEnabled()) {
+            Log.d(TAG, sql);
         }
 
-        return brightify.getDatabase().rawQuery(mSql, mSelectionArgs);
+        return brightify.getDatabase().rawQuery(sql, selectionArgs);
     }
 
     public static class Builder {
@@ -51,7 +51,8 @@ public class LoadQuery<ENTITY> {
                 loader.prepareQuery(configuration);
             }
 
-            EntityMetadata<ENTITY> metadata = lastLoader.mBrightify.getFactory().getEntities().getMetadata(configuration.mEntityClass);
+            EntityMetadata<ENTITY> metadata = lastLoader.brightify
+                                                        .getFactory().getEntities().getMetadata(configuration.entityClass);
 
             StringBuilder builder = new StringBuilder();
 
@@ -71,25 +72,25 @@ public class LoadQuery<ENTITY> {
 
             LinkedList<String> selectionArgsList = new LinkedList<String>();
             builder.append(" FROM ").append(metadata.getTableName());
-            if(configuration.mEntityFilters.size() > 0) {
+            if(configuration.entityFilters.size() > 0) {
                 builder.append(" WHERE ");
-                for(EntityFilter filter : configuration.mEntityFilters) {
+                for(EntityFilter filter : configuration.entityFilters) {
                     builder.append(filter.getFilterType().toSQL(selectionArgsList));
                 }
             }
 
-            if(configuration.mOrdering.size() > 0) {
+            if(configuration.ordering.size() > 0) {
                 builder.append(" ORDER BY ");
-                for(Configuration.OrderPair orderPair : configuration.mOrdering) {
+                for(Configuration.OrderPair orderPair : configuration.ordering) {
                     builder.append(orderPair.getColumnName()).append(" ")
                             .append(orderPair.getDirection() == OrderLoader.Direction.ASCENDING ? "ASC" : "DESC");
                 }
             }
 
-            if(configuration.mLimit != null) {
-                builder.append(" LIMIT ").append(configuration.mLimit);
-                if(configuration.mOffset != null) {
-                    builder.append(" OFFSET ").append(configuration.mOffset);
+            if(configuration.limit != null) {
+                builder.append(" LIMIT ").append(configuration.limit);
+                if(configuration.offset != null) {
+                    builder.append(" OFFSET ").append(configuration.offset);
                 }
             }
 
@@ -103,79 +104,79 @@ public class LoadQuery<ENTITY> {
     }
 
     public static class Configuration<ENTITY> {
-        protected Class<ENTITY> mEntityClass;
-        protected LinkedList<Class<?>> mLoadGroups = new LinkedList<Class<?>>();
-        protected LinkedList<EntityFilter> mEntityFilters = new LinkedList<EntityFilter>();
-        protected LinkedList<OrderPair> mOrdering = new LinkedList<OrderPair>();
-        protected Integer mLimit;
-        protected Integer mOffset;
+        protected Class<ENTITY> entityClass;
+        protected LinkedList<Class<?>> loadGroups = new LinkedList<Class<?>>();
+        protected LinkedList<EntityFilter> entityFilters = new LinkedList<EntityFilter>();
+        protected LinkedList<OrderPair> ordering = new LinkedList<OrderPair>();
+        protected Integer limit;
+        protected Integer offset;
 
         public Configuration<ENTITY> setEntityClass(Class<ENTITY> entityClass) {
-            mEntityClass = entityClass;
+            this.entityClass = entityClass;
             return this;
         }
 
         public Configuration<ENTITY> addLoadGroup(Class<?> loadGroup) {
-            mLoadGroups.addLast(loadGroup);
+            loadGroups.addLast(loadGroup);
             return this;
         }
 
         public Configuration<ENTITY> addLoadGroups(Class<?>... loadGroups) {
-            Collections.addAll(mLoadGroups, loadGroups);
+            Collections.addAll(this.loadGroups, loadGroups);
             return this;
         }
 
         public Configuration<ENTITY> addEntityFilter(EntityFilter filter) {
-            mEntityFilters.addLast(filter);
+            entityFilters.addLast(filter);
             return this;
         }
 
         public Configuration<ENTITY> addOrdering(String orderColumn, OrderLoader.Direction direction) {
-            mOrdering.addLast(new OrderPair(orderColumn, direction));
+            ordering.addLast(new OrderPair(orderColumn, direction));
             return this;
         }
 
         public Configuration<ENTITY> setLastOrderDirection(OrderLoader.Direction direction) {
-            if(mOrdering.size() == 0) {
+            if(ordering.size() == 0) {
                 throw new IllegalStateException("Can't change direction when there was no ordering added!");
             }
-            mOrdering.getLast().setDirection(direction);
+            ordering.getLast().setDirection(direction);
             return this;
         }
 
         public Configuration<ENTITY> setLimit(Integer limit) {
-            mLimit = limit;
+            this.limit = limit;
             return this;
         }
 
         public Configuration<ENTITY> setOffset(Integer offset) {
-            mOffset = offset;
+            this.offset = offset;
             return this;
         }
 
         private static class OrderPair {
-            protected String mColumnName;
-            protected OrderLoader.Direction mDirection;
+            protected String columnName;
+            protected OrderLoader.Direction direction;
 
             public OrderPair(String columnName, OrderLoader.Direction direction) {
-                mColumnName = columnName;
-                mDirection = direction;
+                this.columnName = columnName;
+                this.direction = direction;
             }
 
             public String getColumnName() {
-                return mColumnName;
+                return columnName;
             }
 
             public void setColumnName(String columnName) {
-                mColumnName = columnName;
+                this.columnName = columnName;
             }
 
             public OrderLoader.Direction getDirection() {
-                return mDirection;
+                return direction;
             }
 
             public void setDirection(OrderLoader.Direction direction) {
-                mDirection = direction;
+                this.direction = direction;
             }
         }
     }

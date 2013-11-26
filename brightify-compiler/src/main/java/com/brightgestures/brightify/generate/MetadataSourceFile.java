@@ -119,7 +119,7 @@ public class MetadataSourceFile extends SourceFile {
         // TODO should the class be final?
         line("public final class ")
                 .append(metadataClassName)
-                .append(" extends EntityMetadata<")
+                .append(" implements EntityMetadata<")
                 .append(entity.name)
                 .append(">")
                 .nest();
@@ -129,6 +129,8 @@ public class MetadataSourceFile extends SourceFile {
         writeStaticInformation();
 
         writeFields();
+
+        writePrivateConstructor();
 
         writeCreateTable();
         writeFromCursor();
@@ -176,6 +178,12 @@ public class MetadataSourceFile extends SourceFile {
             field.write(this);
             emptyLine();
         }
+    }
+
+    private void writePrivateConstructor() {
+        line("private ").append(metadataClassName).append("()").nest();
+        unNest();
+        emptyLine();
     }
 
     private void writeCreateTable() {

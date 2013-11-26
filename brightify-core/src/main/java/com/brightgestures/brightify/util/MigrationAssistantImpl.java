@@ -27,7 +27,7 @@ public class MigrationAssistantImpl<ENTITY> implements MigrationAssistant<ENTITY
     public void dropTable() {
         DropTable dropTable = new DropTable();
         dropTable.setTableName(entityMetadata.getTableName());
-        dropTable.setDatabaseName(brightifyFactory.getConfiguration().getDatabaseName());
+        dropTable.setDatabaseName(brightifyFactory.getDatabaseName());
         dropTable.run(getDatabase());
     }
 

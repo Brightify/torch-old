@@ -1,10 +1,12 @@
 package com.brightgestures.brightify.action.load;
 
+import android.test.ActivityInstrumentationTestCase2;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import com.brightgestures.brightify.BrightifyService;
 import com.brightgestures.brightify.EntitiesImpl;
 import com.brightgestures.brightify.Key;
+import com.brightgestures.brightify.test.MainTestActivity;
 import com.brightgestures.brightify.test.TestObject;
 
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import static com.brightgestures.brightify.BrightifyService.bfy;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class LoaderTest extends AndroidTestCase {
+public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivity> {
 
     private Map<Key<TestObject>, TestObject> savedDataMap;
     private ArrayList<TestObject> savedData;
@@ -28,12 +30,15 @@ public class LoaderTest extends AndroidTestCase {
     private TestObject testObject2;
     private TestObject testObject3;
 
+    public LoaderTest() {
+        super(MainTestActivity.class);
+    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        BrightifyService.with(getContext()).register(TestObject.class);
+        BrightifyService.with(getActivity()).register(TestObject.class);
 
         BrightifyService.factory().forceOpenOrCreateDatabase();
 

@@ -5,7 +5,6 @@ import android.util.Log;
 import com.brightgestures.brightify.util.Callback;
 
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class BrightifyService {
@@ -25,7 +24,7 @@ public class BrightifyService {
      * Using this method the database will get opened (or created if it doesn't yet exist) in background.
      * In order to get all async callbacks delivered on UI Thread, you have to call this on UI Thread
      * <p/>
-     * This overrides the {@link com.brightgestures.brightify.FactoryConfigurationImpl#isImmediateDatabaseCreation()}
+     * This overrides the {@link BasicFactoryConfiguration#isImmediateDatabaseCreation()}
      * setting, making it true
      *
      * @param callback will be called when database is opened or on failure, on UI thread

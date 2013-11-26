@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="brightify__DATABASE_NAME">com.brightgestures.brightify.DATABASE_NAME</string>
-    <string name="brightify__ENABLE_QUERY_LOGGING">com.brightgestures.brightify.ENABLE_QUERY_LOGGING</string>
-    <string name="brightify__IMMEDIATE_DATABASE_CREATION">com.brainwashstudio.brightify.IMMEDIATE_DATABASE_CREATION</string>
-</resources>

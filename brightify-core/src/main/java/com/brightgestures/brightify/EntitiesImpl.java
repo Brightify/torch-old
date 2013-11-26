@@ -1,5 +1,7 @@
 package com.brightgestures.brightify;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,13 +58,16 @@ public class EntitiesImpl implements Entities {
     }
 
     public static <ENTITY> EntityMetadata<ENTITY> findMetadata(Class<ENTITY> entityClass) {
+        // TODO Move "Metadata" to constant which is consistent through brightify-compiler (probably Settings class)
         String metadataName = entityClass.getName() + "Metadata";
 
         try {
             Class<EntityMetadata<ENTITY>> metadataClass = (Class<EntityMetadata<ENTITY>>) Class.forName(metadataName);
-
-            return metadataClass.newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            Constructor<EntityMetadata<ENTITY>> constructor = metadataClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                InvocationTargetException e) {
             throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
         }
     }

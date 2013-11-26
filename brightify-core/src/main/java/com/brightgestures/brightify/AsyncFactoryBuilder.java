@@ -4,8 +4,10 @@ import android.content.Context;
 import com.brightgestures.brightify.util.AsyncRunner;
 import com.brightgestures.brightify.util.Callback;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
@@ -16,7 +18,7 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     private Callback<BrightifyFactory> callback;
     private Context context;
     private boolean submitted;
-    private List<EntityMetadata<?>> metadatas = new LinkedList<>();
+    private Set<EntityMetadata<?>> metadatas = new LinkedHashSet<>();
 
     AsyncFactoryBuilder(Callback<BrightifyFactory> callback) {
         this.callback = callback;

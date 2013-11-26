@@ -10,6 +10,8 @@ import android.util.Log;
 public class Settings {
     private static final String TAG = Settings.class.getSimpleName();
 
+    public static final String DEFAULT_DATABASE_NAME = "brightify_main_database";
+
     private static int enableDebugRequests = 0;
     private static int enableQueryLoggingRequests = 0;
 

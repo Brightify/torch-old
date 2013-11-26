@@ -1,7 +1,6 @@
 package com.brightgestures.brightify.action.load;
 
 import com.brightgestures.brightify.Brightify;
-import com.brightgestures.brightify.Entities;
 import com.brightgestures.brightify.EntityMetadata;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.Result;
@@ -24,36 +23,36 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         TypedFilterOrderLimitListLoader<ENTITY>, OperatorFilterOrderLimitListLoader<ENTITY>, OrderLimitListLoader<ENTITY>,
         OrderDirectionLimitListLoader<ENTITY>, OffsetListLoader<ENTITY> {
 
-    protected final Brightify mBrightify;
-    protected final LoaderImpl<?> mPreviousLoader;
-    protected final LoaderType<ENTITY> mLoaderType;
+    protected final Brightify brightify;
+    protected final LoaderImpl<?> previousLoader;
+    protected final LoaderType<ENTITY> loaderType;
 
     public LoaderImpl(Brightify brightify) {
         this(brightify, null, new LoaderType.NopLoaderType<ENTITY>());
     }
 
     public LoaderImpl(Brightify brightify, LoaderImpl<?> previousLoader, LoaderType<ENTITY> loaderType) {
-        mBrightify = brightify;
-        mPreviousLoader = previousLoader;
-        mLoaderType = loaderType;
+        this.brightify = brightify;
+        this.previousLoader = previousLoader;
+        this.loaderType = loaderType;
     }
 
     public LoaderImpl<?> getPreviousLoader() {
-        return mPreviousLoader;
+        return previousLoader;
     }
 
     public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-        mLoaderType.prepareQuery(configuration);
+        loaderType.prepareQuery(configuration);
     }
 
     protected LoadResultImpl<ENTITY> prepareResult() {
         LoadQuery<ENTITY> query = LoadQuery.Builder.build(this);
 
-        return new LoadResultImpl<ENTITY>(mBrightify, query);
+        return new LoadResultImpl<ENTITY>(brightify, query);
     }
 
     protected <ENTITY> LoaderImpl<ENTITY> nextLoader(LoaderType<ENTITY> type) {
-        return new LoaderImpl<ENTITY>(mBrightify, this, type);
+        return new LoaderImpl<ENTITY>(brightify, this, type);
     }
 
     @Override
@@ -201,8 +200,8 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         if(ids == null || ids.size() == 0) {
             throw new IllegalArgumentException("There has to be at least one id!");
         }
-        LoaderType.TypedLoaderType<ENTITY> typedLoaderType = (LoaderType.TypedLoaderType<ENTITY>) mLoaderType;
-        EntityMetadata<ENTITY> metadata = mBrightify.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
+        LoaderType.TypedLoaderType<ENTITY> typedLoaderType = (LoaderType.TypedLoaderType<ENTITY>) loaderType;
+        EntityMetadata<ENTITY> metadata = brightify.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
         String columnName = metadata.getIdColumnName();
         String condition = columnName + "=";
 

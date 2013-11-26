@@ -153,16 +153,35 @@ public class EntityParser {
             } else if (child.getKind() == ElementKind.METHOD) {
                 Accessor accessor = child.getAnnotation(Accessor.class);
                 Migration migration = child.getAnnotation(Migration.class);
-                Accessor.Type methodType = null;
+                Accessor.Type methodType;
                 String columnName;
                 ExecutableElement executableChild = (ExecutableElement) child;
-                if(types.isSameType(executableChild.getReturnType(), types.getNoType(TypeKind.VOID))) {
-
-                }
-
                 if (accessor != null) {
                     columnName = accessor.name();
                     methodType = accessor.type();
+                    if (methodType == Accessor.Type.INFERRED) {
+                        if (types.isSameType(executableChild.getReturnType(), types.getNoType(TypeKind.VOID)) &&
+                            executableChild.getParameters().size() == 1) {
+                            methodType = Accessor.Type.SET;
+                        } else if (!types.isSameType(executableChild.getReturnType(), types.getNoType(TypeKind.VOID)) &&
+                                   executableChild.getParameters().size() == 0) {
+                            methodType = Accessor.Type.GET;
+                        } else {
+                            throw new EntityParseException(child, "Could not infer accessor type!");
+                        }
+                    }
+                    // FIXME to much repetetive code!
+                    if(columnName.equals("")) {
+                        if(methodType == Accessor.Type.GET && childName.startsWith("get")) {
+                            columnName = childName.substring(3, 4).toLowerCase() + childName.substring(4);
+                        } else if(methodType == Accessor.Type.GET && childName.startsWith("is")) {
+                            columnName = childName.substring(2, 3).toLowerCase() + childName.substring(3);
+                        } else if(methodType == Accessor.Type.SET && childName.startsWith("set")) {
+                            columnName = childName.substring(3, 4).toLowerCase() + childName.substring(4);
+                        } else {
+                            columnName = childName;
+                        }
+                    }
                 } else if (childName.startsWith("get")) {
                     columnName = childName.substring(3, 4).toLowerCase() + childName.substring(4);
                     methodType = Accessor.Type.GET;

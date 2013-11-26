@@ -30,12 +30,12 @@ public class TestObject implements Serializable {
     protected String protectedTest = "protectedTest";
     String defaultTest = "defaultTest";
 
-    @Accessor(type = Accessor.Type.INFERRED)
+    @Accessor
     public String getProtectedTest() {
         return protectedTest;
     }
 
-    @Accessor(type = Accessor.Type.INFERRED)
+    @Accessor
     public void setProtectedTest(String protectedTest) {
         this.protectedTest = protectedTest;
     }

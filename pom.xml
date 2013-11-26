@@ -81,13 +81,6 @@
                 <groupId>com.brightgestures.brightify</groupId>
                 <artifactId>brightify-core</artifactId>
                 <version>${project.version}</version>
-                <type>apklib</type>
-            </dependency>
-            <dependency>
-                <groupId>com.brightgestures.brightify</groupId>
-                <artifactId>brightify-core</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
                 <type>jar</type>
             </dependency>
     	</dependencies>
