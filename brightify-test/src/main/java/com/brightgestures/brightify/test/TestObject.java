@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
 * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
 */
-@Entity(version = 2)
+@Entity(version = "3.5.2")
 @Index
 public class TestObject implements Serializable {
     @Id
@@ -59,8 +59,23 @@ public class TestObject implements Serializable {
 
     }
 
-    @Migration(source = 1, target = 2)
-    public static void migrate12(MigrationAssistant<TestObject> assistant) {
+    @Migration(source = "1.0.0", target = "2.0.0")
+    public static void migrate100200(MigrationAssistant<TestObject> assistant) {
+
+    }
+
+    @Migration(source = "2.0.0", target = "3.0.0")
+    public static void migrate200300(MigrationAssistant<TestObject> assistant) {
+
+    }
+
+    @Migration(source = "3.0.0", target = "3.5.2")
+    public static void migrate300352(MigrationAssistant<TestObject> assistant) {
+
+    }
+
+    @Migration(source = "1.0.0", target = "3.5.2")
+    public static void migrate100352(MigrationAssistant<TestObject> assistant) {
 
     }
 

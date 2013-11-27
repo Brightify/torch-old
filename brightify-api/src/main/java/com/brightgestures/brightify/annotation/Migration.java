@@ -7,10 +7,20 @@ import java.lang.annotation.Target;
 public @interface Migration {
 
     /**
-     * Version of Entity
+     * Source version of the Entity.
      * @return
      */
-    int source();
+    String source();
 
-    int target();
+    /**
+     * Target version of the Entity.
+     * @return
+     */
+    String target();
+
+    /**
+     * In case of equal migration path costs, path with more preferred migration methods will be selected.
+     * @return
+     */
+    boolean preferred() default false;
 }

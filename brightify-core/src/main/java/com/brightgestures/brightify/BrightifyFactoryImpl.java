@@ -9,12 +9,9 @@ import com.brightgestures.brightify.model.TableMetadata;
 import com.brightgestures.brightify.util.MigrationAssistantImpl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 public class BrightifyFactoryImpl implements BrightifyFactory {
-    private static final String TAG = BrightifyFactoryImpl.class.getSimpleName();
-
     protected final Context context;
     protected final DatabaseEngine databaseEngine;
 
@@ -39,8 +36,8 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
      * pass in will be stored in this instance of the factory. If you want to use the factory through multiple
      * activities (storing it at static level), you should use application context to avoid memory leaks.
      *
-     * @param context Context which will be used to open database with.
-     * @param metadatas Optional set of {@link com.brightgestures.brightify.EntityMetadata} to directly register.
+     * @param context       Context which will be used to open database with.
+     * @param metadatas     Optional set of {@link com.brightgestures.brightify.EntityMetadata} to directly register.
      * @param configuration
      */
     public BrightifyFactoryImpl(Context context, Set<EntityMetadata<?>> metadatas,

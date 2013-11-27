@@ -1,5 +1,7 @@
 package com.brightgestures.brightify.parse;
 
+import com.brightgestures.brightify.util.VersionComparator;
+
 import javax.lang.model.element.ExecutableElement;
 
 /**
@@ -8,11 +10,13 @@ import javax.lang.model.element.ExecutableElement;
 public class MigrationMethod {
 
     private final ExecutableElement executable;
-    private final int fromVersion;
-    private final int toVersion;
+    private final boolean preferred;
+    private final String fromVersion;
+    private final String toVersion;
 
-    public MigrationMethod(ExecutableElement executable, int fromVersion, int toVersion) {
+    public MigrationMethod(ExecutableElement executable, boolean preferred, String fromVersion, String toVersion) {
         this.executable = executable;
+        this.preferred = preferred;
         this.fromVersion = fromVersion;
         this.toVersion = toVersion;
     }
@@ -21,11 +25,21 @@ public class MigrationMethod {
         return executable;
     }
 
-    public int getFromVersion() {
+    public boolean isPreferred() {
+        return preferred;
+    }
+
+    public String getFromVersion() {
         return fromVersion;
     }
 
-    public int getToVersion() {
+    public String getToVersion() {
         return toVersion;
+    }
+
+    public static int compare(String v1, String v2) {
+        VersionComparator versionComparator = new VersionComparator();
+
+        return versionComparator.compare(v1, v2);
     }
 }

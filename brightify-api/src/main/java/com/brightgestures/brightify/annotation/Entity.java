@@ -5,7 +5,7 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE })
 public @interface Entity {
-    public static final int LOWEST_VERSION = 1;
+    public static final String LOWEST_VERSION = "1.0.0";
 
     /**
      * Overrides the default table name.
@@ -27,7 +27,7 @@ public @interface Entity {
      *
      * @return
      */
-    int version() default LOWEST_VERSION;
+    String version() default LOWEST_VERSION;
 
     /**
      * Type of migration. Please refer to {@link com.brightgestures.brightify.annotation.Entity.MigrationType} for

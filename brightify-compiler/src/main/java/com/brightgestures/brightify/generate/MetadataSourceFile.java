@@ -3,7 +3,8 @@ package com.brightgestures.brightify.generate;
 import com.brightgestures.brightify.SourceFile;
 import com.brightgestures.brightify.marshall.CursorMarshallerInfo;
 import com.brightgestures.brightify.parse.EntityInfo;
-import com.brightgestures.brightify.parse.MigrationMethod;
+import com.brightgestures.brightify.parse.MigrationPath;
+import com.brightgestures.brightify.parse.MigrationPathPart;
 import com.brightgestures.brightify.parse.Property;
 import com.brightgestures.brightify.util.TypeHelper;
 
@@ -165,7 +166,7 @@ public class MetadataSourceFile extends SourceFile {
         }
         unNest().append(";");
         line("public static final String tableName = \"").append(entity.tableName).append("\";");
-        line("public static final int version = ").append(entity.version).append(";");
+        line("public static final String version = \"").append(entity.version).append("\";");
         line("public static final Entity.MigrationType migrationType = Entity.MigrationType.").append(
                 entity.migrationType).append(";");
         line("public static final Class<").append(entity.name).append("> entityClass = ").append(entity.name).append(
@@ -265,25 +266,39 @@ public class MetadataSourceFile extends SourceFile {
         override();
         line("public void migrate(MigrationAssistant<")
                 .append(entity.name)
-                .append("> assistant, int sourceVersion, int targetVersion) throws Exception")
+                .append("> assistant, String sourceVersion, String targetVersion) throws Exception")
                 .nest();
-        for (MigrationMethod migrationMethod : entity.migrationMethods) {
-            line("if (sourceVersion == ")
-                    .append(migrationMethod.getFromVersion())
-                    .append(" && targetVersion >= ")
-                    .append(migrationMethod.getFromVersion())
-                    .append(")")
+        int i = 0;
+        line("");
+        // TODO generate switch and not if-else
+        for (MigrationPath migrationPath : entity.migrationPaths) {
+            if (i > 0) {
+                append(" else ");
+            }
+
+            append("if (\"")
+                    .append(migrationPath.getDescription())
+                    .append("\".equals(sourceVersion + \"->\" + targetVersion))")
                     .nest();
-            line(entity.name)
-                    .append(".")
-                    .append(migrationMethod.getExecutable().getSimpleName())
-                    .append("(assistant);");
-            line("sourceVersion = ").append(migrationMethod.getFromVersion()).append(";");
+
+            for (MigrationPathPart part = migrationPath.getStart(); part != null; part = part.getNext()) {
+                line(entity.name)
+                        .append(".")
+                        .append(part.getMigrationMethod().getExecutable().getSimpleName())
+                        .append("(assistant);");
+            }
+            unNest();
+
+            i++;
+        }
+        if (i > 0) {
+            append(" else").nest();
+        }
+        line("throw new MigrationException(\"Unable to migrate entity! Could not find migration path from \" + " +
+             "sourceVersion + \" to \" + targetVersion);");
+        if (i > 0) {
             unNest();
         }
-        line("if (sourceVersion != targetVersion)").nest();
-        line("throw new MigrationException(\"Unable to migrate entity!\");");
-        unNest();
         unNest();
         emptyLine();
     }
@@ -314,7 +329,7 @@ public class MetadataSourceFile extends SourceFile {
 
     private void writeGetVersion() {
         override();
-        line("public int getVersion()").nest();
+        line("public String getVersion()").nest();
         line("return version;");
         unNest();
         emptyLine();

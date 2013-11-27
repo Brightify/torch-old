@@ -16,7 +16,7 @@ public interface EntityMetadata<ENTITY> {
 
     String getTableName();
 
-    int getVersion();
+    String getVersion();
 
     Entity.MigrationType getMigrationType();
 
@@ -34,5 +34,5 @@ public interface EntityMetadata<ENTITY> {
 
     ContentValues toContentValues(ENTITY entity) throws Exception;
 
-    void migrate(MigrationAssistant<ENTITY> assistant, int sourceVersion, int targetVersion) throws Exception;
+    void migrate(MigrationAssistant<ENTITY> assistant, String sourceVersion, String targetVersion) throws Exception;
 }

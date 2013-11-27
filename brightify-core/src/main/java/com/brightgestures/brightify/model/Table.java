@@ -14,7 +14,7 @@ public class Table {
 
     private Long id;
     private String tableName;
-    private Integer version;
+    private String version;
 
     // FIXME if no generic type argument is set, handle error through messager
     // public Key<TableDetails> details;
@@ -38,11 +38,11 @@ public class Table {
         this.tableName = tableName;
     }
 
-    public Integer getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 

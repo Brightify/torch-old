@@ -21,7 +21,7 @@ import java.util.*;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 @SupportedAnnotationTypes({ "com.brightgestures.brightify.annotation.Entity" })
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
     private static final List<String> testsss = new ArrayList<>();

@@ -22,7 +22,6 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,12 +170,12 @@ public class EntityParser {
                         }
                     }
                     // FIXME to much repetetive code!
-                    if(columnName.equals("")) {
-                        if(methodType == Accessor.Type.GET && childName.startsWith("get")) {
+                    if (columnName.equals("")) {
+                        if (methodType == Accessor.Type.GET && childName.startsWith("get")) {
                             columnName = childName.substring(3, 4).toLowerCase() + childName.substring(4);
-                        } else if(methodType == Accessor.Type.GET && childName.startsWith("is")) {
+                        } else if (methodType == Accessor.Type.GET && childName.startsWith("is")) {
                             columnName = childName.substring(2, 3).toLowerCase() + childName.substring(3);
-                        } else if(methodType == Accessor.Type.SET && childName.startsWith("set")) {
+                        } else if (methodType == Accessor.Type.SET && childName.startsWith("set")) {
                             columnName = childName.substring(3, 4).toLowerCase() + childName.substring(4);
                         } else {
                             columnName = childName;
@@ -203,16 +202,16 @@ public class EntityParser {
                                                        executableChild.getSimpleName());
                     }
 
-                    if (migration.source() == migration.target()) {
+                    if (migration.source().equals(migration.target())) {
                         throw new EntityParseException(child, "Source and target versions cannot equal.");
                     }
 
-                    if (migration.source() > migration.target()) {
+                    if (MigrationMethod.compare(migration.source(), migration.target()) >= 0) {
                         throw new EntityParseException(child, "Source version cannot be greater than target version.");
                     }
 
-                    MigrationMethod migrationMethod = new MigrationMethod(executableChild, migration.source(),
-                                                                          migration.target());
+                    MigrationMethod migrationMethod = new MigrationMethod(executableChild, migration.preferred(),
+                                                                          migration.source(), migration.target());
 
                     info.migrationMethods.add(migrationMethod);
                     continue;
@@ -365,11 +364,116 @@ public class EntityParser {
         return info;
     }
 
+    private List<MigrationPathPart> findMigrationPaths(List<MigrationMethod> allMigrationMethods,
+                                                       MigrationMethod target,
+                                                       MigrationMethod current) {
+        if (current.equals(target)) {
+            MigrationPathPart lastBit = new MigrationPathPart();
+            lastBit.migrationMethod = current;
+            return Collections.singletonList(lastBit);
+        }
+
+        ArrayList<MigrationPathPart> returnPaths = new ArrayList<>();
+        for (MigrationMethod migrationMethod : allMigrationMethods) {
+            if (migrationMethod.getFromVersion().equals(current.getToVersion())) {
+                List<MigrationPathPart> possiblePaths = findMigrationPaths(allMigrationMethods, target,
+                                                                           migrationMethod);
+                for (MigrationPathPart possiblePath : possiblePaths) {
+                    MigrationPathPart thisBit = new MigrationPathPart();
+                    thisBit.migrationMethod = current;
+                    thisBit.next = possiblePath;
+                    possiblePath.previous = thisBit;
+                    returnPaths.add(thisBit);
+                }
+
+            }
+        }
+        return returnPaths;
+    }
+
+    private List<MigrationPath> pickMostEffectivePaths(Map<String, List<MigrationPathPart>> pathPartsMap) {
+        List<MigrationPath> effectivePaths = new ArrayList<>();
+        for (String description : pathPartsMap.keySet()) {
+            List<MigrationPathPart> pathParts = pathPartsMap.get(description);
+            if(pathParts.size() == 0) {
+                continue;
+            }
+            MigrationPath mostEffectivePath = null;
+            for (MigrationPathPart pathPart : pathParts) {
+                MigrationPath path = new MigrationPath();
+                path.description = description;
+                path.start = pathPart;
+                if (mostEffectivePath == null) {
+                    mostEffectivePath = path;
+                    continue;
+                }
+
+                // FIXME should we select the path if all parts are prefered?
+                // FIXME or should we improve the algorithm to check the difference between cost and preference?
+                // if(path.getCost() == path.getPreferredPartsCount())
+
+                int currentCost = path.getCost();
+                int mostEffectiveCost = mostEffectivePath.getCost();
+                if (currentCost < mostEffectiveCost) {
+                    mostEffectivePath = path;
+                } else if (currentCost == mostEffectiveCost &&
+                           path.getPreferredPartsCount() > mostEffectivePath.getPreferredPartsCount()) {
+                    mostEffectivePath = path;
+                }
+            }
+            effectivePaths.add(mostEffectivePath);
+        }
+        return effectivePaths;
+    }
+
     private void checkMigrationMethods(EntityInfo entity) throws EntityParseException {
-        int sourceVersion = Entity.LOWEST_VERSION;
-        int targetVersion = entity.version;
+        String sourceVersion = Entity.LOWEST_VERSION;
+        String targetVersion = entity.version;
+
+        Map<String, List<MigrationPathPart>> migrationPaths = new HashMap<>();
+        for (MigrationMethod sourceMethod : entity.migrationMethods) {
+            for (MigrationMethod targetMethod : entity.migrationMethods) {
+                if (MigrationMethod.compare(sourceMethod.getFromVersion(), targetMethod.getToVersion()) > 0) {
+                    continue;
+                }
+
+                String key = sourceMethod.getFromVersion() + "->" + targetMethod.getToVersion();
+
+                if (!migrationPaths.containsKey(key)) {
+                    List<MigrationPathPart> listToSave = new ArrayList<>();
+                    migrationPaths.put(key, listToSave);
+                }
+                List<MigrationPathPart> savedPaths = migrationPaths.get(key);
+
+                if (sourceMethod == targetMethod) {
+                    MigrationPathPart migrationPath = new MigrationPathPart();
+                    migrationPath.migrationMethod = sourceMethod;
+
+                    savedPaths.add(migrationPath);
+                    continue;
+                }
+
+                List<MigrationPathPart> foundPaths = findMigrationPaths(entity.migrationMethods, targetMethod,
+                                                                        sourceMethod);
+
+                savedPaths.addAll(foundPaths);
+            }
+        }
+
+        if (!sourceVersion.equals(targetVersion) &&
+            (!migrationPaths.containsKey(sourceVersion + "->" + targetVersion) ||
+             migrationPaths.get(sourceVersion + "->" + targetVersion).size() == 0)) {
+            throw new EntityParseException(entity.element,
+                                           "Entity %s doesn't have migration path to cover migration from %s to %s",
+                                           entity.name, sourceVersion, targetVersion);
+        }
+
+        entity.migrationPaths = pickMostEffectivePaths(migrationPaths);
+
+        String brake = "";
 
         // FIXME move to "verifyEntity()"
+        /*
         if (entity.version < Entity.LOWEST_VERSION) {
             throw new EntityParseException(entity.element, "Entity version cannot be lower than %d.",
                                            Entity.LOWEST_VERSION);
@@ -446,7 +550,7 @@ public class EntityParser {
             public int compare(MigrationMethod lhs, MigrationMethod rhs) {
                 return Integer.compare(lhs.getFromVersion(), rhs.getFromVersion());
             }
-        });
+        });*/
     }
 
     private boolean isMethodIgnored(String name) {
