@@ -57,6 +57,16 @@ public abstract class SourceFile {
         return this;
     }
 
+    public SourceFile nestWithoutBrackets() {
+        mLevel++;
+        return this;
+    }
+
+    public SourceFile unNestWithoutBrackets() {
+        mLevel--;
+        return this;
+    }
+
     public void save(String name) {
         try {
             Writer writer = processingEnv.getFiler().createSourceFile(name).openWriter();

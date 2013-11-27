@@ -91,8 +91,13 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
     }
 
     @Override
-    public OffsetListLoader limit(int limit) {
-        return nextLoader(new LoaderType.LimitLoaderType(limit));
+    public void async(Callback<List<ENTITY>> callback) {
+        prepareResult().async(callback);
+    }
+
+    @Override
+    public OffsetListLoader<ENTITY> limit(int limit) {
+        return nextLoader(new LoaderType.LimitLoaderType<ENTITY>(limit));
     }
 
     @Override

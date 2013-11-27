@@ -5,6 +5,6 @@ package com.brightgestures.brightify.action.load;
  */
 public interface LimitLoader<ENTITY> {
 
-    OffsetListLoader limit(int limit);
+    OffsetListLoader<ENTITY> limit(int limit);
 
 }

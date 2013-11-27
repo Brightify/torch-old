@@ -268,37 +268,24 @@ public class MetadataSourceFile extends SourceFile {
                 .append(entity.name)
                 .append("> assistant, String sourceVersion, String targetVersion) throws Exception")
                 .nest();
-        int i = 0;
-        line("");
+        line("switch(sourceVersion + \"->\" + targetVersion)").nest();
         // TODO generate switch and not if-else
         for (MigrationPath migrationPath : entity.migrationPaths) {
-            if (i > 0) {
-                append(" else ");
-            }
-
-            append("if (\"")
-                    .append(migrationPath.getDescription())
-                    .append("\".equals(sourceVersion + \"->\" + targetVersion))")
-                    .nest();
-
+            line("case \"").append(migrationPath.getDescription()).append("\":").nestWithoutBrackets();
             for (MigrationPathPart part = migrationPath.getStart(); part != null; part = part.getNext()) {
                 line(entity.name)
                         .append(".")
                         .append(part.getMigrationMethod().getExecutable().getSimpleName())
                         .append("(assistant);");
             }
-            unNest();
-
-            i++;
+            line("break;");
+            unNestWithoutBrackets();
         }
-        if (i > 0) {
-            append(" else").nest();
-        }
+        line("default:").nestWithoutBrackets();
         line("throw new MigrationException(\"Unable to migrate entity! Could not find migration path from \" + " +
              "sourceVersion + \" to \" + targetVersion);");
-        if (i > 0) {
-            unNest();
-        }
+        unNestWithoutBrackets();
+        unNest();
         unNest();
         emptyLine();
     }

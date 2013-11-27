@@ -1,5 +1,7 @@
 package com.brightgestures.brightify.action.load;
 
+import com.brightgestures.brightify.util.Callback;
+
 import java.util.List;
 
 /**
@@ -11,4 +13,5 @@ public interface ListLoader<ENTITY> extends Iterable<ENTITY> {
 
     ENTITY single();
 
+    void async(Callback<List<ENTITY>> callback);
 }

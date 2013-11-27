@@ -1,19 +1,20 @@
 package com.brightgestures.brightify.action.load;
 
 import android.test.ActivityInstrumentationTestCase2;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import com.brightgestures.brightify.BrightifyService;
-import com.brightgestures.brightify.EntitiesImpl;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.test.MainTestActivity;
 import com.brightgestures.brightify.test.TestObject;
+import com.brightgestures.brightify.util.Callback;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.brightgestures.brightify.BrightifyService.bfy;
 
@@ -76,8 +77,25 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
     @MediumTest
     public void testLoadAllEntities() {
         List<TestObject> objects = bfy().load().type(TestObject.class).list();
-        assertEquals(4, objects.size());
         assertEquals(savedData, objects);
+    }
+
+    @MediumTest
+    public void testLoadAllEntitiesAsync() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        bfy().load().type(TestObject.class).async(new Callback<List<TestObject>>() {
+            @Override
+            public void onSuccess(List<TestObject> data) {
+                assertEquals(savedData, data);
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                fail("Failed to load data: " + e.getMessage());
+            }
+        });
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
 
     @MediumTest
@@ -92,6 +110,41 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
     }
 
     @MediumTest
+    public void testLoadFilteredEntitiesAsync() throws Exception {
+        final CountDownLatch firstLatch = new CountDownLatch(1);
+        bfy().load().type(TestObject.class).filter("intField > ?", 10).async(
+                new Callback<List<TestObject>>() {
+                    @Override
+                    public void onSuccess(List<TestObject> data) {
+                        assertEquals(2, data.size());
+                        firstLatch.countDown();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        fail("Failed to load data: " + e.getMessage());
+                    }
+                });
+        assertTrue(firstLatch.await(5, TimeUnit.SECONDS));
+
+        final CountDownLatch secondLatch = new CountDownLatch(1);
+        bfy().load().type(TestObject.class).filter("intField NOT IN (?, ?)", 10, 100).async(
+                new Callback<List<TestObject>>() {
+                    @Override
+                    public void onSuccess(List<TestObject> data) {
+                        assertEquals(2, data.size());
+                        secondLatch.countDown();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        fail("Failed to load data: " + e.getMessage());
+                    }
+                });
+        assertTrue(secondLatch.await(5, TimeUnit.SECONDS));
+    }
+
+    @MediumTest
     public void testLoadOrderedDescending() {
         List<TestObject> objectsOrdered = bfy().load().type(TestObject.class)
                 .orderBy("intField").desc().list();
@@ -100,8 +153,31 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
 
         Collections.reverse(saved);
 
-        assertEquals(4, objectsOrdered.size());
         assertEquals(saved, objectsOrdered);
+    }
+
+    @MediumTest
+    public void testLoadOrderedDescendingAsync() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        bfy().load().type(TestObject.class).orderBy("intField").desc().async(new Callback<List<TestObject>>() {
+            @Override
+            public void onSuccess(List<TestObject> data) {
+                ArrayList<TestObject> saved = new ArrayList<>(savedData);
+                Collections.reverse(saved);
+
+                assertEquals(saved, data);
+
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                fail("Failed to load data: " + e.getMessage());
+            }
+        });
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
 
     @MediumTest
@@ -113,7 +189,6 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         saved.add(testObject);
         saved.add(testObject1);
 
-        assertEquals(2, objectsLimited.size());
         assertEquals(saved, objectsLimited);
 
         List<TestObject> objectsLimitedWithOffset = bfy().load().type(TestObject.class)
@@ -123,8 +198,53 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         saved.add(testObject1);
         saved.add(testObject2);
 
-        assertEquals(2, objectsLimitedWithOffset.size());
         assertEquals(saved, objectsLimitedWithOffset);
+    }
+
+    @MediumTest
+    public void testLoadLimitedAsync() throws Exception {
+        final CountDownLatch firstLatch = new CountDownLatch(1);
+
+        bfy().load().type(TestObject.class).limit(2).async(new Callback<List<TestObject>>() {
+            @Override
+            public void onSuccess(List<TestObject> data) {
+                ArrayList<TestObject> saved = new ArrayList<>();
+                saved.add(testObject);
+                saved.add(testObject1);
+
+                assertEquals(saved, data);
+
+                firstLatch.countDown();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                fail("Failed to load data: " + e.getMessage());
+            }
+        });
+
+        assertTrue(firstLatch.await(5, TimeUnit.SECONDS));
+
+        final CountDownLatch secondLatch = new CountDownLatch(1);
+
+        bfy().load().type(TestObject.class).limit(2).offset(1).async(new Callback<List<TestObject>>() {
+            @Override
+            public void onSuccess(List<TestObject> data) {
+                ArrayList<TestObject> saved = new ArrayList<>();
+                saved.add(testObject1);
+                saved.add(testObject2);
+
+                assertEquals(saved, data);
+                secondLatch.countDown();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                fail("Failed to load data: " + e.getMessage());
+            }
+        });
+
+        assertTrue(secondLatch.await(5, TimeUnit.SECONDS));
     }
 
     private TestObject createTestObject() {

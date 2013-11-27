@@ -130,7 +130,7 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
             table = new Table();
             table.setTableName(metadata.getTableName());
             table.setVersion(metadata.getVersion());
-        } else if (table.getVersion() != metadata.getVersion()) {
+        } else if (!table.getVersion().equals(metadata.getVersion())) {
             MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<>(this, metadata);
             if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
                 migrationAssistant.dropCreateTable();

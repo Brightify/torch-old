@@ -11,6 +11,8 @@ public class DeleterTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+
     }
 
     @MediumTest
