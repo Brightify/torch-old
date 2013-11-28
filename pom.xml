@@ -14,6 +14,7 @@
         <module>brightify-core</module>
         <module>brightify-test</module>
         <module>brightify-bridge</module>
+        <module>brightify-demo-todo</module>
     </modules>
 
     <scm>

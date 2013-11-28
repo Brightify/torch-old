@@ -29,7 +29,6 @@
         <dependency>
             <groupId>com.brightgestures.brightify</groupId>
             <artifactId>brightify-core</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.robolectric</groupId>
