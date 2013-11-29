@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import com.brightgestures.brightify.demo.todo.model.Task;
 import com.brightgestures.brightify.demo.todo.view.TaskItemView;
+import com.brightgestures.brightify.demo.todo.view.TaskItemView_;
 import com.brightgestures.brightify.util.Callback;
 import com.googlecode.androidannotations.annotations.AfterInject;
 import com.googlecode.androidannotations.annotations.Bean;
@@ -32,11 +33,21 @@ public class TaskListAdapter extends BaseAdapter {
 
     @AfterInject
     void initAdapter() {
+        loadData();
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        loadData();
+    }
+
+    private void loadData() {
         bfy().load().type(Task.class).filter("ownerId = ?", authManager.getLoggedUser().getId()).async(
                 new Callback<List<Task>>() {
                     @Override
                     public void onSuccess(List<Task> data) {
                         tasks = data;
+                        TaskListAdapter.super.notifyDataSetChanged();
                     }
 
                     @Override

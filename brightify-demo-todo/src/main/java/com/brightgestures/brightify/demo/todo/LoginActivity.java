@@ -71,8 +71,7 @@ public class LoginActivity extends Activity {
     }
 
     private void startMainActivity() {
-
-        // TODO open next activity
+        MainActivity_.intent(this).start();
     }
 
 }
