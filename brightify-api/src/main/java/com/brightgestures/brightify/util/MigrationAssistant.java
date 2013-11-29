@@ -11,4 +11,6 @@ public interface MigrationAssistant<ENTITY> {
 
     void dropCreateTable();
 
+    boolean tableExists();
+
 }
