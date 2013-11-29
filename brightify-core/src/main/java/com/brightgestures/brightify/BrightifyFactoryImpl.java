@@ -4,11 +4,12 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import com.brightgestures.brightify.annotation.Entity;
 import com.brightgestures.brightify.model.Table;
+import com.brightgestures.brightify.model.TableDetails;
 import com.brightgestures.brightify.model.TableDetailsMetadata;
 import com.brightgestures.brightify.model.TableMetadata;
+import com.brightgestures.brightify.util.MigrationAssistant;
 import com.brightgestures.brightify.util.MigrationAssistantImpl;
 
-import java.util.Collection;
 import java.util.Set;
 
 public class BrightifyFactoryImpl implements BrightifyFactory {
@@ -64,7 +65,12 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
     private void registerInternalEntities() {
         // We need to register our metadata
         entities.registerMetadata(tableMetadata);
+        MigrationAssistant<Table> tableMigrationAssistant = new MigrationAssistantImpl<>(this, tableMetadata);
+        tableMigrationAssistant.createTable();
         entities.registerMetadata(tableDetailsMetadata);
+        MigrationAssistant<TableDetails> tableDetailsMigrationAssistant =
+                new MigrationAssistantImpl<>(this, tableDetailsMetadata);
+        tableDetailsMigrationAssistant.createTable();
     }
 
     private void verifyConfiguration() {
@@ -83,11 +89,7 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
 
     @Override
     public void onCreateDatabase(SQLiteDatabase db) {
-        Collection<EntityMetadata<?>> metadatas = entities.getAllMetadatas();
 
-        for (EntityMetadata<?> metadata : metadatas) {
-            metadata.createTable(db);
-        }
     }
 
     @Override
@@ -126,12 +128,13 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
         entities.registerMetadata(metadata);
 
         Table table = begin().load().type(Table.class).filter("tableName = ?", metadata.getTableName()).single();
+        MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<>(this, metadata);
         if (table == null) {
+            migrationAssistant.createTable();
             table = new Table();
             table.setTableName(metadata.getTableName());
             table.setVersion(metadata.getVersion());
         } else if (!table.getVersion().equals(metadata.getVersion())) {
-            MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<>(this, metadata);
             if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
                 migrationAssistant.dropCreateTable();
             } else {
