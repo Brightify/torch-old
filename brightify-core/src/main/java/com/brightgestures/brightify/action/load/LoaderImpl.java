@@ -112,7 +112,10 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
 
     @Override
     public <ENTITY> TypedFilterOrderLimitListLoader<ENTITY> type(Class<ENTITY> entityClass) {
-        return nextLoader(new LoaderType.TypedLoaderType<ENTITY>(entityClass));
+        if(brightify.getFactory().getEntities().getMetadata(entityClass) == null) {
+            throw new IllegalStateException("Entity not registered!");
+        }
+        return nextLoader(new LoaderType.TypedLoaderType<>(entityClass));
     }
 
     @Override

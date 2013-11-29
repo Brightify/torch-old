@@ -87,6 +87,10 @@ public class BrightifyService {
      * @return
      */
     public static Brightify bfy() {
+        if(!isLoaded()) {
+            throw new IllegalStateException("Factory is not loaded!");
+        }
+
         LinkedList<Brightify> stack = STACK.get();
         if (stack.isEmpty()) {
             stack.add(factoryInstance.begin());
