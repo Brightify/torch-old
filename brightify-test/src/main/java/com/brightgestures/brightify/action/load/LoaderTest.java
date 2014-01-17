@@ -6,6 +6,7 @@ import com.brightgestures.brightify.BrightifyService;
 import com.brightgestures.brightify.Key;
 import com.brightgestures.brightify.test.MainTestActivity;
 import com.brightgestures.brightify.test.TestObject;
+import com.brightgestures.brightify.test.TestObjectMetadata;
 import com.brightgestures.brightify.util.Callback;
 
 import java.util.ArrayList;
@@ -107,6 +108,15 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         List<TestObject> objectsFiltered1 = bfy().load().type(TestObject.class)
                 .filter("intField NOT IN (?, ?)", 10, 100).list();
         assertEquals(2, objectsFiltered1.size());
+
+        List<TestObject> objectsFiltered2 = bfy().load().type(TestObject.class).filter(TestObjectMetadata.intField
+                .greaterThan(10)).list();
+
+        assertEquals(2, objectsFiltered2.size());
+
+        List<TestObject> objectsFiltered3 = bfy().load().type(TestObject.class).filter(TestObjectMetadata.intField
+                .notIn(10, 100)).list();
+        assertEquals(2, objectsFiltered3.size());
     }
 
     @MediumTest

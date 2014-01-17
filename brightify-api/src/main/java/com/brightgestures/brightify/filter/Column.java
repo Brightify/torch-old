@@ -9,8 +9,6 @@ public interface Column<T> {
 
     String getName();
 
-    Class<T> getType();
-
     EntityFilter equalTo(T value);
 
     EntityFilter notEqualTo(T value);

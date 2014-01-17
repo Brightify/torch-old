@@ -8,7 +8,7 @@ import com.brightgestures.brightify.action.load.EntityFilter;
 public class StringColumnImpl extends ColumnImpl<String> implements StringColumn {
 
     public StringColumnImpl(String columName) {
-        super(columName, String.class);
+        super(columName);
     }
 
     @Override

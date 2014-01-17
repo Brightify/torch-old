@@ -5,6 +5,7 @@ import com.brightgestures.brightify.SourceFile;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
@@ -62,21 +63,21 @@ public class Field {
     public Field setTypeFullName(String typeFullName) {
 
 
+/*
+        GenericType result;
 
-        TypeDeclaration result;
-
-        TypeDeclaration currentDeclaration;
+        GenericType currentDeclaration;
         int current = 0;
         int level = 0;
         int last = typeFullName.length();
         do {
 
-            currentDeclaration = new TypeDeclaration();
+            currentDeclaration = new GenericType();
 
 
 
         } while (current < last);
-
+*/
         this.typeFullName = typeFullName;
         imports.clear();
         if (typeFullName.indexOf('.') != -1) {
@@ -88,15 +89,70 @@ public class Field {
         return this;
     }
 
-    private TypeDeclaration parse(TypeDeclaration parent, String name) {
+    private GenericType parse(String name) {
         if(name.length() == 0) {
             return null;
         }
 
+        GenericType currentType = null;
+        StringBuilder builder = new StringBuilder();
+        int level = 0;
+        Map<
+            Map<
+                Map<
+                    String,
+                    String
+                >,
+                Map<
+                    String,
+                    String
+                >
+            >,
+            List<
+                Map<
+                    String,
+                    String
+                >
+            >
+        > a;
+
+        for(int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if(c == '<') {
+                level++;
+                GenericType genericType = new GenericType();
+                genericType.fullName = builder.toString();
+                genericType.parent = currentType;
+
+                if(currentType != null) {
+                    currentType.children.add(genericType);
+                }
+                currentType = genericType;
+                builder = new StringBuilder();
+            } else if(c == ',') {
+                GenericType genericType = new GenericType();
+                genericType.parent = currentType;
+                genericType.fullName = builder.toString();
+                currentType.children.add(genericType);
+                builder = new StringBuilder();
+            } else if(c == '>') {
+                level--;
+                GenericType genericType = new GenericType();
+                genericType.fullName = builder.toString();
+                genericType.parent = currentType;
+                currentType.children.add(genericType);
+                currentType = currentType.parent;
+                builder = new StringBuilder();
+            } else if(c != ' ') {
+                builder.append(c);
+            }
+        }
+/*
+
         int nextBracket = name.indexOf("<");
         int nextColon = name.indexOf(",");
 
-        TypeDeclaration type = new TypeDeclaration();
+        GenericType type = new GenericType();
 
         if (nextBracket == -1 && nextColon == -1) {
             type.fullName = name;
@@ -107,8 +163,9 @@ public class Field {
 
         } else if (nextColon != -1 && nextBracket) {
 
-        }
+        }*/
 
+        return null;
     }
 
     public String getName() {
@@ -141,8 +198,9 @@ public class Field {
         generator.append(typeSimpleName).append(" ").append(name).append(" = ").append(value).append(";");
     }
 
-    class TypeDeclaration {
-        List<TypeDeclaration> children = new ArrayList<>();
+    class GenericType {
+        GenericType parent;
+        List<GenericType> children = new ArrayList<>();
         String name;
         String fullName;
     }

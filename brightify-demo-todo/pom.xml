@@ -51,11 +51,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <annotationProcessors>
-                        <annotationProcessor>com.brightgestures.brightify.BrightifyAnnotationProcessor</annotationProcessor>
-                        <annotationProcessor>com.googlecode.androidannotations.AndroidAnnotationProcessor</annotationProcessor>
-                    </annotationProcessors>
-
                     <compilerArgument>-AandroidManifestFile=${project.basedir}/src/main/AndroidManifest.xml</compilerArgument>
                 </configuration>
             </plugin>

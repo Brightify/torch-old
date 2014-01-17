@@ -1,7 +1,11 @@
 package com.brightgestures.brightify.util;
 
+import com.brightgestures.brightify.filter.ColumnInfo;
+import com.brightgestures.brightify.filter.ColumnProvider;
+import com.brightgestures.brightify.filter.DefaultColumnProvider;
 import com.brightgestures.brightify.marshall.CursorMarshallerInfo;
 import com.brightgestures.brightify.marshall.CursorMarshallerProvider;
+import com.brightgestures.brightify.marshall.GenericCursorMarshallersProvider;
 import com.brightgestures.brightify.marshall.StreamMarshallerInfo;
 import com.brightgestures.brightify.marshall.StreamMarshallerProvider;
 import com.brightgestures.brightify.parse.Property;
@@ -22,6 +26,8 @@ public class TypeHelper {
     private final ProcessingEnvironment environment;
     private final Set<CursorMarshallerProvider> cursorMarshallerProviders = new HashSet<>();
     private final Set<StreamMarshallerProvider> streamMarshallerProviders = new HashSet<>();
+    private final Set<ColumnProvider> columnProviders = new HashSet<>();
+    private final ColumnProvider defaultColumnProvider = new DefaultColumnProvider();
 
     public TypeHelper(ProcessingEnvironment environment) {
         this.environment = environment;
@@ -37,7 +43,7 @@ public class TypeHelper {
             } catch (Exception e) {
                 throw new RuntimeException(
                         "Couldn't instantiate cursor marshaller provider " + marshallerProviderClass.getSimpleName() +
-                        "!", e);
+                                "!", e);
             }
         }
 
@@ -51,7 +57,23 @@ public class TypeHelper {
             } catch (Exception e) {
                 throw new RuntimeException(
                         "Couldn't instantiate stream marshaller provider " + marshallerProviderClass.getSimpleName() +
-                        "!", e);
+                                "!", e);
+            }
+        }
+
+        Set<Class<? extends ColumnProvider>> columnProviderClasses = reflections.getSubTypesOf(ColumnProvider.class);
+
+        for (Class<? extends ColumnProvider> columnProviderClass : columnProviderClasses) {
+            // DefaultColumnProvider handles all columns that aren't supported so it can't be added to providers.
+            if(columnProviderClass == DefaultColumnProvider.class) {
+                continue;
+            }
+            try {
+                ColumnProvider columnProvider = columnProviderClass.newInstance();
+                columnProviders.add(columnProvider);
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't instantiate column provider " + columnProviderClass
+                        .getSimpleName() + "!", e);
             }
         }
     }
@@ -81,8 +103,8 @@ public class TypeHelper {
             if (marshallerInfo == null) {
                 throw new IllegalStateException(
                         "Marshaller provider " + cursorMarshallerProvider.getClass().getSimpleName() +
-                        " returned null as marshaller info even though it reports type " +
-                        property.type + " as supported!");
+                                " returned null as marshaller info even though it reports type " +
+                                property.type + " as supported!");
             }
             return marshallerInfo;
         }
@@ -98,12 +120,27 @@ public class TypeHelper {
             if (marshallerInfo == null) {
                 throw new IllegalStateException(
                         "Marshaller provider " + streamMarshallerProvider.getClass().getSimpleName() +
-                        " returned null as marshaller info even though it reports type " +
-                        typeMirror + " as supported!");
+                                " returned null as marshaller info even though it reports type " +
+                                typeMirror + " as supported!");
             }
             return marshallerInfo;
         }
         return null;
+    }
+
+    public ColumnInfo getColumnInfo(Property property) {
+        for (ColumnProvider columnProvider : columnProviders) {
+            if (!columnProvider.isSupported(this, property)) {
+                continue;
+            }
+            ColumnInfo columnInfo = columnProvider.getColumnInfo(this, property);
+            if (columnInfo == null) {
+                throw new IllegalStateException("Column provider " + columnProvider.getClass().getSimpleName() + " " +
+                        "returned null as column info even through it reports type" + property.type + " as supported!");
+            }
+            return columnInfo;
+        }
+        return defaultColumnProvider.getColumnInfo(this, property);
     }
 
     public TypeElement elementOf(Class cls) {

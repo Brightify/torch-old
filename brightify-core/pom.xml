@@ -43,11 +43,10 @@
 	        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessors>
-                        <annotationProcessor>com.brightgestures.brightify.BrightifyAnnotationProcessor</annotationProcessor>
-                    </annotationProcessors>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

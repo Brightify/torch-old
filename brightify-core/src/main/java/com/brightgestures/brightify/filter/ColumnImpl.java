@@ -8,21 +8,14 @@ import com.brightgestures.brightify.action.load.EntityFilter;
 public class ColumnImpl<T> implements Column<T> {
 
     private final String columnName;
-    private final Class<T> columnType;
 
-    public ColumnImpl(String columName, Class<T> columnType) {
+    public ColumnImpl(String columName) {
         this.columnName = columName;
-        this.columnType = columnType;
     }
 
     @Override
     public String getName() {
         return columnName;
-    }
-
-    @Override
-    public Class<T> getType() {
-        return columnType;
     }
 
     @Override

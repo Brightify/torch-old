@@ -7,8 +7,8 @@ import com.brightgestures.brightify.action.load.EntityFilter;
  */
 public class NumberColumnImpl<T> extends ColumnImpl<T> implements NumberColumn<T> {
 
-    public NumberColumnImpl(String columName, Class<T> columnType) {
-        super(columName, columnType);
+    public NumberColumnImpl(String columName) {
+        super(columName);
     }
 
     @Override

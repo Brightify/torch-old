@@ -1,6 +1,7 @@
 package com.brightgestures.brightify.generate;
 
 import com.brightgestures.brightify.SourceFile;
+import com.brightgestures.brightify.filter.ColumnInfo;
 import com.brightgestures.brightify.marshall.CursorMarshallerInfo;
 import com.brightgestures.brightify.parse.EntityInfo;
 import com.brightgestures.brightify.parse.MigrationPath;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class MetadataSourceFile extends SourceFile {
+    private static final String PRIVATE_FIELD_PREFIX = "____";
     private static final String METADATA_POSTFIX = "Metadata";
     private static final String MARSHALLER_POSTFIX = "Marshaller";
 
@@ -41,7 +43,7 @@ public class MetadataSourceFile extends SourceFile {
     }
 
     public MetadataSourceFile addImport(String importName) {
-        if(!imports.contains(importName)) {
+        if (!imports.contains(importName)) {
             imports.add(importName);
         }
         return this;
@@ -86,22 +88,23 @@ public class MetadataSourceFile extends SourceFile {
                 // FIXME change to message through messager
                 throw new IllegalStateException("Unsupported type " + property.type + "!");
             }
+            ColumnInfo columnInfo = typeHelper.getColumnInfo(property);
+            if(columnInfo == null) {
+                throw new IllegalStateException("Unsupported type " + property.type + "!");
+            }
+
             Field field = marshallerInfo.getField();
             field.setName(property.columnName + MARSHALLER_POSTFIX);
             field.setFinal(true);
             field.setProtection(Field.Protection.PRIVATE);
             addField(field);
 
-            Field columnField = new Field();
+            Field columnField = columnInfo.getField(property);
             columnField.setProtection(Field.Protection.PUBLIC);
             columnField.setStatic(true);
             columnField.setFinal(true);
-            columnField.setTypeFullName("com.brightgestures.brightify.filter.Column");
-            columnField.
             columnField.setName(property.columnName);
-            columnField.setValue("new ColumnImpl<" + property.type + ">();");
             addField(columnField);
-            addImport("com.brightgestures.brightify.filter.ColumnImpl");
         }
     }
 
@@ -167,24 +170,7 @@ public class MetadataSourceFile extends SourceFile {
     }
 
     private void writeStaticInformation() {
-        line("public static final String idColumnName = \"").append(entity.idProperty.columnName).append("\";");
-        line("public static final String[] columns =").nest();
-        int i = 0;
-        for (Property property : entity.properties) {
-            if (i > 0) {
-                append(", ");
-            }
-            line("\"").append(property.columnName).append("\"");
-            i++;
-        }
-        unNest().append(";");
-        line("public static final String tableName = \"").append(entity.tableName).append("\";");
-        line("public static final String version = \"").append(entity.version).append("\";");
-        line("public static final Entity.MigrationType migrationType = Entity.MigrationType.").append(
-                entity.migrationType).append(";");
-        line("public static final Class<").append(entity.name).append("> entityClass = ").append(entity.name).append(
-                ".class;");
-        emptyLine();
+
     }
 
     private void writeFields() {
@@ -204,7 +190,7 @@ public class MetadataSourceFile extends SourceFile {
         override();
         line("public void createTable(SQLiteDatabase db)").nest();
         line("CreateTable createTable = new CreateTable();");
-        line("createTable.setTableName(tableName);");
+        line("createTable.setTableName(getTableName());");
         for (Property property : entity.properties) {
             newLineNest();
             line("ColumnDef columnDef = new ColumnDef();");
@@ -296,7 +282,7 @@ public class MetadataSourceFile extends SourceFile {
         }
         line("default:").nestWithoutBrackets();
         line("throw new MigrationException(\"Unable to migrate entity! Could not find migration path from \" + " +
-             "sourceVersion + \" to \" + targetVersion);");
+                "sourceVersion + \" to \" + targetVersion);");
         unNestWithoutBrackets();
         unNest();
         unNest();
@@ -306,7 +292,7 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetIdColumnName() {
         override();
         line("public String getIdColumnName()").nest();
-        line("return idColumnName;");
+        line("return \"").append(entity.idProperty.columnName).append("\";");
         unNest();
         emptyLine();
     }
@@ -314,7 +300,16 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetColumns() {
         override();
         line("public String[] getColumns()").nest();
-        line("return columns;");
+        line("return new String[] ").nest();
+        int i = 0;
+        for (Property property : entity.properties) {
+            if (i > 0) {
+                append(", ");
+            }
+            line("\"").append(property.columnName).append("\"");
+            i++;
+        }
+        unNest().append(";");
         unNest();
         emptyLine();
     }
@@ -322,7 +317,7 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetTableName() {
         override();
         line("public String getTableName()").nest();
-        line("return tableName;");
+        line("return \"").append(entity.tableName).append("\";");
         unNest();
         emptyLine();
     }
@@ -330,7 +325,7 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetVersion() {
         override();
         line("public String getVersion()").nest();
-        line("return version;");
+        line("return \"").append(entity.version).append("\";");
         unNest();
         emptyLine();
     }
@@ -338,7 +333,7 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetMigrationType() {
         override();
         line("public Entity.MigrationType getMigrationType()").nest();
-        line("return migrationType;");
+        line("return ").append("Entity.MigrationType.").append(entity.migrationType).append(";");
         unNest();
         emptyLine();
     }
@@ -362,7 +357,7 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetEntityClass() {
         override();
         line("public Class<").append(entity.name).append("> getEntityClass()").nest();
-        line("return entityClass;");
+        line("return ").append(entity.name).append(".class;");
         unNest();
         emptyLine();
     }
