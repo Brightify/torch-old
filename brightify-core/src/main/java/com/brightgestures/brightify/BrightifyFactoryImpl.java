@@ -105,8 +105,6 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
 
     @Override
     public void unload() {
-        // Entities.unregisterAll();
-
         entities.clear();
 
         databaseEngine.close();

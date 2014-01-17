@@ -2,6 +2,7 @@ package com.brightgestures.brightify.generate;
 
 import com.brightgestures.brightify.SourceFile;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,15 +60,55 @@ public class Field {
     }
 
     public Field setTypeFullName(String typeFullName) {
+
+
+
+        TypeDeclaration result;
+
+        TypeDeclaration currentDeclaration;
+        int current = 0;
+        int level = 0;
+        int last = typeFullName.length();
+        do {
+
+            currentDeclaration = new TypeDeclaration();
+
+
+
+        } while (current < last);
+
         this.typeFullName = typeFullName;
         imports.clear();
-        if(typeFullName.indexOf('.') != -1) {
+        if (typeFullName.indexOf('.') != -1) {
             imports.add(typeFullName);
             typeSimpleName = typeFullName.substring(typeFullName.lastIndexOf('.') + 1);
         } else {
             typeSimpleName = typeFullName;
         }
         return this;
+    }
+
+    private TypeDeclaration parse(TypeDeclaration parent, String name) {
+        if(name.length() == 0) {
+            return null;
+        }
+
+        int nextBracket = name.indexOf("<");
+        int nextColon = name.indexOf(",");
+
+        TypeDeclaration type = new TypeDeclaration();
+
+        if (nextBracket == -1 && nextColon == -1) {
+            type.fullName = name;
+            type.name = type.fullName.substring(type.fullName.lastIndexOf('.') + 1);
+        }
+
+        if (nextBracket != -1 && nextBracket < nextColon) {
+
+        } else if (nextColon != -1 && nextBracket) {
+
+        }
+
     }
 
     public String getName() {
@@ -91,13 +132,19 @@ public class Field {
     public void write(SourceFile generator) {
         generator.line(protection.getValue());
 
-        if(isStatic) {
+        if (isStatic) {
             generator.append("static ");
         }
-        if(isFinal) {
+        if (isFinal) {
             generator.append("final ");
         }
         generator.append(typeSimpleName).append(" ").append(name).append(" = ").append(value).append(";");
+    }
+
+    class TypeDeclaration {
+        List<TypeDeclaration> children = new ArrayList<>();
+        String name;
+        String fullName;
     }
 
     enum Protection {

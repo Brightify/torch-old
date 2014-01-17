@@ -41,7 +41,9 @@ public class MetadataSourceFile extends SourceFile {
     }
 
     public MetadataSourceFile addImport(String importName) {
-        imports.add(importName);
+        if(!imports.contains(importName)) {
+            imports.add(importName);
+        }
         return this;
     }
 
@@ -89,6 +91,17 @@ public class MetadataSourceFile extends SourceFile {
             field.setFinal(true);
             field.setProtection(Field.Protection.PRIVATE);
             addField(field);
+
+            Field columnField = new Field();
+            columnField.setProtection(Field.Protection.PUBLIC);
+            columnField.setStatic(true);
+            columnField.setFinal(true);
+            columnField.setTypeFullName("com.brightgestures.brightify.filter.Column");
+            columnField.
+            columnField.setName(property.columnName);
+            columnField.setValue("new ColumnImpl<" + property.type + ">();");
+            addField(columnField);
+            addImport("com.brightgestures.brightify.filter.ColumnImpl");
         }
     }
 
