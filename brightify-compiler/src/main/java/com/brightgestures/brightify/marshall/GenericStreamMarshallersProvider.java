@@ -12,7 +12,8 @@ import java.util.Map;
  */
 public class GenericStreamMarshallersProvider implements StreamMarshallerProvider {
 
-    private final Map<Class<?>, StreamMarshallerInfo> genericStreamMarshallers = new HashMap<>();
+    private final Map<Class<?>, StreamMarshallerInfo> genericStreamMarshallers = new HashMap<Class<?>,
+            StreamMarshallerInfo>();
 
     public GenericStreamMarshallersProvider() {
         addSingletonMarshaller(Boolean.class, "com.brightgestures.brightify.marshall.stream.BooleanStreamMarshaller");
@@ -40,8 +41,8 @@ public class GenericStreamMarshallersProvider implements StreamMarshallerProvide
     public StreamMarshallerInfo getMarshallerInfo(TypeHelper typeHelper, TypeMirror typeMirror) {
         TypeMirror propertyType = typeHelper.getWrappedType(typeMirror);
         Types typeUtils = typeHelper.getProcessingEnvironment().getTypeUtils();
-        for(Class<?> cls : genericStreamMarshallers.keySet()) {
-            if(typeUtils.isSameType(typeHelper.typeOf(cls), propertyType)) {
+        for (Class<?> cls : genericStreamMarshallers.keySet()) {
+            if (typeUtils.isSameType(typeHelper.typeOf(cls), propertyType)) {
                 return genericStreamMarshallers.get(cls);
             }
         }

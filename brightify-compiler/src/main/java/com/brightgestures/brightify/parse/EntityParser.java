@@ -353,7 +353,7 @@ public class EntityParser {
                 }
             }
         }
-        info.properties = new ArrayList<>(propertyMap.values());
+        info.properties = new ArrayList<Property>(propertyMap.values());
         if (info.idProperty == null) {
             throw new EntityParseException(entity, "Entity %s doesn't contain a @Id Long field!",
                                            entity.getSimpleName());
@@ -373,7 +373,7 @@ public class EntityParser {
             return Collections.singletonList(lastBit);
         }
 
-        ArrayList<MigrationPathPart> returnPaths = new ArrayList<>();
+        ArrayList<MigrationPathPart> returnPaths = new ArrayList<MigrationPathPart>();
         for (MigrationMethod migrationMethod : allMigrationMethods) {
             if (migrationMethod.getFromVersion().equals(current.getToVersion())) {
                 List<MigrationPathPart> possiblePaths = findMigrationPaths(allMigrationMethods, target,
@@ -392,7 +392,7 @@ public class EntityParser {
     }
 
     private List<MigrationPath> pickMostEffectivePaths(Map<String, List<MigrationPathPart>> pathPartsMap) {
-        List<MigrationPath> effectivePaths = new ArrayList<>();
+        List<MigrationPath> effectivePaths = new ArrayList<MigrationPath>();
         for (String description : pathPartsMap.keySet()) {
             List<MigrationPathPart> pathParts = pathPartsMap.get(description);
             if(pathParts.size() == 0) {
@@ -430,7 +430,7 @@ public class EntityParser {
         String sourceVersion = Entity.LOWEST_VERSION;
         String targetVersion = entity.version;
 
-        Map<String, List<MigrationPathPart>> migrationPaths = new HashMap<>();
+        Map<String, List<MigrationPathPart>> migrationPaths = new HashMap<String, List<MigrationPathPart>>();
         for (MigrationMethod sourceMethod : entity.migrationMethods) {
             for (MigrationMethod targetMethod : entity.migrationMethods) {
                 if (MigrationMethod.compare(sourceMethod.getFromVersion(), targetMethod.getToVersion()) > 0) {
@@ -440,7 +440,7 @@ public class EntityParser {
                 String key = sourceMethod.getFromVersion() + "->" + targetMethod.getToVersion();
 
                 if (!migrationPaths.containsKey(key)) {
-                    List<MigrationPathPart> listToSave = new ArrayList<>();
+                    List<MigrationPathPart> listToSave = new ArrayList<MigrationPathPart>();
                     migrationPaths.put(key, listToSave);
                 }
                 List<MigrationPathPart> savedPaths = migrationPaths.get(key);

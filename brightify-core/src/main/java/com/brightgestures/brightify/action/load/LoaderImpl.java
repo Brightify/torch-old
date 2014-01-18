@@ -115,7 +115,7 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         if(brightify.getFactory().getEntities().getMetadata(entityClass) == null) {
             throw new IllegalStateException("Entity not registered!");
         }
-        return nextLoader(new LoaderType.TypedLoaderType<>(entityClass));
+        return nextLoader(new LoaderType.TypedLoaderType<ENTITY>(entityClass));
     }
 
     @Override

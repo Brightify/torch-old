@@ -13,7 +13,8 @@ import java.util.Map;
  */
 public class GenericCursorMarshallersProvider implements CursorMarshallerProvider {
 
-    private final Map<Class<?>, CursorMarshallerInfo> genericCursorMarshallers = new HashMap<>();
+    private final Map<Class<?>, CursorMarshallerInfo> genericCursorMarshallers = new HashMap<Class<?>,
+            CursorMarshallerInfo>();
 
     public GenericCursorMarshallersProvider() {
         addSingletonMarshaller(Boolean.class, "com.brightgestures.brightify.marshall.cursor.BooleanCursorMarshaller");
@@ -41,8 +42,8 @@ public class GenericCursorMarshallersProvider implements CursorMarshallerProvide
     public CursorMarshallerInfo getMarshallerInfo(TypeHelper typeHelper, Property property) {
         TypeMirror propertyType = typeHelper.getWrappedType(property.type);
         Types typeUtils = typeHelper.getProcessingEnvironment().getTypeUtils();
-        for(Class<?> cls : genericCursorMarshallers.keySet()) {
-            if(typeUtils.isSameType(typeHelper.typeOf(cls), propertyType)) {
+        for (Class<?> cls : genericCursorMarshallers.keySet()) {
+            if (typeUtils.isSameType(typeHelper.typeOf(cls), propertyType)) {
                 return genericCursorMarshallers.get(cls);
             }
         }

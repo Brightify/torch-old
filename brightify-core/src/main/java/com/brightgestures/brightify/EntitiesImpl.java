@@ -66,8 +66,15 @@ public class EntitiesImpl implements Entities {
             Constructor<EntityMetadata<ENTITY>> constructor = metadataClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-                InvocationTargetException e) {
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+        } catch (InstantiationException e) {
+            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+        } catch (InvocationTargetException e) {
             throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
         }
     }

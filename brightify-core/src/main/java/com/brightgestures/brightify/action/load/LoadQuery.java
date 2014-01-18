@@ -99,7 +99,7 @@ public class LoadQuery<ENTITY> {
             String sql = builder.toString();
             String[] selectionArgs = selectionArgsList.toArray(new String[selectionArgsList.size()]);
 
-            return new LoadQuery<>(metadata, sql, selectionArgs);
+            return new LoadQuery<ENTITY>(metadata, sql, selectionArgs);
         }
     }
 

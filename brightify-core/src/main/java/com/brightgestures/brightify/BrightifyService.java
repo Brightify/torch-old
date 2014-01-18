@@ -16,7 +16,7 @@ public class BrightifyService {
     private static final ThreadLocal<LinkedList<Brightify>> STACK = new ThreadLocal<LinkedList<Brightify>>() {
         @Override
         protected LinkedList<Brightify> initialValue() {
-            return new LinkedList<>();
+            return new LinkedList<Brightify>();
         }
     };
 

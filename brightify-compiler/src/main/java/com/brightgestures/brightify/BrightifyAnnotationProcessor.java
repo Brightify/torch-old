@@ -24,8 +24,6 @@ import java.util.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class BrightifyAnnotationProcessor extends AbstractProcessor {
 
-    private static final List<String> testsss = new ArrayList<>();
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if(annotations.size() == 0) {
@@ -38,7 +36,6 @@ public class BrightifyAnnotationProcessor extends AbstractProcessor {
         Set<EntityInfo> entityInfoSet = new HashSet<EntityInfo>();
 
         for(Element element : elements) {
-            testsss.add(element.toString());
             try {
                 // TODO move this somewhere else, maybe to metadata generator?
                 Class.forName(element.toString() + "Metadata", false, ClassLoader.getSystemClassLoader());

@@ -65,11 +65,11 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
     private void registerInternalEntities() {
         // We need to register our metadata
         entities.registerMetadata(tableMetadata);
-        MigrationAssistant<Table> tableMigrationAssistant = new MigrationAssistantImpl<>(this, tableMetadata);
+        MigrationAssistant<Table> tableMigrationAssistant = new MigrationAssistantImpl<Table>(this, tableMetadata);
         tableMigrationAssistant.createTable();
         entities.registerMetadata(tableDetailsMetadata);
         MigrationAssistant<TableDetails> tableDetailsMigrationAssistant =
-                new MigrationAssistantImpl<>(this, tableDetailsMetadata);
+                new MigrationAssistantImpl<TableDetails>(this, tableDetailsMetadata);
         tableDetailsMigrationAssistant.createTable();
     }
 
@@ -126,7 +126,7 @@ public class BrightifyFactoryImpl implements BrightifyFactory {
         entities.registerMetadata(metadata);
 
         Table table = begin().load().type(Table.class).filter("tableName = ?", metadata.getTableName()).single();
-        MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<>(this, metadata);
+        MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<ENTITY>(this, metadata);
         if (table == null) {
             migrationAssistant.createTable();
             table = new Table();

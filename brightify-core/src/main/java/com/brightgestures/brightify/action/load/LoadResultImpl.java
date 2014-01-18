@@ -35,7 +35,7 @@ public class LoadResultImpl<ENTITY> implements LoadResult<ENTITY> {
     public Iterator<ENTITY> iterator() {
         Cursor cursor = mLoadQuery.run(mBrightify);
 
-        return new CursorIterator<>(mLoadQuery.getEntityMetadata(), cursor);
+        return new CursorIterator<ENTITY>(mLoadQuery.getEntityMetadata(), cursor);
     }
 
     @Override

@@ -24,9 +24,9 @@ import java.util.Set;
  */
 public class TypeHelper {
     private final ProcessingEnvironment environment;
-    private final Set<CursorMarshallerProvider> cursorMarshallerProviders = new HashSet<>();
-    private final Set<StreamMarshallerProvider> streamMarshallerProviders = new HashSet<>();
-    private final Set<ColumnProvider> columnProviders = new HashSet<>();
+    private final Set<CursorMarshallerProvider> cursorMarshallerProviders = new HashSet<CursorMarshallerProvider>();
+    private final Set<StreamMarshallerProvider> streamMarshallerProviders = new HashSet<StreamMarshallerProvider>();
+    private final Set<ColumnProvider> columnProviders = new HashSet<ColumnProvider>();
     private final ColumnProvider defaultColumnProvider = new DefaultColumnProvider();
 
     public TypeHelper(ProcessingEnvironment environment) {

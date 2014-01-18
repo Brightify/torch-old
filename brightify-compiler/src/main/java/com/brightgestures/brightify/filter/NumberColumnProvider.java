@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class NumberColumnProvider implements ColumnProvider {
 
-    private final Map<Class<?>, NumberColumnInfo> numberColumns = new HashMap<>();
+    private final Map<Class<?>, NumberColumnInfo> numberColumns = new HashMap<Class<?>, NumberColumnInfo>();
 
     public NumberColumnProvider() {
         addColumn(Byte.class);

@@ -17,7 +17,7 @@ public class Field {
     protected boolean isFinal;
     protected String typeSimpleName;
     protected String typeFullName;
-    protected List<String> imports = new LinkedList<>();
+    protected List<String> imports = new LinkedList<String>();
     protected String name;
     protected String value;
 
@@ -200,7 +200,7 @@ public class Field {
 
     class GenericType {
         GenericType parent;
-        List<GenericType> children = new ArrayList<>();
+        List<GenericType> children = new ArrayList<GenericType>();
         String name;
         String fullName;
     }

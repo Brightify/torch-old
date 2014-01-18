@@ -18,8 +18,9 @@ import java.util.Map;
  */
 public class InternalCursorMarshallersProvider implements CursorMarshallerProvider {
 
-    private final Map<Class<?>, String> internalCursorMarshallers = new HashMap<>();
-    private final Map<TypeMirror, CursorMarshallerInfo> createdMarshallerInfos = new HashMap<>();
+    private final Map<Class<?>, String> internalCursorMarshallers = new HashMap<Class<?>, String>();
+    private final Map<TypeMirror, CursorMarshallerInfo> createdMarshallerInfos = new HashMap<TypeMirror,
+            CursorMarshallerInfo>();
 
     public InternalCursorMarshallersProvider() {
         internalCursorMarshallers.put(Key.class, "com.brightgestures.brightify.marshall.cursor.KeyCursorMarshaller");
@@ -33,20 +34,21 @@ public class InternalCursorMarshallersProvider implements CursorMarshallerProvid
 
     @Override
     public CursorMarshallerInfo getMarshallerInfo(TypeHelper typeHelper, Property property) {
-        if(createdMarshallerInfos.containsKey(property.type)) {
+        if (createdMarshallerInfos.containsKey(property.type)) {
             return createdMarshallerInfos.get(property.type);
         }
 
         Class<?> type = null;
         Types typeUtils = typeHelper.getProcessingEnvironment().getTypeUtils();
         TypeMirror propertyTypeErasure = typeUtils.erasure(property.type);
-        for(Class<?> supportedType : internalCursorMarshallers.keySet()) {
-            if(typeUtils.isSameType(typeUtils.getDeclaredType(typeHelper.elementOf(supportedType)), propertyTypeErasure)) {
+        for (Class<?> supportedType : internalCursorMarshallers.keySet()) {
+            if (typeUtils.isSameType(typeUtils.getDeclaredType(typeHelper.elementOf(supportedType)),
+                    propertyTypeErasure)) {
                 type = supportedType;
                 break;
             }
         }
-        if(type == null) {
+        if (type == null) {
             return null;
         }
 

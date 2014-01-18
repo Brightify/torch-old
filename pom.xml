@@ -47,8 +47,8 @@
         <app.version.code>1</app.version.code>
         <app.version.name>1.0-SNAPSHOT</app.version.name>
 
-		<java.source.version>1.7</java.source.version>
-		<java.target.version>1.7</java.target.version>
+		<java.source.version>1.6</java.source.version>
+		<java.target.version>1.6</java.target.version>
 
 		<android.version>4.1.1.4</android.version>
         <android-test.version>4.1.1.4</android-test.version>

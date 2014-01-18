@@ -56,7 +56,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         testObject3 = createTestObject();
         testObject3.intField = 1000;
 
-        savedData = new ArrayList<>();
+        savedData = new ArrayList<TestObject>();
         savedData.add(testObject);
         savedData.add(testObject1);
         savedData.add(testObject2);
@@ -173,7 +173,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         bfy().load().type(TestObject.class).orderBy("intField").desc().async(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                ArrayList<TestObject> saved = new ArrayList<>(savedData);
+                ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
                 Collections.reverse(saved);
 
                 assertEquals(saved, data);
@@ -218,7 +218,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         bfy().load().type(TestObject.class).limit(2).async(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                ArrayList<TestObject> saved = new ArrayList<>();
+                ArrayList<TestObject> saved = new ArrayList<TestObject>();
                 saved.add(testObject);
                 saved.add(testObject1);
 
@@ -240,7 +240,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         bfy().load().type(TestObject.class).limit(2).offset(1).async(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                ArrayList<TestObject> saved = new ArrayList<>();
+                ArrayList<TestObject> saved = new ArrayList<TestObject>();
                 saved.add(testObject1);
                 saved.add(testObject2);
 

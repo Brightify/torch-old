@@ -48,7 +48,7 @@ public class DefaultColumnProvider implements ColumnProvider {
     }
 
     private GenericField genericFieldRecursive(Types types, DeclaredType declaredType) {
-        List<Field> children = new ArrayList<>();
+        List<Field> children = new ArrayList<Field>();
         for (TypeMirror argument : declaredType.getTypeArguments()) {
             if (argument instanceof DeclaredType) {
                 children.add(genericFieldRecursive(types, (DeclaredType) argument));

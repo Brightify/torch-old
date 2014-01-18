@@ -18,7 +18,7 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     private Callback<BrightifyFactory> callback;
     private Context context;
     private boolean submitted;
-    private Set<EntityMetadata<?>> metadatas = new LinkedHashSet<>();
+    private Set<EntityMetadata<?>> metadatas = new LinkedHashSet<EntityMetadata<?>>();
 
     AsyncFactoryBuilder(Callback<BrightifyFactory> callback) {
         this.callback = callback;

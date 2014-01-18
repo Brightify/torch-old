@@ -22,7 +22,7 @@ public class EntityInfo {
 
     public String version;
     public Entity.MigrationType migrationType;
-    public List<MigrationMethod> migrationMethods = new ArrayList<>();
+    public List<MigrationMethod> migrationMethods = new ArrayList<MigrationMethod>();
     public List<MigrationPath> migrationPaths;
 
     public List<Property> properties;

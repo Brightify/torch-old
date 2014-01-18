@@ -23,10 +23,10 @@ public class MetadataSourceFile extends SourceFile {
 
     private final TypeHelper typeHelper;
     private final EntityInfo entity;
-    private List<String> imports = new ArrayList<>();
+    private List<String> imports = new ArrayList<String>();
     private String metadataClassName;
     private String metadataClassFullName;
-    private List<Field> fields = new ArrayList<>();
+    private List<Field> fields = new ArrayList<Field>();
 
     public MetadataSourceFile(TypeHelper typeHelper, EntityInfo entity) {
         super(typeHelper.getProcessingEnvironment());
@@ -89,7 +89,7 @@ public class MetadataSourceFile extends SourceFile {
                 throw new IllegalStateException("Unsupported type " + property.type + "!");
             }
             ColumnInfo columnInfo = typeHelper.getColumnInfo(property);
-            if(columnInfo == null) {
+            if (columnInfo == null) {
                 throw new IllegalStateException("Unsupported type " + property.type + "!");
             }
 
@@ -267,24 +267,35 @@ public class MetadataSourceFile extends SourceFile {
                 .append(entity.name)
                 .append("> assistant, String sourceVersion, String targetVersion) throws Exception")
                 .nest();
-        line("switch(sourceVersion + \"->\" + targetVersion)").nest();
+
+        line("String migration = sourceVersion + \"->\" + targetVersion;");
+        line("");
         // TODO generate switch and not if-else
+        int i = 0;
         for (MigrationPath migrationPath : entity.migrationPaths) {
-            line("case \"").append(migrationPath.getDescription()).append("\":").nestWithoutBrackets();
+            if (i > 0) {
+                append(" else ");
+            }
+            append("if(migration.equals(\"").append(migrationPath.getDescription()).append("\"))").nest();
+
             for (MigrationPathPart part = migrationPath.getStart(); part != null; part = part.getNext()) {
                 line(entity.name)
                         .append(".")
                         .append(part.getMigrationMethod().getExecutable().getSimpleName())
                         .append("(assistant);");
             }
-            line("break;");
-            unNestWithoutBrackets();
+
+            unNest();
+            i++;
         }
-        line("default:").nestWithoutBrackets();
+        if (i > 0) {
+            append(" else ").nest();
+        }
         line("throw new MigrationException(\"Unable to migrate entity! Could not find migration path from \" + " +
                 "sourceVersion + \" to \" + targetVersion);");
-        unNestWithoutBrackets();
-        unNest();
+        if (i > 0) {
+            unNest();
+        }
         unNest();
         emptyLine();
     }

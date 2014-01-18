@@ -16,7 +16,7 @@ public class KeyFactory {
             throw new IllegalArgumentException("Cannot create Key with null ID!");
         }
 
-        return new Key<>(entityClass, id);
+        return new Key<ENTITY>(entityClass, id);
     }
 
     public static <ENTITY> Key<ENTITY> create(ENTITY entity) {
