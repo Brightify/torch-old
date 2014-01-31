@@ -2,25 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.brightgestures.brightify</groupId>
-	<artifactId>brightify-parent</artifactId>
+	<groupId>org.brightify.torch</groupId>
+	<artifactId>torch-parent</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<name>Brightify - Android ORM framework</name>
+	<name>Torch - Android ORM framework</name>
 	<packaging>pom</packaging>
 
     <modules>
-        <module>brightify-api</module>
-        <module>brightify-compiler</module>
-        <module>brightify-core</module>
-        <module>brightify-test</module>
-        <module>brightify-bridge</module>
-        <module>brightify-demo-todo</module>
+        <module>torch-api</module>
+        <module>torch-compiler</module>
+        <module>torch-compiler-spi</module>
+        <module>torch-core</module>
+        <module>torch-test</module>
+        <module>torch-bridge</module>
+        <module>torch-demo-todo</module>
     </modules>
 
     <scm>
-        <url>https://github.com/TadeasKriz/brightify</url>
-        <connection>scm:git:git://github.com/TadeasKriz/brightify.git</connection>
-        <developerConnection>scm:git:git@github.com:TadeasKriz/brightify.git</developerConnection>
+        <url>https://github.com/brightify/torch</url>
+        <connection>scm:git:git://github.com/brightify/torch.git</connection>
+        <developerConnection>scm:git:git@github.com:brightify/torch.git</developerConnection>
     </scm>
 
     <developers>
@@ -37,7 +38,7 @@
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/TadeasKriz/brightify/issues</url>
+        <url>https://github.com/brightify/torch/issues</url>
     </issueManagement>
 
 	<properties>
@@ -79,8 +80,8 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.brightgestures.brightify</groupId>
-                <artifactId>brightify-core</artifactId>
+                <groupId>org.brightify.torch</groupId>
+                <artifactId>torch-core</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
