@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import org.brightify.torch.demo.todo.model.Task;
 import org.brightify.torch.demo.todo.view.TaskItemView;
-import com.brightgestures.brightify.demo.todo.view.TaskItemView_;
+import org.brightify.torch.demo.todo.view.TaskItemView_;
 import org.brightify.torch.util.Callback;
 import com.googlecode.androidannotations.annotations.AfterInject;
 import com.googlecode.androidannotations.annotations.Bean;

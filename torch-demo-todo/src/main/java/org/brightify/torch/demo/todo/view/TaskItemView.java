@@ -6,7 +6,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.brightgestures.brightify.demo.todo.R;
+import org.brightify.torch.demo.todo.R;
 import org.brightify.torch.demo.todo.model.Task;
 import com.googlecode.androidannotations.annotations.AfterViews;
 import com.googlecode.androidannotations.annotations.EViewGroup;

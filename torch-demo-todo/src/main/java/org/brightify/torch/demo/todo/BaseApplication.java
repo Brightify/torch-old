@@ -3,8 +3,8 @@ package org.brightify.torch.demo.todo;
 import android.app.Application;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.Settings;
-import com.brightgestures.brightify.demo.todo.model.TaskMetadata;
-import com.brightgestures.brightify.demo.todo.model.UserMetadata;
+import org.brightify.torch.demo.todo.model.TaskMetadata;
+import org.brightify.torch.demo.todo.model.UserMetadata;
 import com.googlecode.androidannotations.annotations.EApplication;
 
 /**

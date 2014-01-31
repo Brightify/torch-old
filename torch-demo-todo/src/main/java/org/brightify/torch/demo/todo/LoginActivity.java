@@ -2,8 +2,8 @@ package org.brightify.torch.demo.todo;
 
 import android.app.Activity;
 import android.widget.EditText;
-import com.brightgestures.brightify.demo.todo.MainActivity_;
-import com.brightgestures.brightify.demo.todo.R;
+import org.brightify.torch.demo.todo.MainActivity_;
+import org.brightify.torch.demo.todo.R;
 import org.brightify.torch.Key;
 import org.brightify.torch.demo.todo.model.User;
 import com.googlecode.androidannotations.annotations.Bean;
