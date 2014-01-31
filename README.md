@@ -2,7 +2,7 @@ IMPORTANT: This project is currently under heavy development and the API is not 
 with upcoming versions. Once `beta` is released, the API is considered stable and shouldn't change change unless some
 critical bug is found, which fixing would mean changing the API.
 
-# Brightify [![Build Status](https://travis-ci.org/TadeasKriz/brightify.png?branch=develop)](https://travis-ci.org/TadeasKriz/brightify)
+# Brightify [![Build Status](https://travis-ci.org/brightify/torch.png?branch=develop)](https://travis-ci.org/brightify/torch)
 
 NOTE: This README is currently a draft, some features might not be implemented yet, and some will likely change.
 
