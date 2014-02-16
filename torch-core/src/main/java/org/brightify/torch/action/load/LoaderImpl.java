@@ -168,13 +168,13 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
 
     @Override
     public OperatorFilterOrderLimitListLoader<ENTITY> and(String condition, Object... params) {
-        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null, new EntityFilter.OrFilterType())))
+        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null, new EntityFilter.AndFilterType())))
                 .filter(condition, params);
     }
 
     @Override
     public OperatorFilterOrderLimitListLoader<ENTITY> and(EntityFilter filter) {
-        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null, new EntityFilter.OrFilterType())))
+        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null, new EntityFilter.AndFilterType())))
                 .filter(filter);
     }
 
