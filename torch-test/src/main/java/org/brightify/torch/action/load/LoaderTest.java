@@ -1,7 +1,7 @@
 package org.brightify.torch.action.load;
 
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import org.brightify.torch.BaseActivityInstrumentationTestCase2;
 import org.brightify.torch.Key;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.test.MainTestActivity;
@@ -22,7 +22,7 @@ import static org.brightify.torch.TorchService.torch;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivity> {
+public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestActivity> {
 
     private Map<Key<TestObject>, TestObject> savedDataMap;
     private ArrayList<TestObject> savedData;
