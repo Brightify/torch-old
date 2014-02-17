@@ -2,8 +2,8 @@ package org.brightify.torch.action.load;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
-import org.brightify.torch.TorchService;
 import org.brightify.torch.Key;
+import org.brightify.torch.TorchService;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObjectMetadata;
@@ -46,15 +46,19 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
 
         testObject = createTestObject();
         testObject.intField = -10;
+        testObject.booleanField = false;
 
         testObject1 = createTestObject();
         testObject1.intField = 10;
+        testObject1.booleanField = true;
 
         testObject2 = createTestObject();
         testObject2.intField = 100;
+        testObject2.booleanField = false;
 
         testObject3 = createTestObject();
         testObject3.intField = 1000;
+        testObject3.booleanField = true;
 
         savedData = new ArrayList<TestObject>();
         savedData.add(testObject);
@@ -73,6 +77,17 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         assertTrue(TorchService.factory().deleteDatabase());
 
         TorchService.forceUnload();
+    }
+
+    private TestObject createTestObject() {
+        TestObject testObject = new TestObject();
+
+        testObject.id = null;
+        testObject.stringField = UUID.randomUUID().toString();
+        testObject.longField = 98765432123456789L;
+        testObject.intField = 123456789;
+
+        return testObject;
     }
 
     @MediumTest
@@ -102,21 +117,35 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
     @MediumTest
     public void testLoadFilteredEntities() {
         List<TestObject> objectsFiltered = torch().load().type(TestObject.class)
-                .filter("intField > ?", 10).list();
+                                                  .filter("intField > ?", 10).list();
         assertEquals(2, objectsFiltered.size());
 
-        List<TestObject> objectsFiltered1 = torch().load().type(TestObject.class)
-                .filter("intField NOT IN (?, ?)", 10, 100).list();
-        assertEquals(2, objectsFiltered1.size());
-
-        List<TestObject> objectsFiltered2 = torch().load().type(TestObject.class).filter(TestObjectMetadata.intField
-                .greaterThan(10)).list();
-
+        List<TestObject> objectsFiltered2 = torch().load()
+                                                   .type(TestObject.class)
+                                                   .filter(TestObjectMetadata.intField
+                                                                   .greaterThan(10))
+                                                   .list();
         assertEquals(2, objectsFiltered2.size());
 
-        List<TestObject> objectsFiltered3 = torch().load().type(TestObject.class).filter(TestObjectMetadata.intField
-                .notIn(10, 100)).list();
+
+        List<TestObject> objectsFiltered1 = torch().load().type(TestObject.class)
+                                                   .filter("intField NOT IN (?, ?)", 10, 100).list();
+        assertEquals(2, objectsFiltered1.size());
+
+        List<TestObject> objectsFiltered3 = torch().load()
+                                                   .type(TestObject.class)
+                                                   .filter(TestObjectMetadata.intField
+                                                                   .notIn(10, 100))
+                                                   .list();
         assertEquals(2, objectsFiltered3.size());
+
+        List<TestObject> objectsFiltered4 = torch().load()
+                                                   .type(TestObject.class)
+                                                   .filter(TestObjectMetadata.intField
+                                                                   .in(-10, 10)
+                                                                   .and(TestObjectMetadata.booleanField.equalTo(true)))
+                                                   .list();
+        assertEquals(1, objectsFiltered4.size());
     }
 
     @MediumTest
@@ -157,7 +186,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
     @MediumTest
     public void testLoadOrderedDescending() {
         List<TestObject> objectsOrdered = torch().load().type(TestObject.class)
-                .orderBy("intField").desc().list();
+                                                 .orderBy("intField").desc().list();
 
         ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
 
@@ -193,7 +222,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
     @MediumTest
     public void testLoadLimited() {
         List<TestObject> objectsLimited = torch().load().type(TestObject.class)
-                .limit(2).list();
+                                                 .limit(2).list();
 
         ArrayList<TestObject> saved = new ArrayList<TestObject>();
         saved.add(testObject);
@@ -202,7 +231,7 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         assertEquals(saved, objectsLimited);
 
         List<TestObject> objectsLimitedWithOffset = torch().load().type(TestObject.class)
-                .limit(2).offset(1).list();
+                                                           .limit(2).offset(1).list();
 
         saved.clear();
         saved.add(testObject1);
@@ -255,16 +284,5 @@ public class LoaderTest extends ActivityInstrumentationTestCase2<MainTestActivit
         });
 
         assertTrue(secondLatch.await(5, TimeUnit.SECONDS));
-    }
-
-    private TestObject createTestObject() {
-        TestObject testObject = new TestObject();
-
-        testObject.id = null;
-        testObject.stringField = UUID.randomUUID().toString();
-        testObject.longField = 98765432123456789L;
-        testObject.intField = 123456789;
-
-        return testObject;
     }
 }
