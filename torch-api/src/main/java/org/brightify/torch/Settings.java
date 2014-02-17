@@ -8,9 +8,9 @@ import android.util.Log;
  * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
  */
 public class Settings {
+    public static final String DEFAULT_DATABASE_NAME = "torch_main_database";
     private static final String TAG = Settings.class.getSimpleName();
 
-    public static final String DEFAULT_DATABASE_NAME = "brightify_main_database";
 
     private static int enableDebugRequests = 0;
     private static int enableQueryLoggingRequests = 0;
