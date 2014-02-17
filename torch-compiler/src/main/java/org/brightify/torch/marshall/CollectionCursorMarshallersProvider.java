@@ -62,6 +62,7 @@ public class CollectionCursorMarshallersProvider implements CursorMarshallerProv
         Field itemMarshallerField = itemMarshallerInfo.getField();
 
         FieldImpl itemField = new FieldImpl();
+        // FIXME find out why is "java.lang.String" passed in here!
         itemField.setTypeFullName("java.lang.String");
 
         final GenericField field = new GenericField(itemField);
