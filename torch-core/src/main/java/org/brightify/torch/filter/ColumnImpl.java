@@ -10,8 +10,8 @@ public class ColumnImpl<T> implements Column<T> {
 
     private final String columnName;
 
-    public ColumnImpl(String columName) {
-        this.columnName = columName;
+    public ColumnImpl(String columnName) {
+        this.columnName = columnName;
     }
 
     @Override
@@ -27,34 +27,6 @@ public class ColumnImpl<T> implements Column<T> {
     @Override
     public EntityFilter notEqualTo(T value) {
         return EntityFilter.filter(getName() + " != ?", value);
-    }
-
-    @Override
-    public EntityFilter in(T... values) {
-        StringBuilder builder = new StringBuilder(getName());
-        builder.append(" IN (");
-        for(int i = 0; i < values.length; i++) {
-            if(i > 0) {
-                builder.append(", ");
-            }
-            builder.append("?");
-        }
-        builder.append(")");
-        return EntityFilter.filter(builder.toString(), values);
-    }
-
-    @Override
-    public EntityFilter notIn(T... values) {
-        StringBuilder builder = new StringBuilder(getName());
-        builder.append(" NOT IN (");
-        for(int i = 0; i < values.length; i++) {
-            if(i>0) {
-                builder.append(", ");
-            }
-            builder.append("?");
-        }
-        builder.append(")");
-        return EntityFilter.filter(builder.toString(), values);
     }
 
 

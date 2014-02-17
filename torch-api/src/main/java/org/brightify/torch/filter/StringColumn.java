@@ -5,7 +5,7 @@ import org.brightify.torch.action.load.EntityFilter;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public interface StringColumn extends Column<String> {
+public interface StringColumn extends GenericColumn<String> {
 
     EntityFilter startsWith(String value);
 

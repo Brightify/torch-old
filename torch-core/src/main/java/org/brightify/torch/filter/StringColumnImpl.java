@@ -5,10 +5,10 @@ import org.brightify.torch.action.load.EntityFilter;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public class StringColumnImpl extends ColumnImpl<String> implements StringColumn {
+public class StringColumnImpl extends GenericColumnImpl<String> implements StringColumn {
 
-    public StringColumnImpl(String columName) {
-        super(columName);
+    public StringColumnImpl(String columnName) {
+        super(columnName);
     }
 
     @Override

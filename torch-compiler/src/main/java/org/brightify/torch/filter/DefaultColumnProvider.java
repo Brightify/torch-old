@@ -39,9 +39,9 @@ public class DefaultColumnProvider implements ColumnProvider {
                 }
 
                 final GenericField field = new GenericField(childField);
-                field.setTypeFullName(Column.class.getName());
-                field.getImports().add("org.brightify.torch.filter.ColumnImpl");
-                field.setValue("new ColumnImpl<" + childField.getTypeSimpleName() + ">(\"" + property.getColumnName() + "\");");
+                field.setTypeFullName(GenericColumn.class.getName());
+                field.getImports().add("org.brightify.torch.filter.GenericColumnImpl");
+                field.setValue("new GenericColumnImpl<" + childField.getTypeSimpleName() + ">(\"" + property.getColumnName() + "\");");
 
                 return field;
             }
