@@ -15,10 +15,10 @@ public class VersionComparator implements Comparator<String> {
         int count = version1Split.length > version2Split.length ? version1Split.length : version2Split.length;
 
         for(int i = 0; i < count; i++) {
-            int version1Part = i < version1Split.length ? Integer.parseInt(version1Split[i]) : 0;
-            int version2Part = i < version2Split.length ? Integer.parseInt(version2Split[i]) : 0;
+            Integer version1Part = i < version1Split.length ? Integer.parseInt(version1Split[i]) : 0;
+            Integer version2Part = i < version2Split.length ? Integer.parseInt(version2Split[i]) : 0;
 
-            int compared = Integer.compare(version1Part, version2Part);
+            int compared = version1Part.compareTo(version2Part);
             if(compared != 0) {
                 return compared;
             }

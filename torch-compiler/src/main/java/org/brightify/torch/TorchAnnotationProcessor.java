@@ -20,7 +20,7 @@ import java.util.*;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 @SupportedAnnotationTypes({ "org.brightify.torch.annotation.Entity" })
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
+@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class TorchAnnotationProcessor extends AbstractProcessor {
 
     @Override

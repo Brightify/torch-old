@@ -9,6 +9,8 @@ import org.brightify.torch.marshall.StreamMarshallerInfo;
 import org.brightify.torch.marshall.StreamMarshallerProvider;
 import org.brightify.torch.parse.Property;
 import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -31,7 +33,7 @@ public class TypeHelperImpl implements TypeHelper {
     public TypeHelperImpl(ProcessingEnvironment environment) {
         this.environment = environment;
 
-        Reflections reflections = new Reflections();
+        Reflections reflections = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forClassLoader()));
         Set<Class<? extends CursorMarshallerProvider>> cursorMarshallerProviderClasses = reflections.getSubTypesOf(
                 CursorMarshallerProvider.class);
 
