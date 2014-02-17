@@ -18,8 +18,10 @@ import java.util.List;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLoader<ENTITY>,
+        OperatorFilterLoader<ENTITY>,
         OrderLoader<ENTITY>, DirectionLoader<ENTITY>, LimitLoader<ENTITY>, OffsetLoader<ENTITY>, ListLoader<ENTITY>,
-        TypedFilterOrderLimitListLoader<ENTITY>,
+
+        TypedFilterOrderLimitListLoader<ENTITY>, OperatorFilterOrderLimitListLoader<ENTITY>,
         OrderLimitListLoader<ENTITY>,
         OrderDirectionLimitListLoader<ENTITY>, OffsetListLoader<ENTITY> {
 
@@ -143,6 +145,33 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
     }
 
     @Override
+    public LoaderImpl<ENTITY> or(String condition, Object... params) {
+        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
+                new EntityFilter.OrFilterType())))
+                .filter(condition, params);
+    }
+
+    @Override
+    public LoaderImpl<ENTITY> or(EntityFilter filter) {
+        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
+                new EntityFilter.OrFilterType())))
+                .filter(filter);
+    }
+
+    @Override
+    public LoaderImpl<ENTITY> and(String condition, Object... params) {
+        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
+                new EntityFilter.AndFilterType())))
+                .filter(condition, params);
+    }
+
+    @Override
+    public LoaderImpl<ENTITY> and(EntityFilter filter) {
+        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
+                new EntityFilter.AndFilterType())))
+                .filter(filter);
+    }
+
     public Result<ENTITY> id(long id) {
         Result<List<ENTITY>> base = ids(Collections.singleton(id));
 
