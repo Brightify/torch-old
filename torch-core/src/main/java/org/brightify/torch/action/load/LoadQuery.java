@@ -2,9 +2,9 @@ package org.brightify.torch.action.load;
 
 import android.database.Cursor;
 import android.util.Log;
-import org.brightify.torch.Torch;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Settings;
+import org.brightify.torch.Torch;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -30,7 +30,7 @@ public class LoadQuery<ENTITY> {
     }
 
     public Cursor run(Torch torch) {
-        if(Settings.isQueryLoggingEnabled()) {
+        if (Settings.isQueryLoggingEnabled()) {
             Log.d(TAG, sql);
         }
 
@@ -42,17 +42,17 @@ public class LoadQuery<ENTITY> {
         public static <ENTITY> LoadQuery<ENTITY> build(LoaderImpl<ENTITY> lastLoader) {
             LinkedList<LoaderImpl> loaders = new LinkedList<LoaderImpl>();
 
-            for(LoaderImpl loader = lastLoader; loader != null; loader = loader.getPreviousLoader()) {
+            for (LoaderImpl<?> loader = lastLoader; loader != null; loader = loader.getPreviousLoader()) {
                 loaders.addFirst(loader);
             }
 
             Configuration<ENTITY> configuration = new Configuration<ENTITY>();
-            for(LoaderImpl loader : loaders) {
+            for (LoaderImpl<ENTITY> loader : loaders) {
                 loader.prepareQuery(configuration);
             }
 
             EntityMetadata<ENTITY> metadata = lastLoader.torch
-                                                        .getFactory().getEntities().getMetadata(configuration.entityClass);
+                    .getFactory().getEntities().getMetadata(configuration.entityClass);
 
             StringBuilder builder = new StringBuilder();
 
@@ -62,8 +62,8 @@ public class LoadQuery<ENTITY> {
 
             // TODO add some validation of filters
             int i = 0;
-            for(String column : columns) {
-                if(i > 0) {
+            for (String column : columns) {
+                if (i > 0) {
                     builder.append(", ");
                 }
                 builder.append(column);
@@ -72,24 +72,24 @@ public class LoadQuery<ENTITY> {
 
             LinkedList<String> selectionArgsList = new LinkedList<String>();
             builder.append(" FROM ").append(metadata.getTableName());
-            if(configuration.entityFilters.size() > 0) {
+            if (configuration.entityFilters.size() > 0) {
                 builder.append(" WHERE ");
-                for(EntityFilter filter : configuration.entityFilters) {
-                    builder.append(filter.getFilterType().toSQL(selectionArgsList));
+                for (EntityFilter filter : configuration.entityFilters) {
+                    filter.toSQL(selectionArgsList, builder);
                 }
             }
 
-            if(configuration.ordering.size() > 0) {
+            if (configuration.ordering.size() > 0) {
                 builder.append(" ORDER BY ");
-                for(Configuration.OrderPair orderPair : configuration.ordering) {
+                for (Configuration.OrderPair orderPair : configuration.ordering) {
                     builder.append(orderPair.getColumnName()).append(" ")
-                            .append(orderPair.getDirection() == OrderLoader.Direction.ASCENDING ? "ASC" : "DESC");
+                           .append(orderPair.getDirection() == OrderLoader.Direction.ASCENDING ? "ASC" : "DESC");
                 }
             }
 
-            if(configuration.limit != null) {
+            if (configuration.limit != null) {
                 builder.append(" LIMIT ").append(configuration.limit);
-                if(configuration.offset != null) {
+                if (configuration.offset != null) {
                     builder.append(" OFFSET ").append(configuration.offset);
                 }
             }
@@ -137,7 +137,7 @@ public class LoadQuery<ENTITY> {
         }
 
         public Configuration<ENTITY> setLastOrderDirection(OrderLoader.Direction direction) {
-            if(ordering.size() == 0) {
+            if (ordering.size() == 0) {
                 throw new IllegalStateException("Can't change direction when there was no ordering added!");
             }
             ordering.getLast().setDirection(direction);

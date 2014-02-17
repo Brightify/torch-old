@@ -19,6 +19,19 @@ public class EntityFilter {
         return mFilterType;
     }
 
+    public String toSQL(List<String> args) {
+        StringBuilder builder = new StringBuilder();
+        toSQL(args, builder);
+        return builder.toString();
+    }
+
+    public void toSQL(List<String> args, StringBuilder builder) {
+        if(mPreviousEntityFilter != null) {
+            mPreviousEntityFilter.toSQL(args, builder);
+        }
+        builder.append(mFilterType.toSQL(args));
+    }
+
     public EntityFilter or(String condition, Object... params) {
         EntityFilter orFilter = new EntityFilter(this, new OrFilterType());
 
@@ -28,7 +41,7 @@ public class EntityFilter {
     public EntityFilter or(EntityFilter nestedFilter) {
         EntityFilter orFilter = new EntityFilter(this, new OrFilterType());
 
-        return new EntityFilter(orFilter, new EntityFilterFilterType().setEntityFilter(nestedFilter));
+        return new EntityFilter(orFilter, new NestedFilterType().setEntityFilter(nestedFilter));
     }
 
     public EntityFilter and(String condition, Object... params) {
@@ -40,7 +53,7 @@ public class EntityFilter {
     public EntityFilter and(EntityFilter nestedFilter) {
         EntityFilter andFilter = new EntityFilter(this, new AndFilterType());
 
-        return new EntityFilter(andFilter, new EntityFilterFilterType().setEntityFilter(nestedFilter));
+        return new EntityFilter(andFilter, new NestedFilterType().setEntityFilter(nestedFilter));
     }
 
     public static EntityFilter filter(String condition, Object... params) {
@@ -48,7 +61,7 @@ public class EntityFilter {
     }
 
     public static EntityFilter filter(EntityFilter nestedFilter) {
-        return new EntityFilter(null, new EntityFilterFilterType().setEntityFilter(nestedFilter));
+        return new EntityFilter(null, new NestedFilterType().setEntityFilter(nestedFilter));
     }
 
     public interface FilterType {
@@ -66,20 +79,6 @@ public class EntityFilter {
         @Override
         public String toSQL(List<String> args) {
             return " AND ";
-        }
-    }
-
-    public static class NestFilterType implements FilterType {
-        @Override
-        public String toSQL(List<String> args) {
-            return "(";
-        }
-    }
-
-    public static class UnNestFilterType implements FilterType {
-        @Override
-        public String toSQL(List<String> args) {
-            return ")";
         }
     }
 
@@ -116,19 +115,19 @@ public class EntityFilter {
 
     }
 
-    public static class EntityFilterFilterType implements FilterType {
+    public static class NestedFilterType implements FilterType {
         private EntityFilter mEntityFilter;
 
         @Override
         public String toSQL(List<String> args) {
-            return "(" + mEntityFilter.getFilterType().toSQL(args) + ")";
+            return "(" + mEntityFilter.toSQL(args) + ")";
         }
 
         public EntityFilter getEntityFilter() {
             return mEntityFilter;
         }
 
-        public EntityFilterFilterType setEntityFilter(EntityFilter entityFilter) {
+        public NestedFilterType setEntityFilter(EntityFilter entityFilter) {
             mEntityFilter = entityFilter;
             return this;
         }
