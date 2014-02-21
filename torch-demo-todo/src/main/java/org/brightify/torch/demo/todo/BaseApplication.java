@@ -3,8 +3,8 @@ package org.brightify.torch.demo.todo;
 import android.app.Application;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.Settings;
-import org.brightify.torch.demo.todo.model.TaskMetadata;
-import org.brightify.torch.demo.todo.model.UserMetadata;
+import org.brightify.torch.demo.todo.model.Task$;
+import org.brightify.torch.demo.todo.model.User$;
 import com.googlecode.androidannotations.annotations.EApplication;
 
 /**
@@ -24,7 +24,7 @@ public class BaseApplication extends Application {
         Settings.enableDebugMode();
         TorchService
                 .with(this)
-                .register(UserMetadata.create())
-                .register(TaskMetadata.create());
+                .register(User$.create())
+                .register(Task$.create());
     }
 }

@@ -34,7 +34,7 @@ public class DeleteResultImpl<ENTITY> implements DeleteResult<ENTITY> {
             EntityMetadata<ENTITY> metadata = mTorch.getFactory().getEntities().getMetadata(
                     mEntityKeys.iterator().next().getType());
             for (Key<ENTITY> key : mEntityKeys) {
-                int affected = db.delete(metadata.getTableName(), metadata.getIdColumnName() + " = ?",
+                int affected = db.delete(metadata.getTableName(), metadata.getIdColumn().getName() + " = ?",
                         new String[] { String.valueOf(key.getId()) });
                 if (affected > 1) {
                     throw new IllegalStateException("Delete command affected more than one row at once!");

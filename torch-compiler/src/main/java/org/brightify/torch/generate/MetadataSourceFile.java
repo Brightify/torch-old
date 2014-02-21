@@ -17,9 +17,9 @@ import java.util.List;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class MetadataSourceFile extends SourceFile {
-    private static final String PRIVATE_FIELD_PREFIX = "____";
-    private static final String METADATA_POSTFIX = "Metadata";
-    private static final String MARSHALLER_POSTFIX = "Marshaller";
+    public static final String PRIVATE_FIELD_PREFIX = "____";
+    public static final String METADATA_POSTFIX = "$";
+    public static final String MARSHALLER_POSTFIX = "Marshaller";
 
     private final TypeHelper typeHelper;
     private final EntityInfo entity;
@@ -72,6 +72,7 @@ public class MetadataSourceFile extends SourceFile {
         addImport("org.brightify.torch.annotation.Entity");
         addImport("org.brightify.torch.util.MigrationAssistant");
         addImport("org.brightify.torch.util.MigrationException");
+        addImport("org.brightify.torch.filter.NumberColumn");
 
         addImport("org.brightify.torch.sql.constraint.ColumnConstraint");
         addImport("org.brightify.torch.sql.ColumnDef");
@@ -154,7 +155,7 @@ public class MetadataSourceFile extends SourceFile {
         writeToContentValues();
         writeMigrate();
 
-        writeGetIdColumnName();
+        writeGetIdColumn();
         writeGetColumns();
         writeGetTableName();
         writeGetVersion();
@@ -300,10 +301,10 @@ public class MetadataSourceFile extends SourceFile {
         emptyLine();
     }
 
-    private void writeGetIdColumnName() {
+    private void writeGetIdColumn() {
         override();
-        line("public String getIdColumnName()").nest();
-        line("return \"").append(entity.idProperty.getColumnName()).append("\";");
+        line("public NumberColumn<Long> getIdColumn()").nest();
+        line("return ").append(entity.idProperty.getColumnName()).append(";");
         unNest();
         emptyLine();
     }

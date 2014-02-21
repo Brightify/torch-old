@@ -5,8 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.model.Table;
 import org.brightify.torch.model.TableDetails;
-import org.brightify.torch.model.TableDetailsMetadata;
-import org.brightify.torch.model.TableMetadata;
+import org.brightify.torch.model.TableDetails$;
+import org.brightify.torch.model.Table$;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.MigrationAssistantImpl;
 
@@ -16,8 +16,8 @@ public class TorchFactoryImpl implements TorchFactory {
     protected final Context context;
     protected final DatabaseEngine databaseEngine;
 
-    protected final TableMetadata tableMetadata = TableMetadata.create();
-    protected final TableDetailsMetadata tableDetailsMetadata = TableDetailsMetadata.create();
+    protected final Table$ tableMetadata = Table$.create();
+    protected final TableDetails$ tableDetailsMetadata = TableDetails$.create();
     protected final EntitiesImpl entities = new EntitiesImpl();
 
     protected final boolean initialized;

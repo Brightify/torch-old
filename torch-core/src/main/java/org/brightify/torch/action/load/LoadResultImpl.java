@@ -48,4 +48,9 @@ public class LoadResultImpl<ENTITY> implements LoadResult<ENTITY> {
 
         return list;
     }
+
+    @Override
+    public int count() {
+        return mLoadQuery.count(mTorch);
+    }
 }

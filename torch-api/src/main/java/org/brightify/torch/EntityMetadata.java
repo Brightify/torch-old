@@ -4,13 +4,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.annotation.Entity;
+import org.brightify.torch.filter.NumberColumn;
 import org.brightify.torch.util.MigrationAssistant;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public interface EntityMetadata<ENTITY> {
-    String getIdColumnName();
+    NumberColumn<Long> getIdColumn();
 
     String[] getColumns();
 

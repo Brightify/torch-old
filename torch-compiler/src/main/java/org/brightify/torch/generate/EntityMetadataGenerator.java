@@ -23,7 +23,7 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
     public void generateMetadata(EntityInfo entity) {
 
-        String metadataPostfix = "Metadata";
+        String metadataPostfix = MetadataSourceFile.METADATA_POSTFIX;
         String metadataName = entity.name + metadataPostfix;
         String metadataFullName = entity.fullName + metadataPostfix;
         String internalMetadataName = metadataFullName.replaceAll("\\.", "_");

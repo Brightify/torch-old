@@ -59,7 +59,7 @@ public class EntitiesImpl implements Entities {
 
     public static <ENTITY> EntityMetadata<ENTITY> findMetadata(Class<ENTITY> entityClass) {
         // TODO Move "Metadata" to constant which is consistent through torch-compiler (probably Settings class)
-        String metadataName = entityClass.getName() + "Metadata";
+        String metadataName = entityClass.getName() + "$";
 
         try {
             Class<EntityMetadata<ENTITY>> metadataClass = (Class<EntityMetadata<ENTITY>>) Class.forName(metadataName);

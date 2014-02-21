@@ -18,8 +18,8 @@ import java.util.List;
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
 public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLoader<ENTITY>,
-        OperatorFilterLoader<ENTITY>,
-        OrderLoader<ENTITY>, DirectionLoader<ENTITY>, LimitLoader<ENTITY>, OffsetLoader<ENTITY>, ListLoader<ENTITY>,
+        OperatorFilterLoader<ENTITY>, OrderLoader<ENTITY>, DirectionLoader<ENTITY>, LimitLoader<ENTITY>,
+        OffsetLoader<ENTITY>, ListLoader<ENTITY>, Countable,
 
         TypedFilterOrderLimitListLoader<ENTITY>, OperatorFilterOrderLimitListLoader<ENTITY>,
         OrderLimitListLoader<ENTITY>,
@@ -200,7 +200,7 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         }
         LoaderType.TypedLoaderType<ENTITY> typedLoaderType = (LoaderType.TypedLoaderType<ENTITY>) loaderType;
         EntityMetadata<ENTITY> metadata = torch.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
-        String columnName = metadata.getIdColumnName();
+        String columnName = metadata.getIdColumn().getName();
         String condition = columnName + "=";
 
         EntityFilter filter = null;
@@ -214,6 +214,11 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         }
 
         return filter(filter).orderBy(columnName).prepareResult();
+    }
+
+    @Override
+    public int count() {
+        return prepareResult().count();
     }
 
     @Override

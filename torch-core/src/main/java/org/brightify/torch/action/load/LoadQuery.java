@@ -37,6 +37,18 @@ public class LoadQuery<ENTITY> {
         return torch.getDatabase().rawQuery(sql, selectionArgs);
     }
 
+    public int count(Torch torch) {
+        // FIXME this is very hackish! Definitely should be rewritten
+        //String countSQL = sql.replaceFirst("SELECT.*?FROM", "SELECT count(1) FROM");
+        // FIXME is this efficient enough?
+        String countSQL = "SELECT count(1) FROM (" + sql + ")";
+        Cursor cursor = torch.getDatabase().rawQuery(countSQL, selectionArgs);
+        cursor.moveToFirst();
+        int count = cursor.getInt(0);
+        cursor.close();
+        return count;
+    }
+
     public static class Builder {
 
         public static <ENTITY> LoadQuery<ENTITY> build(LoaderImpl<ENTITY> lastLoader) {

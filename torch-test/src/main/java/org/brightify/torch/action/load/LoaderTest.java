@@ -6,7 +6,7 @@ import org.brightify.torch.Key;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
-import org.brightify.torch.test.TestObjectMetadata;
+import org.brightify.torch.test.TestObject$;
 import org.brightify.torch.util.Callback;
 
 import java.util.ArrayList;
@@ -122,7 +122,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
         List<TestObject> objectsFiltered2 = torch().load()
                                                    .type(TestObject.class)
-                                                   .filter(TestObjectMetadata.intField
+                                                   .filter(TestObject$.intField
                                                                    .greaterThan(10))
                                                    .list();
         assertEquals(2, objectsFiltered2.size());
@@ -134,16 +134,16 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
         List<TestObject> objectsFiltered3 = torch().load()
                                                    .type(TestObject.class)
-                                                   .filter(TestObjectMetadata.intField
+                                                   .filter(TestObject$.intField
                                                                    .notIn(10, 100))
                                                    .list();
         assertEquals(2, objectsFiltered3.size());
 
         List<TestObject> objectsFiltered4 = torch().load()
                                                    .type(TestObject.class)
-                                                   .filter(TestObjectMetadata.intField
+                                                   .filter(TestObject$.intField
                                                                    .in(-10, 10)
-                                                                   .and(TestObjectMetadata.booleanField.equalTo(true)))
+                                                                   .and(TestObject$.booleanField.equalTo(true)))
                                                    .list();
         assertEquals(1, objectsFiltered4.size());
     }
