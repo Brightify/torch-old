@@ -18,6 +18,7 @@ public abstract class BaseActivityInstrumentationTestCase2<T extends Activity>
         super.setUp();
         Settings.enableDebugMode();
         Settings.enableQueryLogging();
+        Settings.enableQueryArgumentsLogging();
     }
 
     @Override
@@ -25,6 +26,7 @@ public abstract class BaseActivityInstrumentationTestCase2<T extends Activity>
         super.tearDown();
         Settings.disableDebugMode();
         Settings.disableQueryLogging();
+        Settings.disableQueryArgumentsLogging();
     }
 
 }

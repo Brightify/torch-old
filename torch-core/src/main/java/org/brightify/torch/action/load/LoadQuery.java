@@ -6,6 +6,7 @@ import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Settings;
 import org.brightify.torch.Torch;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -15,9 +16,9 @@ import java.util.LinkedList;
 public class LoadQuery<ENTITY> {
     private static final String TAG = LoadQuery.class.getSimpleName();
 
-    protected final EntityMetadata<ENTITY> entityMetadata;
-    protected final String sql;
-    protected final String[] selectionArgs;
+    private final EntityMetadata<ENTITY> entityMetadata;
+    private final String sql;
+    private final String[] selectionArgs;
 
     public LoadQuery(EntityMetadata<ENTITY> entityMetadata, String sql, String... selectionArgs) {
         this.entityMetadata = entityMetadata;
@@ -30,9 +31,7 @@ public class LoadQuery<ENTITY> {
     }
 
     public Cursor run(Torch torch) {
-        if (Settings.isQueryLoggingEnabled()) {
-            Log.d(TAG, sql);
-        }
+        logSql(sql);
 
         return torch.getDatabase().rawQuery(sql, selectionArgs);
     }
@@ -42,11 +41,23 @@ public class LoadQuery<ENTITY> {
         //String countSQL = sql.replaceFirst("SELECT.*?FROM", "SELECT count(1) FROM");
         // FIXME is this efficient enough?
         String countSQL = "SELECT count(1) FROM (" + sql + ")";
+        logSql(countSQL);
+
         Cursor cursor = torch.getDatabase().rawQuery(countSQL, selectionArgs);
         cursor.moveToFirst();
         int count = cursor.getInt(0);
         cursor.close();
+
         return count;
+    }
+
+    private void logSql(String sql) {
+        if(Settings.isQueryLoggingEnabled()) {
+            if(Settings.isQueryArgumentsLoggingEnabled()) {
+                sql = sql + " with arguments: " + Arrays.deepToString(selectionArgs);
+            }
+            Log.d(TAG, sql);
+        }
     }
 
     public static class Builder {
@@ -116,12 +127,12 @@ public class LoadQuery<ENTITY> {
     }
 
     public static class Configuration<ENTITY> {
-        protected Class<ENTITY> entityClass;
-        protected LinkedList<Class<?>> loadGroups = new LinkedList<Class<?>>();
-        protected LinkedList<EntityFilter> entityFilters = new LinkedList<EntityFilter>();
-        protected LinkedList<OrderPair> ordering = new LinkedList<OrderPair>();
-        protected Integer limit;
-        protected Integer offset;
+        private Class<ENTITY> entityClass;
+        private LinkedList<Class<?>> loadGroups = new LinkedList<Class<?>>();
+        private LinkedList<EntityFilter> entityFilters = new LinkedList<EntityFilter>();
+        private LinkedList<OrderPair> ordering = new LinkedList<OrderPair>();
+        private Integer limit;
+        private Integer offset;
 
         public Configuration<ENTITY> setEntityClass(Class<ENTITY> entityClass) {
             this.entityClass = entityClass;
@@ -167,8 +178,8 @@ public class LoadQuery<ENTITY> {
         }
 
         private static class OrderPair {
-            protected String columnName;
-            protected OrderLoader.Direction direction;
+            private String columnName;
+            private OrderLoader.Direction direction;
 
             public OrderPair(String columnName, OrderLoader.Direction direction) {
                 this.columnName = columnName;

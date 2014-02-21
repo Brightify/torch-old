@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class SaverImpl implements Saver {
 
-    protected final Torch mTorch;
+    private final Torch mTorch;
 
     public SaverImpl(Torch torch) {
         mTorch = torch;
@@ -43,9 +43,6 @@ public class SaverImpl implements Saver {
 
     @Override
     public <ENTITY> Result<Map<Key<ENTITY>, ENTITY>> entities(Collection<ENTITY> entities) {
-
-
-
         return new SaveResultImpl<ENTITY>(mTorch, entities);
     }
 

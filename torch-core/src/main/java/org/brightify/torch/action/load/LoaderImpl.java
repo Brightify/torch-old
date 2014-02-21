@@ -180,11 +180,6 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
             protected ENTITY wrap(List<ENTITY> original) {
                 return original.iterator().next();
             }
-
-            @Override
-            public void async(Callback<ENTITY> callback) {
-                throw new UnsupportedOperationException("Not implemented!");
-            }
         };
     }
 

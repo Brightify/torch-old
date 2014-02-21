@@ -19,4 +19,14 @@ public abstract class ResultWrapper<F, T> implements Result<T> {
     public T now() {
         return wrap(mFrom.now());
     }
+
+    @Override
+    public void async(Callback<T> callback) {
+        AsyncRunner.run(new AsyncRunner.Task<T>() {
+            @Override
+            public T doWork() throws Exception {
+                return now();
+            }
+        }, callback);
+    }
 }

@@ -5,6 +5,7 @@ import org.brightify.torch.Torch;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.action.delete.DeleteResult;
+import org.brightify.torch.util.AsyncRunner;
 import org.brightify.torch.util.Callback;
 
 import java.util.Collection;
@@ -52,6 +53,11 @@ public class DeleteResultImpl<ENTITY> implements DeleteResult<ENTITY> {
 
     @Override
     public void async(Callback<Map<Key<ENTITY>, Boolean>> callback) {
-        throw new UnsupportedOperationException("Not implemented!");
+        AsyncRunner.run(new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
+            @Override
+            public Map<Key<ENTITY>, Boolean> doWork() throws Exception {
+                return now();
+            }
+        }, callback);
     }
 }

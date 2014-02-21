@@ -5,6 +5,7 @@ import org.brightify.torch.Key;
 import org.brightify.torch.KeyFactory;
 import org.brightify.torch.Result;
 import org.brightify.torch.Torch;
+import org.brightify.torch.util.AsyncRunner;
 import org.brightify.torch.util.Callback;
 import org.brightify.torch.util.ResultWrapper;
 
@@ -71,11 +72,6 @@ public class DeleterImpl<ENTITY> implements Deleter, TypedDeleter<ENTITY> {
             protected Boolean wrap(Map<Key<ENTITY>, Boolean> original) {
                 return original.values().iterator().next();
             }
-
-            @Override
-            public void async(Callback<Boolean> callback) {
-                throw new UnsupportedOperationException("Not implemented!");
-            }
         };
     }
 
@@ -106,11 +102,6 @@ public class DeleterImpl<ENTITY> implements Deleter, TypedDeleter<ENTITY> {
             @Override
             protected Boolean wrap(Map<Key<ENTITY>, Boolean> original) {
                 return original.values().iterator().next();
-            }
-
-            @Override
-            public void async(Callback<Boolean> callback) {
-                throw new UnsupportedOperationException("Not implemented!");
             }
         };
     }

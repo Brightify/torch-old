@@ -5,7 +5,10 @@ import android.os.AsyncTask;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public abstract class AsyncRunner {
+public class AsyncRunner {
+
+    private AsyncRunner() {
+    }
 
     public static <RESULT> void run(final Task<RESULT> task, final Callback<RESULT> callback) {
         new CallbackAsyncTask<RESULT>(task, callback).execute();
@@ -15,21 +18,21 @@ public abstract class AsyncRunner {
         RESULT doWork() throws Exception;
     }
 
-    private static class CallbackAsyncTask<RESULT> extends AsyncTask<Void, Exception, AsyncRunner.Result<RESULT>> {
+    private static class CallbackAsyncTask<RESULT> extends AsyncTask<Void, Exception, CallbackAsyncTask.Result<RESULT>> {
 
-        private final Task<RESULT> mTask;
-        private final Callback<RESULT> mCallback;
+        private final Task<RESULT> task;
+        private final Callback<RESULT> callback;
 
         public CallbackAsyncTask(Task<RESULT> task, Callback<RESULT> callback) {
-            mTask = task;
-            mCallback = callback;
+            this.task = task;
+            this.callback = callback;
         }
 
         @Override
         protected Result<RESULT> doInBackground(Void... params) {
-            Result<RESULT> result;
+            Result result;
             try {
-                RESULT resultData = mTask.doWork();
+                RESULT resultData = task.doWork();
                 result = new Result<RESULT>(resultData);
             } catch (Exception e) {
                 result = new Result<RESULT>(e);
@@ -38,28 +41,30 @@ public abstract class AsyncRunner {
             return result;
         }
 
+
+
         @Override
         protected void onPostExecute(Result<RESULT> resultResult) {
-            if(resultResult.mException != null) {
-                mCallback.onFailure(resultResult.mException);
+            if(resultResult.exception != null) {
+                callback.onFailure(resultResult.exception);
             } else {
-                mCallback.onSuccess(resultResult.mData);
+                callback.onSuccess(resultResult.data);
             }
         }
-    }
 
-    private static class Result<RESULT> {
-        final RESULT mData;
-        final Exception mException;
+        static class Result<RESULT> {
+            private final RESULT data;
+            private final Exception exception;
 
-        public Result(RESULT data) {
-            mData = data;
-            mException = null;
-        }
+            public Result(RESULT data) {
+                this.data = data;
+                this.exception = null;
+            }
 
-        public Result(Exception exception) {
-            mException = exception;
-            mData = null;
+            public Result(Exception exception) {
+                this.exception = exception;
+                this.data = null;
+            }
         }
     }
 }

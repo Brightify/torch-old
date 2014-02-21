@@ -6,7 +6,7 @@ import org.brightify.torch.Torch;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.KeyFactory;
-import org.brightify.torch.action.save.SaveResult;
+import org.brightify.torch.util.AsyncRunner;
 import org.brightify.torch.util.Callback;
 
 import java.util.HashMap;
@@ -17,27 +17,28 @@ import java.util.Map;
  */
 public class SaveResultImpl<ENTITY> implements SaveResult<ENTITY> {
 
-    protected final Torch mTorch;
-    protected final Iterable<ENTITY> mEntities;
+    private final Torch torch;
+    private final Iterable<ENTITY> entities;
 
     public SaveResultImpl(Torch torch, Iterable<ENTITY> entities) {
-        mTorch = torch;
-        mEntities = entities;
+        this.torch = torch;
+        this.entities = entities;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map<Key<ENTITY>, ENTITY> now() {
-        SQLiteDatabase db = mTorch.getDatabase();
+        SQLiteDatabase db = torch.getDatabase();
         db.beginTransaction();
         try {
             Map<Key<ENTITY>, ENTITY> results = new HashMap<Key<ENTITY>, ENTITY>();
-            Class<ENTITY> entityClass = (Class<ENTITY>) mEntities.iterator().next().getClass();
-            EntityMetadata<ENTITY> metadata = mTorch.getFactory().getEntities().getMetadata(entityClass);
+            Class<ENTITY> entityClass = (Class<ENTITY>) entities.iterator().next().getClass();
+            EntityMetadata<ENTITY> metadata = torch.getFactory().getEntities().getMetadata(entityClass);
             if(metadata == null) {
                 throw new IllegalStateException("Entity not registered!");
             }
 
-            for(ENTITY entity : mEntities) {
+            for(ENTITY entity : entities) {
                 ContentValues values;
                 try {
                     values = metadata.toContentValues(entity);
@@ -65,6 +66,11 @@ public class SaveResultImpl<ENTITY> implements SaveResult<ENTITY> {
 
     @Override
     public void async(Callback<Map<Key<ENTITY>, ENTITY>> callback) {
-        throw new UnsupportedOperationException("Not implemented!");
+        AsyncRunner.run(new AsyncRunner.Task<Map<Key<ENTITY>, ENTITY>>() {
+            @Override
+            public Map<Key<ENTITY>, ENTITY> doWork() throws Exception {
+                return now();
+            }
+        }, callback);
     }
 }
