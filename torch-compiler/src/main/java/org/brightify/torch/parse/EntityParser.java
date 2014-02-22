@@ -97,7 +97,7 @@ public class EntityParser {
 
         for (Element child : children) {
             Set<Modifier> modifiers = child.getModifiers();
-            if (modifiers.contains(Modifier.PRIVATE)) {
+            if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.STATIC)) {
                 continue;
             }
 

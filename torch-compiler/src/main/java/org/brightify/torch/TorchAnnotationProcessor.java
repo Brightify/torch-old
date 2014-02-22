@@ -2,6 +2,7 @@ package org.brightify.torch;
 
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.generate.EntityMetadataGenerator;
+import org.brightify.torch.generate.MetadataSourceFile;
 import org.brightify.torch.parse.EntityInfo;
 import org.brightify.torch.parse.EntityParseException;
 import org.brightify.torch.parse.EntityParser;
@@ -37,9 +38,10 @@ public class TorchAnnotationProcessor extends AbstractProcessor {
         for(Element element : elements) {
             try {
                 // TODO move this somewhere else, maybe to metadata generator?
-                Class.forName(element.toString() + "Metadata", false, ClassLoader.getSystemClassLoader());
+                Class.forName(element.toString() + MetadataSourceFile.METADATA_POSTFIX, false, ClassLoader.getSystemClassLoader());
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
-                        "Entity " + element.getSimpleName() + "already on classpath.", element);
+                                                         "Entity " + element.getSimpleName() + "already on classpath.",
+                                                         element);
                 continue;
             } catch (ClassNotFoundException e) {
                 // Not found means we need to create it.
