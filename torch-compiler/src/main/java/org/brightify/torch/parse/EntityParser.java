@@ -97,7 +97,7 @@ public class EntityParser {
 
         for (Element child : children) {
             Set<Modifier> modifiers = child.getModifiers();
-            if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.STATIC)) {
+            if (modifiers.contains(Modifier.PRIVATE)) {
                 continue;
             }
 
@@ -112,6 +112,9 @@ public class EntityParser {
             }
 
             if (child.getKind() == ElementKind.FIELD) {
+                if(modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.STATIC)) {
+                    continue;
+                }
                 Property abstractProperty = propertyMap.get(childName);
                 if (abstractProperty instanceof AccessorProperty) {
                     AccessorProperty property = (AccessorProperty) abstractProperty;

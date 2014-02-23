@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Entity(version = "3.5.2")
 @Index
 public class TestObject implements Serializable {
-    //public static final int SHOULD_BE_IGNORED = 10000;
+    public static final int SHOULD_BE_IGNORED = 10000;
 
     @Id
     public Long id;
