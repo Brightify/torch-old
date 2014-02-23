@@ -4,6 +4,7 @@ import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.Result;
 import org.brightify.torch.Torch;
+import org.brightify.torch.filter.NumberColumn;
 import org.brightify.torch.util.Callback;
 import org.brightify.torch.util.ResultWrapper;
 
@@ -195,20 +196,19 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
         }
         LoaderType.TypedLoaderType<ENTITY> typedLoaderType = (LoaderType.TypedLoaderType<ENTITY>) loaderType;
         EntityMetadata<ENTITY> metadata = torch.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
-        String columnName = metadata.getIdColumn().getName();
-        String condition = columnName + "=";
+        NumberColumn<Long> idColumn = metadata.getIdColumn();
 
         EntityFilter filter = null;
         for (Long id : ids) {
             if (filter == null) {
-                filter = EntityFilter.filter(condition, id);
+                filter = idColumn.equalTo(id);
             } else {
-                filter = filter.or(condition, id);
+                filter = filter.or(idColumn.equalTo(id));
             }
 
         }
 
-        return filter(filter).orderBy(columnName).prepareResult();
+        return filter(filter).orderBy(idColumn.getName()).prepareResult();
     }
 
     @Override

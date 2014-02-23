@@ -10,6 +10,7 @@ import org.brightify.torch.test.TestObject$;
 import org.brightify.torch.util.Callback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,22 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         testObject.intField = 123456789;
 
         return testObject;
+    }
+
+    @MediumTest
+    public void testLoadById() {
+        TestObject object = torch().load().type(TestObject.class).id(testObject.id).now();
+        assertEquals(testObject, object);
+
+        List<TestObject> objects = torch().load().type(TestObject.class).ids(testObject1.id, testObject2.id).now();
+        assertEquals(2, objects.size());
+        assertEquals(testObject1, objects.get(0));
+        assertEquals(testObject2, objects.get(1));
+
+        objects = torch().load().type(TestObject.class).ids(Arrays.asList(testObject2.id, testObject3.id)).now();
+        assertEquals(2, objects.size());
+        assertEquals(testObject2, objects.get(0));
+        assertEquals(testObject3, objects.get(1));
     }
 
     @MediumTest
