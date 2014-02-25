@@ -5,6 +5,7 @@ import android.util.Log;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Settings;
 import org.brightify.torch.Torch;
+import org.brightify.torch.filter.Column;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -105,7 +106,7 @@ public class LoadQuery<ENTITY> {
             if (configuration.ordering.size() > 0) {
                 builder.append(" ORDER BY ");
                 for (Configuration.OrderPair orderPair : configuration.ordering) {
-                    builder.append(orderPair.getColumnName()).append(" ")
+                    builder.append(orderPair.getColumn().getName()).append(" ")
                            .append(orderPair.getDirection() == OrderLoader.Direction.ASCENDING ? "ASC" : "DESC");
                 }
             }
@@ -154,7 +155,7 @@ public class LoadQuery<ENTITY> {
             return this;
         }
 
-        public Configuration<ENTITY> addOrdering(String orderColumn, OrderLoader.Direction direction) {
+        public Configuration<ENTITY> addOrdering(Column<?> orderColumn, OrderLoader.Direction direction) {
             ordering.addLast(new OrderPair(orderColumn, direction));
             return this;
         }
@@ -178,20 +179,20 @@ public class LoadQuery<ENTITY> {
         }
 
         private static class OrderPair {
-            private String columnName;
+            private Column<?> column;
             private OrderLoader.Direction direction;
 
-            public OrderPair(String columnName, OrderLoader.Direction direction) {
-                this.columnName = columnName;
+            public OrderPair(Column<?> column, OrderLoader.Direction direction) {
+                this.column = column;
                 this.direction = direction;
             }
 
-            public String getColumnName() {
-                return columnName;
+            public Column<?> getColumn() {
+                return column;
             }
 
-            public void setColumnName(String columnName) {
-                this.columnName = columnName;
+            public void setColumn(Column<?> column) {
+                this.column = column;
             }
 
             public OrderLoader.Direction getDirection() {

@@ -4,6 +4,7 @@ import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.Result;
 import org.brightify.torch.Torch;
+import org.brightify.torch.filter.Column;
 import org.brightify.torch.filter.NumberColumn;
 import org.brightify.torch.util.Callback;
 import org.brightify.torch.util.ResultWrapper;
@@ -208,7 +209,7 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
 
         }
 
-        return filter(filter).orderBy(idColumn.getName()).prepareResult();
+        return filter(filter).orderBy(idColumn).prepareResult();
     }
 
     @Override
@@ -227,7 +228,7 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
     }
 
     @Override
-    public LoaderImpl<ENTITY> orderBy(String columnName) {
-        return nextLoader(new LoaderType.OrderLoaderType<ENTITY>(columnName));
+    public LoaderImpl<ENTITY> orderBy(Column<?> column) {
+        return nextLoader(new LoaderType.OrderLoaderType<ENTITY>(column));
     }
 }

@@ -203,7 +203,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadOrderedDescending() {
         List<TestObject> objectsOrdered = torch().load().type(TestObject.class)
-                                                 .orderBy("intField").desc().list();
+                                                 .orderBy(TestObject$.intField).desc().list();
 
         ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
 
@@ -216,7 +216,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     public void testLoadOrderedDescendingAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        torch().load().type(TestObject.class).orderBy("intField").desc().async(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).orderBy(TestObject$.intField).desc().async(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);

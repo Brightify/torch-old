@@ -1,5 +1,7 @@
 package org.brightify.torch.action.load;
 
+import org.brightify.torch.filter.Column;
+
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
@@ -72,9 +74,9 @@ public abstract class LoaderType<ENTITY> {
 
     public static class OrderLoaderType<ENTITY> extends LoaderType<ENTITY> {
 
-        protected final String mOrderColumn;
+        protected final Column<?> mOrderColumn;
 
-        public OrderLoaderType(String orderColumn) {
+        public OrderLoaderType(Column<?> orderColumn) {
             mOrderColumn = orderColumn;
         }
 
