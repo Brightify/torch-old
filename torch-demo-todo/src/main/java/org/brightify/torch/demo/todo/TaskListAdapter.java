@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import org.brightify.torch.demo.todo.model.Task;
+import org.brightify.torch.demo.todo.model.Task$;
 import org.brightify.torch.demo.todo.view.TaskItemView;
 import org.brightify.torch.demo.todo.view.TaskItemView_;
 import org.brightify.torch.util.Callback;
@@ -42,7 +43,7 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     private void loadData() {
-        torch().load().type(Task.class).filter("ownerId = ?", authManager.getLoggedUser().getId()).async(
+        torch().load().type(Task.class).filter(Task$.ownerId.equalTo(authManager.getLoggedUser().getId())).async(
                 new Callback<List<Task>>() {
                     @Override
                     public void onSuccess(List<Task> data) {

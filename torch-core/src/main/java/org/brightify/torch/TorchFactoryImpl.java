@@ -4,9 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.model.Table;
+import org.brightify.torch.model.Table$;
 import org.brightify.torch.model.TableDetails;
 import org.brightify.torch.model.TableDetails$;
-import org.brightify.torch.model.Table$;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.MigrationAssistantImpl;
 
@@ -125,7 +125,8 @@ public class TorchFactoryImpl implements TorchFactory {
     public <ENTITY> TorchFactory register(EntityMetadata<ENTITY> metadata) {
         entities.registerMetadata(metadata);
 
-        Table table = begin().load().type(Table.class).filter("tableName = ?", metadata.getTableName()).single();
+        Table table = begin().load().type(Table.class).filter(Table$.tableName.equalTo(metadata.getTableName()))
+                .single();
         MigrationAssistantImpl<ENTITY> migrationAssistant = new MigrationAssistantImpl<ENTITY>(this, metadata);
         if (table == null) {
             migrationAssistant.createTable();

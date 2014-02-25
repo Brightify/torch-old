@@ -147,29 +147,15 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
     }
 
     @Override
-    public LoaderImpl<ENTITY> or(String condition, Object... params) {
-        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
-                new EntityFilter.OrFilterType())))
-                .filter(condition, params);
-    }
-
-    @Override
     public LoaderImpl<ENTITY> or(EntityFilter filter) {
-        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
+        return this.nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
                 new EntityFilter.OrFilterType())))
                 .filter(filter);
     }
 
     @Override
-    public LoaderImpl<ENTITY> and(String condition, Object... params) {
-        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
-                new EntityFilter.AndFilterType())))
-                .filter(condition, params);
-    }
-
-    @Override
     public LoaderImpl<ENTITY> and(EntityFilter filter) {
-        return this.<ENTITY>nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
+        return this.nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
                 new EntityFilter.AndFilterType())))
                 .filter(filter);
     }
@@ -215,11 +201,6 @@ public class LoaderImpl<ENTITY> implements Loader, TypedLoader<ENTITY>, FilterLo
     @Override
     public int count() {
         return prepareResult().count();
-    }
-
-    @Override
-    public LoaderImpl<ENTITY> filter(String condition, Object... params) {
-        return nextLoader(new LoaderType.FilterLoaderType<ENTITY>(EntityFilter.filter(condition, params)));
     }
 
     @Override

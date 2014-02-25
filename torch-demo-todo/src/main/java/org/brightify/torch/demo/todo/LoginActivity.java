@@ -10,6 +10,7 @@ import com.googlecode.androidannotations.annotations.Bean;
 import com.googlecode.androidannotations.annotations.Click;
 import com.googlecode.androidannotations.annotations.EActivity;
 import com.googlecode.androidannotations.annotations.ViewById;
+import org.brightify.torch.demo.todo.model.User$;
 
 import static org.brightify.torch.TorchService.torch;
 
@@ -33,7 +34,7 @@ public class LoginActivity extends Activity {
         username.setError(null);
         password.setError(null);
 
-        User user = torch().load().type(User.class).filter("username = ?", username.getText().toString()).single();
+        User user = torch().load().type(User.class).filter(User$.username.equalTo(username.getText().toString())).single();
         if(user == null) {
             username.setError("Username invalid!");
             return;
@@ -54,7 +55,7 @@ public class LoginActivity extends Activity {
         username.setError(null);
         password.setError(null);
 
-        User user = torch().load().type(User.class).filter("username = ?", username.getText().toString()).single();
+        User user = torch().load().type(User.class).filter(User$.username.equalTo(username.getText().toString())).single();
         if(user != null) {
             username.setError("Username exists!");
             return;

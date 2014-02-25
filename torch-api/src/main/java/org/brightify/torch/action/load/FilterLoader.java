@@ -5,7 +5,6 @@ package org.brightify.torch.action.load;
  */
 public interface FilterLoader<ENTITY> {
 
-    OperatorFilterOrderLimitListLoader<ENTITY> filter(String condition, Object... params);
-    OperatorFilterOrderLimitListLoader<ENTITY> filter(EntityFilter nestedFilter);
+    OperatorFilterOrderLimitListLoader<ENTITY> filter(EntityFilter filter);
 
 }

@@ -133,10 +133,6 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
     @MediumTest
     public void testLoadFilteredEntities() {
-        List<TestObject> objectsFiltered = torch().load().type(TestObject.class)
-                                                  .filter("intField > ?", 10).list();
-        assertEquals(2, objectsFiltered.size());
-
         List<TestObject> objectsFiltered2 = torch().load()
                                                    .type(TestObject.class)
                                                    .filter(TestObject$.intField
@@ -144,10 +140,6 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
                                                    .list();
         assertEquals(2, objectsFiltered2.size());
 
-
-        List<TestObject> objectsFiltered1 = torch().load().type(TestObject.class)
-                                                   .filter("intField NOT IN (?, ?)", 10, 100).list();
-        assertEquals(2, objectsFiltered1.size());
 
         List<TestObject> objectsFiltered3 = torch().load()
                                                    .type(TestObject.class)
@@ -168,7 +160,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadFilteredEntitiesAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
-        torch().load().type(TestObject.class).filter("intField > ?", 10).async(
+        torch().load().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).async(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -184,7 +176,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         assertTrue(firstLatch.await(5, TimeUnit.SECONDS));
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
-        torch().load().type(TestObject.class).filter("intField NOT IN (?, ?)", 10, 100).async(
+        torch().load().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).async(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
