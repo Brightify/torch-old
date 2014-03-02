@@ -40,8 +40,7 @@ public class MainActivity extends Activity implements EditDialog.OnEditSaveListe
 
     @OptionsItem(R.id.add)
     void addTask() {
-        EditDialog dialog = EditDialog_.builder().build();
-        dialog.show(getFragmentManager(), "edit-dialog");
+        EditDialog_.builder().build().show(getFragmentManager(), "edit-dialog");
     }
 
     @ItemClick(android.R.id.list)

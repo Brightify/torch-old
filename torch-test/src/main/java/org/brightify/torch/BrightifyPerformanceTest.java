@@ -1,113 +1,232 @@
 package org.brightify.torch;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Debug;
+import android.test.AndroidTestCase;
+import android.util.Log;
+import org.brightify.torch.annotation.Unindex;
+import org.brightify.torch.test.TestObject;
+import org.brightify.torch.test.TestObject$;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.brightify.torch.TorchService.torch;
+
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
- *
+ */
 public class BrightifyPerformanceTest extends AndroidTestCase {
+
+    private static final String TAG = "PerfTest";
+    private static final int COUNT = 1000;
+
 
     @Override
     protected void runTest() throws Throwable {
 
-        // Performance test ignored
-        // super.runTest();
+        // Comment next line to disable perf tests
+        super.runTest();
 
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        Settings.enableQueryLogging();
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-
+        Settings.disableQueryLogging();
     }
-*
+
     public void testOrmPerformance() {
         try {
             Debug.startMethodTracing("testOrmPerformance");
+            long start = System.currentTimeMillis();
+            long time = start;
 
-//            TorchService.load(getContext());
+            TorchService.with(getContext()).register(TestObject$.create());
 
-            TorchService.factory().register(TestObject.class);
+            Log.d(TAG, "ORM - Init: " + (System.currentTimeMillis() - time) + "ms");
+            time = System.currentTimeMillis();
 
-            Torch torch = TorchService.torch();
+            List<TestObject> testObjects = new ArrayList<TestObject>();
 
-            TestObject testObject = createTestObject();
+            for (int i = 0; i < COUNT; i++) {
+                testObjects.add(createTestObject());
+            }
+            Log.d(TAG, "ORM - Create objects: " + (System.currentTimeMillis() - time) + "ms");
+            time = System.currentTimeMillis();
 
-            Key<TestObject> key = torch.save().entity(testObject).now();
+            Set<Key<TestObject>> keys = torch().save().entities(testObjects).keySet();
 
-            TestObject newTestObject = torch.load().key(key).now();
+            Log.d(TAG, "ORM - Save: " + (System.currentTimeMillis() - time) + "ms");
+            time = System.currentTimeMillis();
 
+            assertEquals(testObjects.size(), keys.size());
+
+            List<TestObject> testObjects1 = torch().load().type(TestObject.class).list();
+
+            Log.d(TAG, "ORM - Load: " + (System.currentTimeMillis() - time) + "ms");
+
+            assertEquals(testObjects.size(), testObjects1.size());
+
+            Log.d(TAG, "ORM - Complete: " + (System.currentTimeMillis() - start) + "ms");
         } finally {
-//            TorchService.factory().deleteDatabase(getContext());
-//            TorchService.unload(getContext());
+            TorchService.factory().deleteDatabase();
+            TorchService.forceUnload();
             Debug.stopMethodTracing();
         }
     }
 
     public void testRawPerformance() {
-        Debug.startMethodTracing("testRawPerformance");
+        try {
+            Debug.startMethodTracing("testRawPerformance");
 
-        SQLiteOpenHelper helper = new SQLiteOpenHelper(getContext(), "test_database", null, 1) {
-            @Override
-            public void onCreate(SQLiteDatabase db) {
-                String query = "CREATE TABLE com_brightgestures_brightify_test_activity_test_object" +
-                        "(" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "int_field INTEGER, " +
-                        "string_field TEXT, " +
-                        "long_field LONG" +
-                        ")";
-                db.execSQL(query);
+            long start = System.currentTimeMillis();
+            long time = start;
+
+            SQLiteOpenHelper helper = new SQLiteOpenHelper(getContext(), "test_database", null, 1) {
+                @Override
+                public void onCreate(SQLiteDatabase db) {
+                    String query = "CREATE TABLE IF NOT EXISTS org_brightify_torch_test_TestObject" +
+                                   "(" +
+                                   "booleanPrimitiveField INTEGER, " +
+                                   "id INTEGER CONSTRAINT id_primary PRIMARY KEY AUTOINCREMENT, " +
+                                   "testName INTEGER, " +
+                                   "intField INTEGER, " +
+                                   "protectedTest TEXT, " +
+                                   "longPrimitiveField INTEGER, " +
+                                   "longField INTEGER, " +
+                                   "intPrimitiveField INTEGER, " +
+                                   "booleanField INTEGER, " +
+                                   "defaultTest TEXT, " +
+                                   "stringField TEXT, " +
+                                   "testMethod INTEGER" +
+                                   ")";
+
+                    db.execSQL(query);
+                }
+
+                @Override
+                public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+                }
+            };
+
+            SQLiteDatabase db = helper.getWritableDatabase();
+
+            Log.d(TAG, "RAW - Init: " + (System.currentTimeMillis() - time) + "ms");
+            time = System.currentTimeMillis();
+
+            List<TestObject> testObjects = new ArrayList<TestObject>();
+
+            for (int i = 0; i < COUNT; i++) {
+                testObjects.add(createTestObject());
             }
 
-            @Override
-            public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            Log.d(TAG, "RAW - Create objects: " + (System.currentTimeMillis() - time) + "ms");
+            time = System.currentTimeMillis();
 
+            db.beginTransaction();
+
+            for (TestObject testObject : testObjects) {
+                ContentValues values = new ContentValues();
+                values.put("id", testObject.id);
+                values.put("booleanPrimitiveField", testObject.booleanPrimitiveField);
+                values.put("intField", testObject.intField);
+                values.put("stringField", testObject.stringField);
+                values.put("longField", testObject.longField);
+                values.put("testName", testObject.a());
+                values.put("protectedTest", testObject.getProtectedTest());
+                values.put("longPrimitiveField", testObject.longPrimitiveField);
+                values.put("intPrimitiveField", testObject.intPrimitiveField);
+                values.put("booleanField", testObject.booleanField);
+                //values.put("defaultTest", testObject);
+                values.put("testMethod", testObject.testMethod());
+
+                testObject.id = db.insert("org_brightify_torch_test_TestObject", null, values);
             }
-        };
 
-        SQLiteDatabase db = helper.getWritableDatabase();
+            db.setTransactionSuccessful();
+            db.endTransaction();
 
+            Log.d(TAG, "RAW - Save: " + (System.currentTimeMillis() - time) + "ms");
+            time = System.currentTimeMillis();
 
-        TestObject testObject = createTestObject();
+            db.close();
 
-        ContentValues values = new ContentValues();
-        values.put("id", testObject.id);
-        values.put("int_field", testObject.intField);
-        values.put("string_field", testObject.stringField);
-        values.put("long_field", testObject.longField);
+            db = helper.getReadableDatabase();
 
-        long id = db.insert("com_brightgestures_brightify_test_activity_test_object", null, values);
+            Cursor cursor = db.rawQuery(
+                    "SELECT " +
+                    "booleanPrimitiveField, " +
+                    "id, " +
+                    "testName, " +
+                    "intField, " +
+                    "protectedTest, " +
+                    "longPrimitiveField, " +
+                    "longField, " +
+                    "intPrimitiveField, " +
+                    "booleanField, " +
+                    "defaultTest, " +
+                    "stringField, " +
+                    "testMethod " +
+                    "FROM org_brightify_torch_test_TestObject",
+                    new String[0]);
 
-        db.close();
+            cursor.moveToFirst();
 
-        db = helper.getReadableDatabase();
+            List<TestObject> testObjects1 = new ArrayList<TestObject>();
 
-        testObject = null;
+            do {
 
-        Cursor cursor = db.query("com_brightgestures_brightify_test_activity_test_object",
-                new String[] { "id", "int_field", "string_field", "long_field" },
-                "id=?",
-                new String[] { String.valueOf(id)},
-                null, null, null, null);
+                TestObject testObject = new TestObject();
 
-        cursor.moveToFirst();
+                testObject.id = cursor.getLong(0);
+                testObject.intField = cursor.getInt(1);
+                testObject.stringField = cursor.getString(2);
+                testObject.longField = cursor.getLong(3);
 
-        testObject = new TestObject();
+                testObject.booleanPrimitiveField = cursor.getInt(0) == 1;
+                testObject.id = cursor.getLong(1);
+                testObject.setTestName(cursor.getInt(2));
+                testObject.intField = cursor.getInt(3);
+                testObject.setProtectedTest(cursor.getString(4));
+                testObject.longPrimitiveField = cursor.getLong(5);
+                testObject.longField = cursor.getLong(6);
+                testObject.intPrimitiveField = cursor.getInt(7);
+                testObject.booleanField = cursor.getInt(8) == 1;
+//                testObject.halelujah();
+                testObject.stringField = cursor.getString(10);
+                testObject.halelujah(cursor.getLong(11));
 
-        testObject.id = cursor.getLong(0);
-        testObject.intField = cursor.getInt(1);
-        testObject.stringField = cursor.getString(2);
-        testObject.longField = cursor.getLong(3);
+                testObjects1.add(testObject);
 
-        db.close();
+                cursor.moveToNext();
+            } while (!cursor.isAfterLast());
 
-        getContext().deleteDatabase("test_database");
+            cursor.close();
 
-        Debug.stopMethodTracing();
+            Log.d(TAG, "RAW - Load: " + (System.currentTimeMillis() - time) + "ms");
+
+            db.close();
+
+            assertEquals(testObjects.size(), testObjects1.size());
+
+            Log.d(TAG, "RAW - Complete: " + (System.currentTimeMillis() - start) + "ms");
+        } finally {
+            getContext().deleteDatabase("test_database");
+
+            Debug.stopMethodTracing();
+        }
     }
 
     private TestObject createTestObject() {
@@ -119,6 +238,5 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         testObject.intField = 123456789;
 
         return testObject;
-    }*
+    }
 }
-*/

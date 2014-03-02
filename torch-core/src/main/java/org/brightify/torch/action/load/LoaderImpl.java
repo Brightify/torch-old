@@ -1,5 +1,6 @@
 package org.brightify.torch.action.load;
 
+import android.database.Cursor;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
@@ -38,6 +39,7 @@ import org.brightify.torch.filter.EntityFilter;
 import org.brightify.torch.filter.NumberColumn;
 import org.brightify.torch.util.AsyncRunner;
 import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.LazyArrayList;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -89,12 +91,6 @@ public class LoaderImpl<ENTITY> implements
         loaderType.prepareQuery(configuration);
     }
 
-    protected LoadResultImpl<ENTITY> prepareResult() {
-        LoadQuery<ENTITY> query = LoadQuery.Builder.build(this);
-
-        return new LoadResultImpl<ENTITY>(torch, query);
-    }
-
     @Override
     public AsyncLoader async() {
         return this;
@@ -107,7 +103,13 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public List<ENTITY> list() {
-        return prepareResult().now();
+        LinkedList<ENTITY> list = new LinkedList<ENTITY>();
+
+        for(ENTITY entity : this) {
+            list.addLast(entity);
+        }
+
+        return list;
     }
 
     @Override
@@ -122,7 +124,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public Iterator<ENTITY> iterator() {
-        return prepareResult().iterator();
+        LoadQuery<ENTITY> query = LoadQuery.Builder.build(this);
+
+        return new CursorIterator<ENTITY>(query.getEntityMetadata(), query.run(torch));
     }
 
     @Override
@@ -193,7 +197,8 @@ public class LoaderImpl<ENTITY> implements
     public LoaderImpl<ENTITY> and(EntityFilter filter) {
         return this.nextLoader(new LoaderType.FilterLoaderType<ENTITY>(new EntityFilter(null,
                                                                                         new EntityFilter
-                                                                                                .AndFilterType())))
+                                                                                                .AndFilterType()
+        )))
                 .filter(filter);
     }
 
@@ -227,12 +232,12 @@ public class LoaderImpl<ENTITY> implements
 
         }
 
-        return filter(filter).orderBy(idColumn).prepareResult().now();
+        return filter(filter).orderBy(idColumn).list();
     }
 
     @Override
     public int count() {
-        return prepareResult().count();
+        return LoadQuery.Builder.build(this).count(torch);
     }
 
     @Override
@@ -333,13 +338,5 @@ public class LoaderImpl<ENTITY> implements
                 return keys(keys);
             }
         });
-    }
-
-    class Builder {
-
-        Builder(LoaderImpl<?> loader) {
-
-        }
-
     }
 }

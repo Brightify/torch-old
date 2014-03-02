@@ -1,30 +1,30 @@
 package org.brightify.torch.util;
 
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.TorchService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Custom implementation of {@link ArrayList} which doesn't load all
  *
  * @param <ENTITY> type of entity being handled
  */
-class LazyArrayList<ENTITY> extends ArrayList<ENTITY> {
+class LazyArrayListImpl<ENTITY> extends ArrayList<ENTITY> implements LazyArrayList<ENTITY> {
 
     private final EntityMetadata<ENTITY> entityMetadata;
-    private final Map<Integer, Long> ids = new HashMap<Integer, Long>();
-    private final Map<Integer, Boolean> loaded = new HashMap<Integer, Boolean>();
+    private final SparseArray<Long> ids = new SparseArray<Long>();
+    private final SparseBooleanArray loaded = new SparseBooleanArray();
 
-    public LazyArrayList(EntityMetadata<ENTITY> entityMetadata, Long... ids) {
+    public LazyArrayListImpl(EntityMetadata<ENTITY> entityMetadata, Long... ids) {
         this(entityMetadata, Arrays.asList(ids));
     }
 
-    public LazyArrayList(EntityMetadata<ENTITY> entityMetadata, List<Long> ids) {
+    public LazyArrayListImpl(EntityMetadata<ENTITY> entityMetadata, List<Long> ids) {
         super(ids.size());
         this.entityMetadata = entityMetadata;
         for (Long id : ids) {
@@ -34,6 +34,7 @@ class LazyArrayList<ENTITY> extends ArrayList<ENTITY> {
         }
     }
 
+    @Override
     public ENTITY get(int i) {
         ENTITY object = super.get(i);
         if (object != null) {
@@ -71,9 +72,10 @@ class LazyArrayList<ENTITY> extends ArrayList<ENTITY> {
      * @param i index of item to load
      * @return instance of T if load was needed, null if value was already cached
      */
+    @Override
     public ENTITY loadIfNeeded(int i) {
-        Boolean loaded = this.loaded.get(i);
-        Long id = ids.get(i);
+        Boolean loaded = this.loaded.valueAt(i);
+        Long id = ids.valueAt(i);
         if (loaded != null && !loaded && id != null) {
             ENTITY object = TorchService.torch().load().type(entityMetadata.getEntityClass()).id(id);
             this.loaded.put(i, true);
@@ -84,9 +86,10 @@ class LazyArrayList<ENTITY> extends ArrayList<ENTITY> {
         }
     }
 
+    @Override
     public void loadAll() {
-        for (Integer index : ids.keySet()) {
-            loadIfNeeded(index);
+        for (int i = 0; i < ids.size(); i++) {
+            loadIfNeeded(i);
         }
     }
 }

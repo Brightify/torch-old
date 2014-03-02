@@ -1,7 +1,6 @@
 package org.brightify.torch.action.delete;
 
 import org.brightify.torch.Key;
-import org.brightify.torch.Result;
 import org.brightify.torch.action.AsyncSelector;
 
 import java.util.Map;

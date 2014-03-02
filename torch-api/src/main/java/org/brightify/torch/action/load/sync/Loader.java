@@ -1,11 +1,9 @@
 package org.brightify.torch.action.load.sync;
 
 import org.brightify.torch.Key;
-import org.brightify.torch.Result;
 import org.brightify.torch.action.AsyncSelector;
 import org.brightify.torch.action.load.async.AsyncLoader;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

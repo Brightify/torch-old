@@ -28,7 +28,7 @@ public class KeyTest {
 
         assertNotNull(key);
         assertEquals(1L, key.getId());
-        assertEquals("TestObject", key.getType().getSimpleName());
+        assertEquals(TestObject.class, key.getType());
     }
 
     @Test
