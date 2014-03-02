@@ -66,7 +66,7 @@ public class LoginActivity extends Activity {
         user.setPasswordHash(password.getText().toString());
 
         // TODO make async
-        Key<User> key = torch().save().entity(user).now();
+        Key<User> key = torch().save().entity(user);
 
         authManager.setLoggedUser(key);
 

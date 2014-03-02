@@ -5,7 +5,9 @@ import android.util.Log;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Settings;
 import org.brightify.torch.Torch;
+import org.brightify.torch.action.load.sync.OrderLoader;
 import org.brightify.torch.filter.Column;
+import org.brightify.torch.filter.EntityFilter;
 
 import java.util.Arrays;
 import java.util.Collections;

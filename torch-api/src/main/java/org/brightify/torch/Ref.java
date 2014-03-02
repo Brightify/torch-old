@@ -20,7 +20,7 @@ public abstract class Ref<ENTITY> {
 
     public ENTITY get() {
         if(mValue == null && !mLoaded) {
-            mValue = mTorch.load().key(mKey).now();
+            mValue = mTorch.load().key(mKey);
             mLoaded = true;
         }
         return mValue;
@@ -65,7 +65,7 @@ public abstract class Ref<ENTITY> {
                 entities.addLast(ref.mValue);
             }
 
-            Map<Key<ENTITY>, ENTITY> keyMap =  torch.save().entities(entities).now();
+            Map<Key<ENTITY>, ENTITY> keyMap =  torch.save().entities(entities);
 
             int i =0;
             for(Key<ENTITY> key : keyMap.keySet()) {

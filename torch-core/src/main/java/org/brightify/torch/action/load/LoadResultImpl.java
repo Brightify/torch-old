@@ -23,12 +23,12 @@ public class LoadResultImpl<ENTITY> implements LoadResult<ENTITY> {
 
     @Override
     public void async(Callback<List<ENTITY>> callback) {
-        AsyncRunner.run(new AsyncRunner.Task<List<ENTITY>>() {
+        AsyncRunner.run(callback, new AsyncRunner.Task<List<ENTITY>>() {
             @Override
             public List<ENTITY> doWork() throws Exception {
                 return now();
             }
-        }, callback);
+        });
     }
 
     @Override

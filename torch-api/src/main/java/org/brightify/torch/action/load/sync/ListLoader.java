@@ -1,6 +1,4 @@
-package org.brightify.torch.action.load;
-
-import org.brightify.torch.util.Callback;
+package org.brightify.torch.action.load.sync;
 
 import java.util.List;
 
@@ -13,5 +11,4 @@ public interface ListLoader<ENTITY> extends Iterable<ENTITY> {
 
     ENTITY single();
 
-    void async(Callback<List<ENTITY>> callback);
 }

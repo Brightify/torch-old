@@ -39,7 +39,7 @@ public class TaskItemView extends LinearLayout {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 task.setCompleted(isChecked);
                 refresh();
-                torch().save().entity(task).now();
+                torch().save().entity(task);
             }
         });
     }

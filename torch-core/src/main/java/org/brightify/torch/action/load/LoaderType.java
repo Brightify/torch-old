@@ -1,6 +1,8 @@
 package org.brightify.torch.action.load;
 
+import org.brightify.torch.action.load.sync.OrderLoader;
 import org.brightify.torch.filter.Column;
+import org.brightify.torch.filter.EntityFilter;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>

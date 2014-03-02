@@ -4,15 +4,15 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import com.googlecode.androidannotations.annotations.AfterInject;
+import com.googlecode.androidannotations.annotations.Bean;
+import com.googlecode.androidannotations.annotations.EBean;
+import com.googlecode.androidannotations.annotations.RootContext;
 import org.brightify.torch.demo.todo.model.Task;
 import org.brightify.torch.demo.todo.model.Task$;
 import org.brightify.torch.demo.todo.view.TaskItemView;
 import org.brightify.torch.demo.todo.view.TaskItemView_;
 import org.brightify.torch.util.Callback;
-import com.googlecode.androidannotations.annotations.AfterInject;
-import com.googlecode.androidannotations.annotations.Bean;
-import com.googlecode.androidannotations.annotations.EBean;
-import com.googlecode.androidannotations.annotations.RootContext;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     private void loadData() {
-        torch().load().type(Task.class).filter(Task$.ownerId.equalTo(authManager.getLoggedUser().getId())).async(
+        torch().load().async().type(Task.class).filter(Task$.ownerId.equalTo(authManager.getLoggedUser().getId())).list(
                 new Callback<List<Task>>() {
                     @Override
                     public void onSuccess(List<Task> data) {
@@ -55,7 +55,8 @@ public class TaskListAdapter extends BaseAdapter {
                     public void onFailure(Exception e) {
                         throw new RuntimeException(e);
                     }
-                });
+                }
+        );
     }
 
     @Override
@@ -76,7 +77,7 @@ public class TaskListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         TaskItemView itemView;
-        if(convertView == null) {
+        if (convertView == null) {
             itemView = TaskItemView_.build(context);
         } else {
             itemView = (TaskItemView) convertView;

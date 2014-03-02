@@ -1,4 +1,4 @@
-package org.brightify.torch.action.load;
+package org.brightify.torch.filter;
 
 import java.util.List;
 

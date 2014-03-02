@@ -1,4 +1,4 @@
-package org.brightify.torch.action.load;
+package org.brightify.torch.action.load.sync;
 
 import org.brightify.torch.filter.Column;
 

@@ -56,13 +56,13 @@ public class MainActivity extends Activity implements EditDialog.OnEditSaveListe
     @Override
     public void onEditSave(Task task) {
         task.setOwnerId(authManager.getLoggedUser().getId());
-        torch().save().entity(task).now();
+        torch().save().entity(task);
         adapter.notifyDataSetChanged();
     }
 
     @Override
     public void onEditDelete(Task task) {
-        torch().delete().entity(task).now();
+        torch().delete().entity(task);
         adapter.notifyDataSetChanged();
         Toast.makeText(this, "Task deleted", Toast.LENGTH_SHORT).show();
     }

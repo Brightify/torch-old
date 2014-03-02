@@ -2,23 +2,25 @@ package org.brightify.torch.action.delete;
 
 import org.brightify.torch.Key;
 import org.brightify.torch.Result;
+import org.brightify.torch.action.AsyncSelector;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
-public interface Deleter {
+public interface Deleter extends AsyncSelector<AsyncDeleter> {
 
-    <ENTITY> Result<Boolean> entity(ENTITY entity);
-    <ENTITY> Result<Map<Key<ENTITY>, Boolean>> entities(ENTITY... entities);
-    <ENTITY> Result<Map<Key<ENTITY>, Boolean>> entities(Collection<ENTITY> entities);
+    <ENTITY> Boolean entity(ENTITY entity);
 
-    <ENTITY> Result<Boolean> key(Key<ENTITY> key);
-    <ENTITY> Result<Map<Key<ENTITY>, Boolean>> keys(Key<ENTITY>... keys);
-    <ENTITY> Result<Map<Key<ENTITY>, Boolean>> keys(Collection<Key<ENTITY>> keys);
+    <ENTITY> Map<Key<ENTITY>, Boolean> entities(ENTITY... entities);
 
-    <ENTITY> TypedDeleter<ENTITY> type(Class<ENTITY> entityClass);
+    <ENTITY> Map<Key<ENTITY>, Boolean> entities(Iterable<ENTITY> entities);
+
+    <ENTITY> Boolean key(Key<ENTITY> key);
+
+    <ENTITY> Map<Key<ENTITY>, Boolean> keys(Key<ENTITY>... keys);
+
+    <ENTITY> Map<Key<ENTITY>, Boolean> keys(Iterable<Key<ENTITY>> keys);
 
 }

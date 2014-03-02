@@ -1,4 +1,4 @@
-package org.brightify.torch.action.load;
+package org.brightify.torch.action.load.sync;
 
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>

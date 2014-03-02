@@ -10,8 +10,8 @@ public class AsyncRunner {
     private AsyncRunner() {
     }
 
-    public static <RESULT> void run(final Task<RESULT> task, final Callback<RESULT> callback) {
-        new CallbackAsyncTask<RESULT>(task, callback).execute();
+    public static <RESULT> void run(final Callback<RESULT> callback, final Task<RESULT> task) {
+        new CallbackAsyncTask<RESULT>(callback, task).execute();
     }
 
     public interface Task<RESULT> {
@@ -23,14 +23,14 @@ public class AsyncRunner {
         private final Task<RESULT> task;
         private final Callback<RESULT> callback;
 
-        public CallbackAsyncTask(Task<RESULT> task, Callback<RESULT> callback) {
+        public CallbackAsyncTask(Callback<RESULT> callback, Task<RESULT> task) {
             this.task = task;
             this.callback = callback;
         }
 
         @Override
         protected Result<RESULT> doInBackground(Void... params) {
-            Result result;
+            Result<RESULT> result;
             try {
                 RESULT resultData = task.doWork();
                 result = new Result<RESULT>(resultData);

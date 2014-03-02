@@ -75,7 +75,7 @@ class LazyArrayList<ENTITY> extends ArrayList<ENTITY> {
         Boolean loaded = this.loaded.get(i);
         Long id = ids.get(i);
         if (loaded != null && !loaded && id != null) {
-            ENTITY object = TorchService.torch().load().type(entityMetadata.getEntityClass()).id(id).now();
+            ENTITY object = TorchService.torch().load().type(entityMetadata.getEntityClass()).id(id);
             this.loaded.put(i, true);
             super.set(i, object);
             return object;

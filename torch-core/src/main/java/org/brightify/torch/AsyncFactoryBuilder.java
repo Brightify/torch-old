@@ -49,7 +49,7 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     public void submit() {
         submitted = true;
 
-        AsyncRunner.run(new AsyncRunner.Task<TorchFactory>() {
+        AsyncRunner.run(callback, new AsyncRunner.Task<TorchFactory>() {
             @Override
             public TorchFactory doWork() throws Exception {
                 TorchFactory factory = new TorchFactoryImpl(context, metadatas);
@@ -58,6 +58,6 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
 
                 return factory;
             }
-        }, callback);
+        });
     }
 }

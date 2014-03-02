@@ -25,7 +25,6 @@ import static org.brightify.torch.TorchService.torch;
  */
 public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestActivity> {
 
-    private Map<Key<TestObject>, TestObject> savedDataMap;
     private ArrayList<TestObject> savedData;
 
     private TestObject testObject;
@@ -67,7 +66,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         savedData.add(testObject2);
         savedData.add(testObject3);
 
-        savedDataMap = torch().save().entities(savedData).now();
+        Map<Key<TestObject>, TestObject> savedDataMap = torch().save().entities(savedData);
         assertEquals(4, savedDataMap.size());
     }
 
@@ -83,7 +82,6 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     private TestObject createTestObject() {
         TestObject testObject = new TestObject();
 
-        testObject.id = null;
         testObject.stringField = UUID.randomUUID().toString();
         testObject.longField = 98765432123456789L;
         testObject.intField = 123456789;
@@ -93,15 +91,15 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
     @MediumTest
     public void testLoadById() {
-        TestObject object = torch().load().type(TestObject.class).id(testObject.id).now();
+        TestObject object = torch().load().type(TestObject.class).id(testObject.id);
         assertEquals(testObject, object);
 
-        List<TestObject> objects = torch().load().type(TestObject.class).ids(testObject1.id, testObject2.id).now();
+        List<TestObject> objects = torch().load().type(TestObject.class).ids(testObject1.id, testObject2.id);
         assertEquals(2, objects.size());
         assertEquals(testObject1, objects.get(0));
         assertEquals(testObject2, objects.get(1));
 
-        objects = torch().load().type(TestObject.class).ids(Arrays.asList(testObject2.id, testObject3.id)).now();
+        objects = torch().load().type(TestObject.class).ids(Arrays.asList(testObject2.id, testObject3.id));
         assertEquals(2, objects.size());
         assertEquals(testObject2, objects.get(0));
         assertEquals(testObject3, objects.get(1));
@@ -116,7 +114,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadAllEntitiesAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        torch().load().type(TestObject.class).async(new Callback<List<TestObject>>() {
+        torch().load().async().type(TestObject.class).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertEquals(savedData, data);
@@ -160,7 +158,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadFilteredEntitiesAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
-        torch().load().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).async(
+        torch().load().async().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -176,7 +174,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         assertTrue(firstLatch.await(5, TimeUnit.SECONDS));
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
-        torch().load().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).async(
+        torch().load().async().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -208,7 +206,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     public void testLoadOrderedDescendingAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        torch().load().type(TestObject.class).orderBy(TestObject$.intField).desc().async(new Callback<List<TestObject>>() {
+        torch().load().async().type(TestObject.class).orderBy(TestObject$.intField).desc().list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
@@ -253,7 +251,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     public void testLoadLimitedAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
 
-        torch().load().type(TestObject.class).limit(2).async(new Callback<List<TestObject>>() {
+        torch().load().async().type(TestObject.class).limit(2).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 ArrayList<TestObject> saved = new ArrayList<TestObject>();
@@ -275,7 +273,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
 
-        torch().load().type(TestObject.class).limit(2).offset(1).async(new Callback<List<TestObject>>() {
+        torch().load().async().type(TestObject.class).limit(2).offset(1).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 ArrayList<TestObject> saved = new ArrayList<TestObject>();
