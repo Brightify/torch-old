@@ -14,7 +14,7 @@ public class AsyncRunner {
         new CallbackAsyncTask<RESULT>(callback, task).execute();
     }
 
-    public interface Task<RESULT> {
+    public static interface Task<RESULT> {
         RESULT doWork() throws Exception;
     }
 

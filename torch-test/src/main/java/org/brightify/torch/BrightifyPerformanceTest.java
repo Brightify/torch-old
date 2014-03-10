@@ -151,7 +151,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
                 //values.put("defaultTest", testObject);
                 values.put("testMethod", testObject.testMethod());
 
-                testObject.id = db.insert("org_brightify_torch_test_TestObject", null, values);
+                testObject.id = db.replaceOrThrow("org_brightify_torch_test_TestObject", null, values);
             }
 
             db.setTransactionSuccessful();

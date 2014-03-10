@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
-* @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
-*/
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
+ */
 public abstract class SourceFile {
     protected ProcessingEnvironment processingEnv;
 
@@ -26,7 +26,7 @@ public abstract class SourceFile {
     public SourceFile line(Object value) {
         emptyLine();
 
-        for(int i = 0; i < mLevel; i++) {
+        for (int i = 0; i < mLevel; i++) {
             mBuilder.append("    ");
         }
         mBuilder.append(value);
