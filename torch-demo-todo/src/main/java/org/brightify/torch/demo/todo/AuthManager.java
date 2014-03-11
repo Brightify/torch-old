@@ -8,7 +8,7 @@ import com.googlecode.androidannotations.annotations.EBean;
 import com.googlecode.androidannotations.api.Scope;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @EBean(scope = Scope.Singleton)
 public class AuthManager {

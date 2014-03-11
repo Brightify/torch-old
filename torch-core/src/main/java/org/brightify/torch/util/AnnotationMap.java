@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class AnnotationMap extends HashMap<Class<? extends Annotation>, Annotation> {
     @SuppressWarnings("unchecked")

@@ -8,7 +8,7 @@ import org.brightify.torch.sql.affinity.IntegerAffinity;
 import org.brightify.torch.sql.affinity.RealAffinity;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class FloatCursorMarshaller implements SymetricCursorMarshaller<Float> {
 

@@ -19,7 +19,7 @@ import java.util.List;
 import static org.brightify.torch.TorchService.torch;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @EBean
 public class TaskListAdapter extends BaseAdapter {

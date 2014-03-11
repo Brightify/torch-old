@@ -8,7 +8,7 @@ import org.brightify.torch.filter.NumberColumn;
 import org.brightify.torch.util.MigrationAssistant;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface EntityMetadata<ENTITY> {
     NumberColumn<Long> getIdColumn();

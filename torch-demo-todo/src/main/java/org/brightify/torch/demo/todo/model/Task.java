@@ -4,7 +4,7 @@ import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @Entity
 public class Task {

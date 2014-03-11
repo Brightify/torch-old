@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.action.ActionSelector;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface Torch extends ActionSelector {
 

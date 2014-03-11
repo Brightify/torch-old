@@ -18,7 +18,7 @@ import javax.tools.Diagnostic;
 import java.util.*;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @SupportedAnnotationTypes({ "org.brightify.torch.annotation.Entity" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface TypedLoader<ENTITY> {
 

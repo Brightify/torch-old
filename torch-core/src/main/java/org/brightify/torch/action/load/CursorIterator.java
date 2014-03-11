@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
-* @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+* @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
 */
 public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
     protected final EntityMetadata<ENTITY> mEntityMetadata;

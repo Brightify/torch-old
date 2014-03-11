@@ -15,7 +15,7 @@ import org.brightify.torch.demo.todo.model.User$;
 import static org.brightify.torch.TorchService.torch;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @EActivity(R.layout.login_activity)
 public class LoginActivity extends Activity {

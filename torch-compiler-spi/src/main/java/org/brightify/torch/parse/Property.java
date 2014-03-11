@@ -8,7 +8,7 @@ import org.brightify.torch.annotation.Unique;
 import javax.lang.model.type.TypeMirror;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public abstract class Property {
 

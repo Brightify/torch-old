@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class MetadataSourceFile extends SourceFile {
     public static final String PRIVATE_FIELD_PREFIX = "____";

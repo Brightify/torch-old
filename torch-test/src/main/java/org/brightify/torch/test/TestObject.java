@@ -10,7 +10,7 @@ import org.brightify.torch.util.MigrationAssistant;
 import java.io.Serializable;
 
 /**
-* @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+* @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
 */
 @Entity(version = "3.5.2")
 @Index

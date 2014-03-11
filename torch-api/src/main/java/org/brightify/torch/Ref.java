@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public abstract class Ref<ENTITY> {
     protected final Torch mTorch;

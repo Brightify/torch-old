@@ -3,6 +3,25 @@ package org.brightify.torch.annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
+/**
+ * One of the main annotations used in Torch. Adding an {@link Entity} annotation to your class and having
+ * torch-compiler on classpath will result into generation of a class, named like the original class annotated with
+ * {@link Entity}, but with dollar sign at the end. This class is called <strong>metadata class</strong>. Look at the
+ * following example:
+ * <p/>
+ * <pre>
+ * {@code
+ * &#64;Entity
+ *  class User {
+ *      &#64;Id
+ *      Long id;
+ *  }}
+ * </pre>
+ * <p/>
+ * The {@link Entity} annotation for class {@code User}, would produce a class named {@code User$} which contains all
+ * the necessary data needed for torch to work with the entity. Also, this class has static field for each property of
+ * the original class, which you would use for filtering and ordering.
+ */
 @Target({ ElementType.TYPE })
 public @interface Entity {
     public static final String LOWEST_VERSION = "1.0.0";
@@ -11,9 +30,9 @@ public @interface Entity {
      * Overrides the default table name.
      * <p/>
      * This is not recommended, because it might collide with another table. The default table name is entity name,
-     * prepended by it's package name, with dots replaced by underscores. For example,
-     * {@code com.brightgestures.brightify.model.BrightifySystemModel} will become
-     * {@code com_brightgestures_brightify_model_BrightifySystemModel}
+     * prepended by it's package name, with dots replaced by underscores. For example, {@code
+     * com.brightgestures.brightify.model.BrightifySystemModel} will become {@code
+     * com_brightgestures_brightify_model_BrightifySystemModel}
      *
      * @return
      */
@@ -30,8 +49,7 @@ public @interface Entity {
     String version() default LOWEST_VERSION;
 
     /**
-     * Type of migration. Please refer to {@link Entity.MigrationType} for
-     * more details.
+     * Type of migration. Please refer to {@link Entity.MigrationType} for more details.
      *
      * @return
      */
@@ -63,8 +81,8 @@ public @interface Entity {
     public enum MigrationType {
         /**
          * Call all migration methods in order, if any of them fails (or there is no migration method available),
-         * brightify will throw a {@link org.brightify.torch.util.MigrationException} and revert any change
-         * made to the database. This is default behavior.
+         * brightify will throw a {@link org.brightify.torch.util.MigrationException} and revert any change made to the
+         * database. This is default behavior.
          * <p/>
          * If migration methods don't cover all version upgrades, compile-time error will be raised.
          */
@@ -76,8 +94,8 @@ public @interface Entity {
         DROP_CREATE,
 
         /**
-         * Try to call migration methods in order and if any of them fails, brightify will drop and recreate the
-         * table. Same applies if migration methods don't cover all version upgrades.
+         * Try to call migration methods in order and if any of them fails, brightify will drop and recreate the table.
+         * Same applies if migration methods don't cover all version upgrades.
          */
         TRY_MIGRATE
     }

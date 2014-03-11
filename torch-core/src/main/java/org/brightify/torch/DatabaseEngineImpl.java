@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 final class DatabaseEngineImpl implements DatabaseEngine {
     private static final String TAG = DatabaseEngineImpl.class.getSimpleName();

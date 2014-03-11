@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Debug;
 import android.test.AndroidTestCase;
 import android.util.Log;
-import org.brightify.torch.annotation.Unindex;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
 
@@ -18,7 +17,7 @@ import java.util.Set;
 import static org.brightify.torch.TorchService.torch;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class BrightifyPerformanceTest extends AndroidTestCase {
 
@@ -180,7 +179,8 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
                     "stringField, " +
                     "testMethod " +
                     "FROM org_brightify_torch_test_TestObject",
-                    new String[0]);
+                    new String[0]
+            );
 
             cursor.moveToFirst();
 

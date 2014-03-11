@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class Select implements SqlQueryPart {
 

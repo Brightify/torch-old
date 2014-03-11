@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public abstract class BaseActivityInstrumentationTestCase2<T extends Activity>
         extends ActivityInstrumentationTestCase2<T> {

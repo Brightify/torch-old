@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class TypeHelperImpl implements TypeHelper {
     private final ProcessingEnvironment environment;

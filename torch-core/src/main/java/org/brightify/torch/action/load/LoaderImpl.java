@@ -48,7 +48,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class LoaderImpl<ENTITY> implements
         Loader, TypedLoader<ENTITY>, FilterLoader<ENTITY>, OperatorFilterLoader<ENTITY>,

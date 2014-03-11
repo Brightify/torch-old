@@ -3,14 +3,13 @@ package org.brightify.torch;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * This class is maintaining the {@link DatabaseEngine} and registered entities. Instances
- * of {@link Torch} spawned by the factory will be able to operate with entities
- * registered in this factory and database. If you need to have more than one separate database, you can create your own
- * factory. Each factory depends on the database name you specify through {@link com.brightgestures.brightify
- * .FactoryConfiguration}. If you create more factories with the same database name at the same time, the behavior is
- * unknown at this moment.
+ * This class is maintaining the {@link DatabaseEngine} and registered entities. Instances of {@link Torch} spawned by
+ * the factory will be able to operate with entities registered in this factory and database. If you need to have more
+ * than one separate database, you can create your own factory. Each factory depends on the database name you specify
+ * through {@link org.brightify.torch.FactoryConfiguration}. If you create more factories with the same database name at
+ * the same time, the behavior is unknown at this moment.
  *
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface TorchFactory extends DatabaseEngine.OnCreateDatabaseListener {
 
@@ -18,13 +17,14 @@ public interface TorchFactory extends DatabaseEngine.OnCreateDatabaseListener {
 
     /**
      * Spawns new instance of {@link Torch}. You shouldn't keep the instance.
+     *
      * @return New instance of Torch
      */
     Torch begin();
 
     /**
      * Force creates the database.
-     *
+     * <p/>
      * FIXME this is not needed anymore, as we always create the database on factory creation!
      *
      * @return
@@ -33,8 +33,9 @@ public interface TorchFactory extends DatabaseEngine.OnCreateDatabaseListener {
 
     /**
      * Deletes the database which backs this factory.
-     *
+     * <p/>
      * BEWARE: This will delete all the data of the database!
+     *
      * @return true if the deletion was successful, false otherwise.
      */
     boolean deleteDatabase();
@@ -47,7 +48,7 @@ public interface TorchFactory extends DatabaseEngine.OnCreateDatabaseListener {
     Entities getEntities();
 
     /**
-     * Finds metadata for the entity and registers it. On production you should use {@link com.brightgestures.brightify
+     * Finds metadata for the entity and registers it. On production you should use {@link org.brightify.torch
      * .TorchFactory#register(EntityMetadata)} as it's more efficient, because it doesn't use reflection.
      *
      * @param entityClass Class of entity to be registered.
@@ -58,8 +59,8 @@ public interface TorchFactory extends DatabaseEngine.OnCreateDatabaseListener {
     <ENTITY> TorchFactory register(Class<ENTITY> entityClass);
 
     /**
-     * Registers passed metadata. You can use brightify-compiler to generate the {@link
-     * EntityMetadata} or you can make your own implementation.
+     * Registers passed metadata. You can use brightify-compiler to generate the {@link EntityMetadata} or you can make
+     * your own implementation.
      *
      * @param metadata
      * @param <ENTITY>
@@ -76,7 +77,7 @@ public interface TorchFactory extends DatabaseEngine.OnCreateDatabaseListener {
     String getDatabaseName();
 
     /**
-     * Sets database name. This method should be used only in {@link com.brightgestures.brightify
+     * Sets database name. This method should be used only in {@link org.brightify.torch
      * .FactoryConfiguration#configureFactory(TorchFactory)} as it's called before the factory is initialized.
      *
      * @param databaseName Desired database name.

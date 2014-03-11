@@ -6,7 +6,7 @@ import org.brightify.torch.Settings;
 import org.brightify.torch.TorchFactory;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class BasicFactoryConfiguration implements FactoryConfiguration {
     private String databaseName;

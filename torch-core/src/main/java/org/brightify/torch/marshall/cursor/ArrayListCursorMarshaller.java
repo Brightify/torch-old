@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class ArrayListCursorMarshaller<ITEM_TYPE> implements CursorMarshaller<List<ITEM_TYPE>, ArrayList<ITEM_TYPE>> {
 

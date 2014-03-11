@@ -4,7 +4,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class DeleterTest extends AndroidTestCase {
 

@@ -8,7 +8,7 @@ import org.brightify.torch.demo.todo.model.User$;
 import com.googlecode.androidannotations.annotations.EApplication;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @EApplication
 public class BaseApplication extends Application {

@@ -3,7 +3,7 @@ package org.brightify.torch.parse;
 import javax.lang.model.element.Element;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class EntityParseException extends RuntimeException {
 

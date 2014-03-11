@@ -5,7 +5,7 @@ import android.test.AndroidTestCase;
 import static org.brightify.torch.TorchService.factory;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class TorchFactoryTest extends AndroidTestCase {
 

@@ -7,7 +7,7 @@ import org.brightify.torch.sql.TypeAffinity;
 import org.brightify.torch.sql.affinity.TextAffinity;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class StringCursorMarshaller implements SymetricCursorMarshaller<String> {
 

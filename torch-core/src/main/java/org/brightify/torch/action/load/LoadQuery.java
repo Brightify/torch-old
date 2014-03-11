@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class LoadQuery<ENTITY> {
     private static final String TAG = LoadQuery.class.getSimpleName();

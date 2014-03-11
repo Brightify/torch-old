@@ -3,7 +3,7 @@ package org.brightify.torch.util;
 import java.util.Comparator;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class VersionComparator implements Comparator<String> {
 

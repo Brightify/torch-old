@@ -15,7 +15,7 @@ import com.googlecode.androidannotations.annotations.ViewById;
 import static org.brightify.torch.TorchService.torch;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @EViewGroup(R.layout.task_item)
 public class TaskItemView extends LinearLayout {

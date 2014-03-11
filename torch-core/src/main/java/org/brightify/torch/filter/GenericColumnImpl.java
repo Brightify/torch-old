@@ -1,7 +1,7 @@
 package org.brightify.torch.filter;
 
 /**
- * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class GenericColumnImpl<T> extends ColumnImpl<T> implements GenericColumn<T> {
 
