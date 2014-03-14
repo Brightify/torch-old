@@ -130,10 +130,8 @@ public class EntityParser {
 
                 FieldProperty property = new FieldProperty();
 
-                String columnName = childName;
                 property.setName(childName);
                 property.setFullName(childFullName);
-                property.setColumnName(columnName);
                 property.setIndex(child.getAnnotation(Index.class));
                 property.setId(child.getAnnotation(Id.class));
                 property.setNotNull(child.getAnnotation(NotNull.class));
@@ -149,7 +147,7 @@ public class EntityParser {
                     info.idProperty = property;
                 }
 
-                propertyMap.put(columnName, property);
+                propertyMap.put(property.getName(), property);
             } else if (child.getKind() == ElementKind.METHOD) {
                 Accessor accessor = child.getAnnotation(Accessor.class);
                 Migration migration = child.getAnnotation(Migration.class);
@@ -318,7 +316,7 @@ public class EntityParser {
                     }
                 }
 
-                property.setColumnName(columnName);
+                property.setName(columnName);
 
                 if (property.getId() != null && info.idProperty != property) {
                     if (info.idProperty != null) {

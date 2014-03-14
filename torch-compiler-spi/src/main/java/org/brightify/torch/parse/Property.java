@@ -11,11 +11,13 @@ import javax.lang.model.type.TypeMirror;
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public abstract class Property {
+    public static final String COLUMN_PREFIX = "torch_";
 
     private Id id;
     private Index index;
     private NotNull notNull;
     private Unique unique;
+    private String name;
     private String columnName;
     private TypeMirror type;
 
@@ -53,6 +55,17 @@ public abstract class Property {
 
     public void setUnique(Unique unique) {
         this.unique = unique;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        if(columnName == null) {
+            columnName = COLUMN_PREFIX + name;
+        }
     }
 
     public String getColumnName() {

@@ -104,7 +104,7 @@ public class MetadataSourceFile extends SourceFile {
             columnField.setProtection(FieldImpl.Protection.PUBLIC);
             columnField.setStatic(true);
             columnField.setFinal(true);
-            columnField.setName(property.getColumnName());
+            columnField.setName(property.getName());
             addField(columnField);
         }
     }
@@ -304,7 +304,7 @@ public class MetadataSourceFile extends SourceFile {
     private void writeGetIdColumn() {
         override();
         line("public NumberColumn<Long> getIdColumn()").nest();
-        line("return ").append(entity.idProperty.getColumnName()).append(";");
+        line("return ").append(entity.idProperty.getName()).append(";");
         unNest();
         emptyLine();
     }

@@ -31,6 +31,7 @@ public class TestObject implements Serializable {
     public boolean booleanPrimitiveField = false;
     protected String protectedTest = "protectedTest";
     String defaultTest = "defaultTest";
+    public String group; // Test for #20, should be forbidden column name, but we add torch_ to every column name
 
     @Accessor
     public String getProtectedTest() {

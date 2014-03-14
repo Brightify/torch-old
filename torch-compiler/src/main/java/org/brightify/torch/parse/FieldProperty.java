@@ -5,7 +5,6 @@ package org.brightify.torch.parse;
  */
 public class FieldProperty extends Property {
 
-    private String name;
     private String fullName;
 
     public String getFullName() {
@@ -16,21 +15,13 @@ public class FieldProperty extends Property {
         this.fullName = fullName;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String setValue(String value) {
-        return name + " = " + value;
+        return getName() + " = " + value;
     }
 
     @Override
     public String getValue() {
-        return name;
+        return getName();
     }
 }
