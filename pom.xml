@@ -63,7 +63,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <app.version.code>1</app.version.code>
-        <app.version.name>1.0-SNAPSHOT</app.version.name>
+        <app.version.name>${project.version}</app.version.name>
 
 		<java.source.version>1.6</java.source.version>
 		<java.target.version>1.6</java.target.version>
