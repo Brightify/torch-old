@@ -31,8 +31,7 @@ public @interface Entity {
      * <p/>
      * This is not recommended, because it might collide with another table. The default table name is entity name,
      * prepended by it's package name, with dots replaced by underscores. For example, {@code
-     * com.brightgestures.brightify.model.BrightifySystemModel} will become {@code
-     * com_brightgestures_brightify_model_BrightifySystemModel}
+     * org.brightify.torch.model.TorchEntityModel} will become {@code org_brightify_torch_model_TorchEntityModel}.
      *
      * @return
      */
@@ -51,7 +50,7 @@ public @interface Entity {
     /**
      * Type of migration. Please refer to {@link Entity.MigrationType} for more details.
      *
-     * @return
+     * @return Type of migration used for the entity.
      */
     MigrationType migration() default MigrationType.MIGRATE;
 
@@ -59,7 +58,8 @@ public @interface Entity {
      * Delete entity table. Use this when you want to get rid of a deprecated entity. Entity with this flag set to true
      * doesn't have to contain any fields or methods. This is the only recommended way to delete entity table.
      *
-     * @return
+     * @return True if all the data should be deleted next time the metadata are registered into {@link
+     * org.brightify.torch.TorchFactory}.
      */
     boolean delete() default false; // TODO not implemented
 
@@ -69,7 +69,7 @@ public @interface Entity {
      * <p/>
      * TODO provide maximal package length
      *
-     * @return
+     * @return True if entity's table should only have class' simple name.
      */
     boolean useSimpleName() default false; // TODO check if implemented
 
