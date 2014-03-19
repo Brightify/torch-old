@@ -6,7 +6,7 @@
     <parent>
         <artifactId>torch-parent</artifactId>
         <groupId>org.brightify.torch</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-alpha-01-SNAPSHOT</version>
     </parent>
 
     <artifactId>torch-compiler</artifactId>
@@ -15,17 +15,14 @@
         <dependency>
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-api</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-bridge</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-compiler-spi</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>
