@@ -10,7 +10,7 @@
 
 	<groupId>org.brightify.torch</groupId>
 	<artifactId>torch-parent</artifactId>
-	<version>1.0-alpha-01</version>
+	<version>1.0-alpha-02-SNAPSHOT</version>
 	<name>Torch - Android ORM framework</name>
 	<packaging>pom</packaging>
     <url>http://github.com/brightify/torch</url>
@@ -114,7 +114,7 @@
             <dependency>
                 <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-compiler-spi</artifactId>
-                <version>1.0-alpha-01</version>
+                <version>1.0-alpha-02-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.brightify.torch</groupId>

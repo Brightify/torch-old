@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.brightify.torch</groupId>
         <artifactId>torch-parent</artifactId>
-        <version>1.0-alpha-01</version>
+        <version>1.0-alpha-02-SNAPSHOT</version>
     </parent>
     <artifactId>torch-core</artifactId>
 	
