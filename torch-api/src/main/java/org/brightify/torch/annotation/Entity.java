@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.TYPE })
 public @interface Entity {
-    public static final String LOWEST_VERSION = "1.0.0";
+    public static final String LOWEST_VERSION = "0.0.1";
 
     /**
      * Overrides the default table name.
