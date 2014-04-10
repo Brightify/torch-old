@@ -1,50 +1,49 @@
 package org.brightify.torch.sql;
 
-import android.text.TextUtils;
-import org.brightify.torch.sql.SqlQueryPart;
+import org.brightify.torch.sql.util.TextUtils;
 
 public class IndexedColumn implements SqlQueryPart {
 
-    protected String mColumnName;
-    protected String mCollationName = null;
-    protected Direction mDirection = null;
+    protected String columnName;
+    protected String collationName = null;
+    protected Direction direction = null;
 
     public String getColumnName() {
-        return mColumnName;
+        return columnName;
     }
 
     public void setColumnName(String columnName) {
-        mColumnName = columnName;
+        this.columnName = columnName;
     }
 
     public String getCollationName() {
-        return mCollationName;
+        return collationName;
     }
 
     public void setCollationName(String collationName) {
-        mCollationName = collationName;
+        this.collationName = collationName;
     }
 
     public Direction getDirection() {
-        return mDirection;
+        return direction;
     }
 
     public void setDirection(Direction direction) {
-        mDirection = direction;
+        this.direction = direction;
     }
 
     @Override
     public void query(StringBuilder builder) {
-        if(TextUtils.isEmpty(mColumnName)) {
+        if(TextUtils.isEmpty(columnName)) {
             throw new IllegalStateException("Column name cannot be null or empty!");
         }
 
-        builder.append(mColumnName);
-        if(mCollationName != null) {
-            builder.append(" ").append(mCollationName);
+        builder.append(columnName);
+        if(collationName != null) {
+            builder.append(" ").append(collationName);
         }
-        if(mDirection != null) {
-            builder.append(" ").append(mDirection.name());
+        if(direction != null) {
+            builder.append(" ").append(direction.name());
         }
     }
 

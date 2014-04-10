@@ -2,6 +2,7 @@ package org.brightify.torch.util;
 
 import org.brightify.torch.filter.ColumnInfo;
 import org.brightify.torch.marshall.CursorMarshallerInfo;
+import org.brightify.torch.marshall.Marshaller2;
 import org.brightify.torch.marshall.StreamMarshallerInfo;
 import org.brightify.torch.parse.Property;
 
@@ -28,4 +29,9 @@ public interface TypeHelper {
     TypeElement elementOf(Class cls);
 
     TypeMirror typeOf(Class cls);
+
+ //   Class<?> classOf(TypeMirror mirror);
+
+//    <T> Marshaller2<T> getMarshaller(Class<T> marshalledClass);
+
 }

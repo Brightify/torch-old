@@ -4,6 +4,7 @@ import org.brightify.torch.SourceFileGenerator;
 import org.brightify.torch.parse.EntityInfo;
 import org.brightify.torch.util.TypeHelper;
 import org.brightify.torch.util.TypeHelperImpl;
+import org.reflections.Reflections;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.util.Date;
@@ -15,10 +16,10 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
     private final TypeHelper typeHelper;
 
-    public EntityMetadataGenerator(ProcessingEnvironment processingEnvironment) {
+    public EntityMetadataGenerator(ProcessingEnvironment processingEnvironment, Reflections reflections) {
         super(processingEnvironment);
 
-        this.typeHelper = new TypeHelperImpl(processingEnvironment);
+        this.typeHelper = new TypeHelperImpl(processingEnvironment, reflections);
     }
 
     public void generateMetadata(EntityInfo entity) {

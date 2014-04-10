@@ -1,5 +1,6 @@
 package org.brightify.torch.util;
 
+import com.google.inject.Inject;
 import org.brightify.torch.filter.ColumnInfo;
 import org.brightify.torch.filter.ColumnProvider;
 import org.brightify.torch.filter.DefaultColumnProvider;
@@ -30,10 +31,10 @@ public class TypeHelperImpl implements TypeHelper {
     private final Set<ColumnProvider> columnProviders = new HashSet<ColumnProvider>();
     private final ColumnProvider defaultColumnProvider = new DefaultColumnProvider();
 
-    public TypeHelperImpl(ProcessingEnvironment environment) {
+    @Inject
+    public TypeHelperImpl(ProcessingEnvironment environment, Reflections reflections) {
         this.environment = environment;
 
-        Reflections reflections = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forClassLoader()));
         Set<Class<? extends CursorMarshallerProvider>> cursorMarshallerProviderClasses = reflections.getSubTypesOf(
                 CursorMarshallerProvider.class);
 

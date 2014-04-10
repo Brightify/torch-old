@@ -1,112 +1,112 @@
 package org.brightify.torch.sql.statement;
 
-import android.text.TextUtils;
 import org.brightify.torch.sql.ColumnDef;
 import org.brightify.torch.sql.Statement;
 import org.brightify.torch.sql.constraint.TableConstraint;
+import org.brightify.torch.sql.util.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class CreateTable extends Statement {
 
-    protected boolean mTemporary = false;
-    protected boolean mIfNotExists = true;
-    protected String mDatabaseName = null;
-    protected String mTableName;
+    protected boolean temporary = false;
+    protected boolean ifNotExists = true;
+    protected String databaseName = null;
+    protected String tableName;
 
-    protected Collection<ColumnDef> mColumnDefs = new ArrayList<ColumnDef>();
-    protected Collection<TableConstraint> mTableConstraints = new ArrayList<TableConstraint>();
+    protected Collection<ColumnDef> columnDefs = new ArrayList<ColumnDef>();
+    protected Collection<TableConstraint> tableConstraints = new ArrayList<TableConstraint>();
 
     public boolean isTemporary() {
-        return mTemporary;
+        return temporary;
     }
 
     public void setTemporary(boolean temporary) {
-        mTemporary = temporary;
+        this.temporary = temporary;
     }
 
     public boolean isIfNotExists() {
-        return mIfNotExists;
+        return ifNotExists;
     }
 
     public void setIfNotExists(boolean ifNotExists) {
-        mIfNotExists = ifNotExists;
+        this.ifNotExists = ifNotExists;
     }
 
     public String getDatabaseName() {
-        return mDatabaseName;
+        return databaseName;
     }
 
     public void setDatabaseName(String databaseName) {
-        mDatabaseName = databaseName;
+        this.databaseName = databaseName;
     }
 
     public String getTableName() {
-        return mTableName;
+        return tableName;
     }
 
     public void setTableName(String tableName) {
-        mTableName = tableName;
+        this.tableName = tableName;
     }
 
     public Collection<ColumnDef> getColumnDefs() {
-        return mColumnDefs;
-    }
-
-    public void addColumnDef(ColumnDef columnDef) {
-        mColumnDefs.add(columnDef);
+        return columnDefs;
     }
 
     public void setColumnDefs(Collection<ColumnDef> columnDefs) {
-        mColumnDefs = columnDefs;
+        this.columnDefs = columnDefs;
+    }
+
+    public void addColumnDef(ColumnDef columnDef) {
+        columnDefs.add(columnDef);
     }
 
     public Collection<TableConstraint> getTableConstraints() {
-        return mTableConstraints;
-    }
-
-    public void addTableConstraint(TableConstraint tableConstraint) {
-        mTableConstraints.add(tableConstraint);
+        return tableConstraints;
     }
 
     public void setTableConstraints(Collection<TableConstraint> tableConstraints) {
-        mTableConstraints = tableConstraints;
+        this.tableConstraints = tableConstraints;
+    }
+
+    public void addTableConstraint(TableConstraint tableConstraint) {
+        tableConstraints.add(tableConstraint);
     }
 
     @Override
     public void query(StringBuilder builder) {
-        if(TextUtils.isEmpty(mTableName)) {
+        if (TextUtils.isEmpty(tableName)) {
             throw new IllegalStateException("Table name cannot be null or empty!");
         }
 
         builder.append("CREATE ");
-        if(mTemporary) {
+        if (temporary) {
             builder.append("TEMP ");
         }
         builder.append("TABLE ");
-        if(mIfNotExists) {
+        if (ifNotExists) {
             builder.append("IF NOT EXISTS ");
         }
-        if(!TextUtils.isEmpty(mDatabaseName)) {
-            builder.append(mDatabaseName).append(".");
+        if (!TextUtils.isEmpty(databaseName)) {
+            builder.append(databaseName).append(".");
         }
         builder
-            .append(mTableName)
-            .append(" ");
+                .append(tableName)
+                .append(" ");
 
         builder.append("(");
         int i = 0;
-        for(ColumnDef columnDef : mColumnDefs) {
-            if(i > 0) {
+        for (ColumnDef columnDef : columnDefs) {
+            if (i > 0) {
                 builder.append(", ");
             }
             columnDef.query(builder);
             i++;
         }
-        if(mTableConstraints.size() > 0) {
+        if (tableConstraints.size() > 0) {
             builder.append(" ");
-            for(TableConstraint tableConstraint : mTableConstraints) {
+            for (TableConstraint tableConstraint : tableConstraints) {
                 builder.append(", ");
                 tableConstraint.query(builder);
             }

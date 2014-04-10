@@ -24,6 +24,7 @@
         <module>torch-bridge</module>
         <module>torch-demo-todo</module>
         <module>torch-android</module>
+        <module>torch-marshall</module>
     </modules>
 
     <licenses>
@@ -115,14 +116,18 @@
             <dependency>
                 <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-compiler-spi</artifactId>
-                <version>1.0-alpha-02-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.brightify.torch</groupId>
+                <artifactId>torch-marshall</artifactId>
+                <version>${project.version}</version>
+            </dependency>
     	</dependencies>
     </dependencyManagement>
 

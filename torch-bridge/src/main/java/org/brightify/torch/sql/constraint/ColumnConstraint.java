@@ -1,28 +1,28 @@
 package org.brightify.torch.sql.constraint;
 
-import android.text.TextUtils;
 import org.brightify.torch.sql.SqlQueryPart;
 import org.brightify.torch.sql.clause.ConflictClause;
 import org.brightify.torch.sql.clause.ForeignKeyClause;
+import org.brightify.torch.sql.util.TextUtils;
 
 public abstract class ColumnConstraint implements SqlQueryPart {
 
-    protected String mName = null;
+    protected String name = null;
 
     public String getName() {
-        return mName;
+        return name;
     }
 
     public void setName(String name) {
-        mName = name;
+        this.name = name;
     }
 
     public abstract void setColumnName(String columnName);
 
     @Override
     public void query(StringBuilder builder) {
-        if(mName != null) {
-            builder.append("CONSTRAINT ").append(mName).append(" ");
+        if(name != null) {
+            builder.append("CONSTRAINT ").append(name).append(" ");
         }
     }
 
@@ -40,14 +40,14 @@ public abstract class ColumnConstraint implements SqlQueryPart {
 
     public static class Collate extends ColumnConstraint {
 
-        protected String mCollationName = null;
+        protected String collationName = null;
 
         public String getCollationName() {
-            return mCollationName;
+            return collationName;
         }
 
         public void setCollationName(String collationName) {
-            mCollationName = collationName;
+            this.collationName = collationName;
         }
 
         @Override
@@ -59,11 +59,11 @@ public abstract class ColumnConstraint implements SqlQueryPart {
         public void query(StringBuilder builder) {
             super.query(builder);
 
-            if(TextUtils.isEmpty(mCollationName)) {
+            if(TextUtils.isEmpty(collationName)) {
                 throw new IllegalStateException("Collation-name can't be null or empty!");
             }
 
-            builder.append("COLLATE ").append(mCollationName);
+            builder.append("COLLATE ").append(collationName);
         }
     }
 

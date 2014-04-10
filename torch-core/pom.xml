@@ -26,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>
-            <artifactId>torch-bridge</artifactId>
+            <artifactId>torch-marshall</artifactId>
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>

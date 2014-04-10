@@ -3,8 +3,6 @@ package org.brightify.torch;
 import org.brightify.torch.marshall.stream.ArrayListStreamMarshaller;
 import org.brightify.torch.marshall.stream.KeyStreamMarshaller;
 import org.brightify.torch.test.TestObject;
-import org.brightify.torch.Key;
-import org.brightify.torch.KeyFactory;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

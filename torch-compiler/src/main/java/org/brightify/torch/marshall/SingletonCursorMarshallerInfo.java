@@ -21,4 +21,6 @@ public class SingletonCursorMarshallerInfo implements CursorMarshallerInfo {
         field.setValue(field.getTypeSimpleName() + ".getInstance()");
         return field;
     }
+
+
 }

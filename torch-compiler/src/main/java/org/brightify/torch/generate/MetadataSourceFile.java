@@ -1,5 +1,10 @@
 package org.brightify.torch.generate;
 
+import org.brightify.torch.sql.ColumnDef;
+import org.brightify.torch.sql.affinity.IntegerAffinity;
+import org.brightify.torch.sql.affinity.TextAffinity;
+import org.brightify.torch.sql.constraint.ColumnConstraint;
+import org.brightify.torch.sql.statement.CreateTable;
 import org.brightify.torch.util.SourceFile;
 import org.brightify.torch.filter.ColumnInfo;
 import org.brightify.torch.marshall.CursorMarshallerInfo;
@@ -188,43 +193,37 @@ public class MetadataSourceFile extends SourceFile {
     }
 
     private void writeCreateTable() {
+        CreateTable createTable = new CreateTable();
+        createTable.setTableName(entity.tableName);
+        for (Property property : entity.properties) {
+            ColumnDef columnDef = new ColumnDef(property.getColumnName());
+            CursorMarshallerInfo marshallerInfo = typeHelper.getCursorMarshallerInfo(property);
+            Field field = marshallerInfo.getField();
+
+            columnDef.setTypeAffinity(TextAffinity.getInstance()); // FIXME get affinity from marshallers!
+            if(property.getId() != null) {
+                ColumnConstraint.PrimaryKey primaryKey = new ColumnConstraint.PrimaryKey();
+                primaryKey.setAutoIncrement(property.getId().autoIncrement());
+                columnDef.addColumnConstraint(primaryKey);
+            }
+            if(property.getNotNull() != null) {
+                ColumnConstraint.NotNull notNull = new ColumnConstraint.NotNull();
+                columnDef.addColumnConstraint(notNull);
+            }
+            if(property.getUnique() != null) {
+                ColumnConstraint.Unique unique = new ColumnConstraint.Unique();
+                columnDef.addColumnConstraint(unique);
+            }
+            createTable.addColumnDef(columnDef);
+        }
+
         override();
         line("public void createTable(SQLiteDatabase db)").nest();
-        line("CreateTable createTable = new CreateTable();");
-        line("createTable.setTableName(getTableName());");
-        for (Property property : entity.properties) {
-            newLineNest();
-            line("ColumnDef columnDef = new ColumnDef();");
-            line("columnDef.setName(\"").append(property.getColumnName()).append("\");");
-            line("columnDef.setTypeAffinity(").append(property.getColumnName()).append(MARSHALLER_POSTFIX)
-                    .append(".getAffinity());");
-            emptyLine();
-            if (property.getId() != null) {
-                line("ColumnConstraint.PrimaryKey primaryKey = new ColumnConstraint.PrimaryKey();");
-                line("primaryKey.setAutoIncrement(").append(property.getId().autoIncrement()).append(");");
-                line("primaryKey.setColumnName(columnDef.getName());");
-                line("columnDef.addColumnConstraint(primaryKey);");
-                emptyLine();
-            }
-
-            if (property.getNotNull() != null) {
-                line("ColumnConstraint.NotNull notNull = new ColumnConstraint.NotNull();");
-                line("notNull.setColumnName(columnDef.getName());");
-                line("columnDef.addColumnConstraint(notNull);");
-                emptyLine();
-            }
-
-            if (property.getUnique() != null) {
-                line("ColumnConstraint.Unique unique = new ColumnConstraint.Unique();");
-                line("unique.setColumnName(columnDef.getName());");
-                line("columnDef.addColumnConstraint(unique);");
-                emptyLine();
-            }
-
-            line("createTable.addColumnDef(columnDef);");
-            unNest();
-        }
-        line("createTable.run(db);");
+        // line("String sql = \"").append(createTable.toSQLString()).append("\";");
+        // line("if(Settings.isQueryLoggingEnabled()).nest();
+        // line("Log.d(\"Torch SQL\", sql);
+        // unNest();
+        line("db.execSQL(\"").append(createTable.toSQLString()).append("\");");
         unNest();
         emptyLine();
     }

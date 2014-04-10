@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0-alpha-01-SNAPSHOT" package="org.brightify.torch.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0-alpha-02-SNAPSHOT" package="org.brightify.torch.test">
 
     <!-- TODO: Decide which minSdkVersion to use -->
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19"/>

@@ -2,9 +2,9 @@ package org.brightify.torch.marshall.cursor;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import org.brightify.torch.marshall.stream.ArrayListStreamMarshaller;
 import org.brightify.torch.marshall.CursorMarshaller;
 import org.brightify.torch.marshall.StreamMarshaller;
-import org.brightify.torch.marshall.stream.ArrayListStreamMarshaller;
 import org.brightify.torch.sql.TypeAffinity;
 import org.brightify.torch.sql.affinity.NoneAffinity;
 

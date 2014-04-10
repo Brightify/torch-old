@@ -1,22 +1,22 @@
 package org.brightify.torch.sql;
 
-import android.text.TextUtils;
 import org.brightify.torch.sql.constraint.ColumnConstraint;
+import org.brightify.torch.sql.util.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class ColumnDef implements SqlQueryPart {
-    protected String mName;
+    protected final String name;
     protected TypeAffinity typeAffinity = null;
-    protected Collection<ColumnConstraint> mColumnConstraints = new ArrayList<ColumnConstraint>();
+    protected Collection<ColumnConstraint> columnConstraints = new ArrayList<ColumnConstraint>();
 
-    public String getName() {
-        return mName;
+    public ColumnDef(String name) {
+        this.name = name;
     }
 
-    public void setName(String name) {
-        mName = name;
+    public String getName() {
+        return name;
     }
 
     public TypeAffinity getTypeAffinity() {
@@ -28,30 +28,34 @@ public class ColumnDef implements SqlQueryPart {
     }
 
     public Collection<ColumnConstraint> getColumnConstraints() {
-        return mColumnConstraints;
-    }
-
-    public void addColumnConstraint(ColumnConstraint constraint) {
-        mColumnConstraints.add(constraint);
+        return columnConstraints;
     }
 
     public void setColumnConstraints(Collection<ColumnConstraint> constraints) {
-        mColumnConstraints = constraints;
+        for (ColumnConstraint constraint : constraints) {
+            constraint.setColumnName(getName());
+        }
+        columnConstraints = constraints;
+    }
+
+    public void addColumnConstraint(ColumnConstraint constraint) {
+        constraint.setColumnName(getName());
+        columnConstraints.add(constraint);
     }
 
     @Override
     public void query(StringBuilder builder) {
-        if(TextUtils.isEmpty(mName)) {
+        if (TextUtils.isEmpty(name)) {
             throw new IllegalStateException("Name cannot be null or empty!");
         }
-        builder.append(mName);
-        if(typeAffinity != null) {
+        builder.append(name);
+        if (typeAffinity != null) {
             builder.append(" ");
 
             typeAffinity.query(builder);
         }
-        if(mColumnConstraints != null) {
-            for(ColumnConstraint constraint : mColumnConstraints) {
+        if (columnConstraints != null) {
+            for (ColumnConstraint constraint : columnConstraints) {
                 builder.append(" ");
                 constraint.query(builder);
             }

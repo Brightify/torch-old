@@ -9,19 +9,23 @@ import java.io.Serializable;
  */
 public class Key<ENTITY> implements Serializable {
 
-    private final long mId;
-    private final Class<ENTITY> mType;
+    private final long id;
+    private final Class<ENTITY> entityClass;
 
     Key(Class<ENTITY> entityClass, long id) {
-        mId = id;
-        mType = entityClass;
+        this.id = id;
+        this.entityClass = entityClass;
     }
 
     public long getId() {
-        return mId;
+        return id;
     }
 
     public Class<ENTITY> getType() {
-        return mType;
+        return entityClass;
+    }
+
+    public static <ENTITY> Key<ENTITY> create(Class<ENTITY> entityClass, long id) {
+        return new Key<ENTITY>(entityClass, id);
     }
 }
