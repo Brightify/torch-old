@@ -7,6 +7,7 @@ import org.brightify.torch.marshall.StreamMarshallerInfo;
 import org.brightify.torch.parse.Property;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -30,8 +31,8 @@ public interface TypeHelper {
 
     TypeMirror typeOf(Class cls);
 
- //   Class<?> classOf(TypeMirror mirror);
+    Class<?> classOf(TypeMirror mirror);
 
-//    <T> Marshaller2<T> getMarshaller(Class<T> marshalledClass);
+    String packageOf(Element element);
 
 }

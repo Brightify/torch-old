@@ -13,6 +13,6 @@ public class TableDetails {
 
     @Id
     public Long id;
-    public List<String> columns;
+//    public List<String> columns;
 
 }

@@ -14,6 +14,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
@@ -161,6 +162,16 @@ public class TypeHelperImpl implements TypeHelper {
         return elementOf(cls).asType();
     }
 
+    @Override
+    public Class<?> classOf(TypeMirror mirror) {
+        try {
+            return Class.forName(mirror.toString());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private DeclaredType listOf(Class<?> bound) {
         return listOf(bound != null ? typeOf(bound) : null);
     }
@@ -170,8 +181,24 @@ public class TypeHelperImpl implements TypeHelper {
                 "java.util.List"), bound);
     }
 
+    @Override
+    public String packageOf(Element element) {
+        String[] entityPackages = element.toString().split("\\.");
+        if (entityPackages.length == 1) {
+            return null;
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < entityPackages.length - 1; i++) {
+                if (i > 0) {
+                    builder.append(".");
+                }
+                builder.append(entityPackages[i]);
+            }
+            return builder.toString();
+        }
+    }
 
-/*
+    /*
     public static void prepare(ProcessingEnvironment environment) {
         sEnvironment = environment;
 

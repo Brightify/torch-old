@@ -1,11 +1,12 @@
 package org.brightify.torch.generate;
 
+import com.google.inject.Inject;
+import org.brightify.torch.marshall.Marshaller2;
+import org.brightify.torch.marshall.MarshallerProvider2;
 import org.brightify.torch.sql.ColumnDef;
-import org.brightify.torch.sql.affinity.IntegerAffinity;
 import org.brightify.torch.sql.affinity.TextAffinity;
 import org.brightify.torch.sql.constraint.ColumnConstraint;
 import org.brightify.torch.sql.statement.CreateTable;
-import org.brightify.torch.util.SourceFile;
 import org.brightify.torch.filter.ColumnInfo;
 import org.brightify.torch.marshall.CursorMarshallerInfo;
 import org.brightify.torch.parse.EntityInfo;
@@ -14,6 +15,10 @@ import org.brightify.torch.parse.MigrationPathPart;
 import org.brightify.torch.parse.Property;
 import org.brightify.torch.util.TypeHelper;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.Diagnostic;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,33 +26,45 @@ import java.util.List;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class MetadataSourceFile extends SourceFile {
+public class MetadataSourceFileImpl implements MetadataSourceFile {
     public static final String PRIVATE_FIELD_PREFIX = "____";
     public static final String METADATA_POSTFIX = "$";
     public static final String MARSHALLER_POSTFIX = "Marshaller";
 
-    private final TypeHelper typeHelper;
-    private final EntityInfo entity;
+    private EntityInfo entity;
     private List<String> imports = new ArrayList<String>();
     private String metadataClassName;
     private String metadataClassFullName;
     private List<Field> fields = new ArrayList<Field>();
 
-    public MetadataSourceFile(TypeHelper typeHelper, EntityInfo entity) {
-        super(typeHelper.getProcessingEnvironment());
-        this.typeHelper = typeHelper;
+    @Inject
+    private ProcessingEnvironment processingEnv;
+
+    @Inject
+    private TypeHelper typeHelper;
+
+    @Inject
+    private MarshallerProvider2 marshallerProvider2;
+
+    private StringBuilder mBuilder = new StringBuilder();
+    private int mLevel = 0;
+
+
+    public MetadataSourceFileImpl withEntity(EntityInfo entity) {
         this.entity = entity;
 
         addCommonImports();
         parseEntity();
+
+        return this;
     }
 
-    public MetadataSourceFile addImport(Class<?> importClass) {
+    public MetadataSourceFileImpl addImport(Class<?> importClass) {
         addImport(importClass.getName());
         return this;
     }
 
-    public MetadataSourceFile addImport(String importName) {
+    public MetadataSourceFileImpl addImport(String importName) {
         if (!imports.contains(importName)) {
             imports.add(importName);
         }
@@ -58,7 +75,7 @@ public class MetadataSourceFile extends SourceFile {
         return entity;
     }
 
-    public MetadataSourceFile addField(Field field) {
+    public MetadataSourceFileImpl addField(Field field) {
         fields.add(field);
         for (String importName : field.getImports()) {
             addImport(importName);
@@ -114,14 +131,6 @@ public class MetadataSourceFile extends SourceFile {
         }
     }
 
-    @Override
-    public void save(String name) {
-        writeHeaderAndPackage();
-        writeImports();
-        writeClass();
-
-        super.save(name);
-    }
 
     private void writeHeaderAndPackage() {
         append("/* Generated on ").append(new Date()).append(" by Torch */");
@@ -197,10 +206,9 @@ public class MetadataSourceFile extends SourceFile {
         createTable.setTableName(entity.tableName);
         for (Property property : entity.properties) {
             ColumnDef columnDef = new ColumnDef(property.getColumnName());
-            CursorMarshallerInfo marshallerInfo = typeHelper.getCursorMarshallerInfo(property);
-            Field field = marshallerInfo.getField();
+            Marshaller2<?> marshaller2 = marshallerProvider2.getMarshaller(typeHelper.classOf(property.getType()));
 
-            columnDef.setTypeAffinity(TextAffinity.getInstance()); // FIXME get affinity from marshallers!
+            columnDef.setTypeAffinity(marshaller2.getAffinity());
             if(property.getId() != null) {
                 ColumnConstraint.PrimaryKey primaryKey = new ColumnConstraint.PrimaryKey();
                 primaryKey.setAutoIncrement(property.getId().autoIncrement());
@@ -231,32 +239,27 @@ public class MetadataSourceFile extends SourceFile {
     private void writeFromCursor() {
         override();
         line("public ").append(entity.name).append(" createFromCursor(Cursor cursor) throws Exception").nest();
-        line(entity.name).append(" entity = new ").append(entity.name).append("();");
+        line(entity.name).append(" ").append(ENTITY).append(" = new ").append(entity.name).append("();");
         for (Property property : entity.properties) {
-            line("entity.").append(property.setValue(
-                    property.getColumnName() + MARSHALLER_POSTFIX + ".unmarshall(cursor, \"" + property.getColumnName() + "\")"))
+            Marshaller2<?> marshaller = marshallerProvider2.getMarshaller(typeHelper.classOf(property.getType()));
+            line(marshaller.unmarshallingCode(property))
                     .append("; // ")
                     .append(property.getType());
         }
-        line("return entity;");
+        line("return ").append(ENTITY).append(";");
         unNest();
         emptyLine();
     }
 
     private void writeToContentValues() {
         override();
-        line("public ContentValues toContentValues(").append(entity.name).append(" entity) throws Exception").nest();
-        line("ContentValues values = new ContentValues();");
+        line("public ContentValues toContentValues(").append(entity.name).append(" ").append(ENTITY).append(") throws Exception").nest();
+        line("ContentValues ").append(CONTENT_VALUES).append(" = new ContentValues();");
         for (Property property : entity.properties) {
-            line(property.getColumnName())
-                    .append(MARSHALLER_POSTFIX)
-                    .append(".marshall(values, \"")
-                    .append(property.getColumnName())
-                    .append("\", entity.")
-                    .append(property.getValue())
-                    .append(");");
+            Marshaller2<?> marshaller = marshallerProvider2.getMarshaller(typeHelper.classOf(property.getType()));
+            line(marshaller.marshallingCode(property)).append(";");
         }
-        line("return values;");
+        line("return ").append(CONTENT_VALUES).append(";");
         unNest();
         emptyLine();
     }
@@ -389,6 +392,76 @@ public class MetadataSourceFile extends SourceFile {
 
     private void override() {
         line("@Override");
+    }
+
+    @Override
+    public MetadataSourceFileImpl append(Object value) {
+        mBuilder.append(value);
+        return this;
+    }
+
+    @Override
+    public MetadataSourceFileImpl line(Object value) {
+        emptyLine();
+
+        for(int i = 0; i < mLevel; i++) {
+            mBuilder.append("    ");
+        }
+        mBuilder.append(value);
+
+        return this;
+    }
+
+    public MetadataSourceFileImpl emptyLine() {
+        mBuilder.append("\n");
+        return this;
+    }
+
+    public MetadataSourceFileImpl nest() {
+        mBuilder.append(" {");
+        mLevel++;
+        return this;
+    }
+
+    public MetadataSourceFileImpl newLineNest() {
+        line("{");
+        mLevel++;
+        return this;
+    }
+
+    public MetadataSourceFileImpl unNest() {
+        mLevel--;
+        line("}");
+        return this;
+    }
+
+    public MetadataSourceFileImpl nestWithoutBrackets() {
+        mLevel++;
+        return this;
+    }
+
+    public MetadataSourceFileImpl unNestWithoutBrackets() {
+        mLevel--;
+        return this;
+    }
+
+    public void save(String name) {
+        writeHeaderAndPackage();
+        writeImports();
+        writeClass();
+
+        try {
+            Writer writer = processingEnv.getFiler().createSourceFile(name).openWriter();
+
+            writer.write(mBuilder.toString());
+
+            writer.flush();
+            writer.close();
+
+            mBuilder = new StringBuilder();
+        } catch (IOException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+        }
     }
 
 }

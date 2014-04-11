@@ -10,8 +10,8 @@ public interface Marshaller2<T> {
 
     TypeAffinity getAffinity();
 
-    String marshallingCode(Property property, String contentValues);
+    String marshallingCode(Property property);
 
-    String unmarshallingCode(Property property, String cursor);
+    String unmarshallingCode(Property property);
 
 }

@@ -22,5 +22,4 @@ public class SingletonCursorMarshallerInfo implements CursorMarshallerInfo {
         return field;
     }
 
-
 }

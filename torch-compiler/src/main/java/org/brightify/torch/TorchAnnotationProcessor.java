@@ -2,9 +2,11 @@ package org.brightify.torch;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.generate.EntityMetadataGenerator;
 import org.brightify.torch.generate.MetadataSourceFile;
+import org.brightify.torch.generate.MetadataSourceFileImpl;
 import org.brightify.torch.marshall.MarshallerProvider2;
 import org.brightify.torch.parse.EntityInfo;
 import org.brightify.torch.parse.EntityParseException;
@@ -40,6 +42,9 @@ public class TorchAnnotationProcessor {
     @Inject
     private Reflections reflections;
 
+    @Inject
+    private Provider<MetadataSourceFileImpl> metadataSourceFileProvider;
+
 //    @Inject
 //    private Injector injector;
 
@@ -54,7 +59,7 @@ public class TorchAnnotationProcessor {
         for(Element element : elements) {
             try {
                 // TODO move this somewhere else, maybe to metadata generator?
-                Class.forName(element.toString() + MetadataSourceFile.METADATA_POSTFIX, false, ClassLoader.getSystemClassLoader());
+                Class.forName(element.toString() + MetadataSourceFileImpl.METADATA_POSTFIX, false, ClassLoader.getSystemClassLoader());
                 environment.getMessager().printMessage(Diagnostic.Kind.NOTE,
                                                          "Entity " + element.getSimpleName() + "already on classpath.",
                                                          element);
@@ -73,9 +78,15 @@ public class TorchAnnotationProcessor {
             }
         }
 
-        EntityMetadataGenerator metadataGenerator = new EntityMetadataGenerator(environment, reflections);
         for(EntityInfo entityInfo : entityInfoSet) {
-            metadataGenerator.generateMetadata(entityInfo);
+            String metadataPostfix = MetadataSourceFileImpl.METADATA_POSTFIX;
+            String metadataName = entityInfo.name + metadataPostfix;
+            String metadataFullName = entityInfo.fullName + metadataPostfix;
+            String internalMetadataName = metadataFullName.replaceAll("\\.", "_");
+            String internalMetadataFullName = "com.brightgestures.brightify.metadata." + internalMetadataName;
+
+            metadataSourceFileProvider.get().withEntity(entityInfo).save(metadataFullName);
+
         }
 
         // No more

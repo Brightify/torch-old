@@ -1,7 +1,5 @@
 package org.brightify.torch.generate;
 
-import org.brightify.torch.util.SourceFile;
-
 import java.util.List;
 
 /**
@@ -36,7 +34,7 @@ public interface Field {
 
     Field setValue(String value);
 
-    void write(SourceFile generator);
+    void write(MetadataSourceFile generator);
 
     public enum Protection {
         DEFAULT(""),

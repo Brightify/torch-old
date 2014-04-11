@@ -1,7 +1,5 @@
 package org.brightify.torch.generate;
 
-import org.brightify.torch.util.SourceFile;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -201,7 +199,7 @@ public class FieldImpl implements Field {
     }
 
     @Override
-    public void write(SourceFile generator) {
+    public void write(MetadataSourceFile generator) {
         generator.line(protection.getValue());
 
         if (isStatic) {

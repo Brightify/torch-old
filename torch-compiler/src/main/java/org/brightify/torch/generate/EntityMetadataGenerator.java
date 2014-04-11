@@ -24,14 +24,14 @@ public class EntityMetadataGenerator extends SourceFileGenerator {
 
     public void generateMetadata(EntityInfo entity) {
 
-        String metadataPostfix = MetadataSourceFile.METADATA_POSTFIX;
+        String metadataPostfix = MetadataSourceFileImpl.METADATA_POSTFIX;
         String metadataName = entity.name + metadataPostfix;
         String metadataFullName = entity.fullName + metadataPostfix;
         String internalMetadataName = metadataFullName.replaceAll("\\.", "_");
         String internalMetadataFullName = "com.brightgestures.brightify.metadata." + internalMetadataName;
 
-        MetadataSourceFile sourceFile = new MetadataSourceFile(typeHelper, entity);
-        sourceFile.save(metadataFullName);
+        //MetadataSourceFileImpl sourceFile = new MetadataSourceFileImpl(typeHelper, entity);
+        //sourceFile.save(metadataFullName);
 
 
         /*
