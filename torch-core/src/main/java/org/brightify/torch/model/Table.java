@@ -12,6 +12,7 @@ public class Table {
     private Long id;
     private String tableName;
     private String version;
+    private TableDetails details;
 
     // FIXME if no generic type argument is set, handle error through messager
     // public Key<TableDetails> details;
@@ -43,4 +44,11 @@ public class Table {
         this.version = version;
     }
 
+    public TableDetails getDetails() {
+        return details;
+    }
+
+    public void setDetails(TableDetails details) {
+        this.details = details;
+    }
 }

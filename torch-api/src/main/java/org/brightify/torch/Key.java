@@ -28,4 +28,32 @@ public class Key<ENTITY> implements Serializable {
     public static <ENTITY> Key<ENTITY> create(Class<ENTITY> entityClass, long id) {
         return new Key<ENTITY>(entityClass, id);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Key<?> key = (Key<?>) o;
+
+        if (id != key.id) {
+            return false;
+        }
+        if (entityClass != null ? !entityClass.equals(key.entityClass) : key.entityClass != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (entityClass != null ? entityClass.hashCode() : 0);
+        return result;
+    }
 }

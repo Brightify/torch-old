@@ -3,7 +3,6 @@ package org.brightify.torch.compile;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.compile.migration.MigrationMethod;
 import org.brightify.torch.compile.migration.MigrationPath;
-import org.brightify.torch.parse.EntityParseException;
 
 import javax.lang.model.element.Element;
 import java.util.ArrayList;
@@ -26,10 +25,10 @@ public class EntityInfoImpl implements EntityInfo {
     private String version;
     private Entity.MigrationType migrationType;
     private List<MigrationMethod> migrationMethods = new ArrayList<MigrationMethod>();
-    private List<MigrationPath> migrationPaths;
+    private List<MigrationPath> migrationPaths = new ArrayList<MigrationPath>();
 
-    private List<org.brightify.torch.compile.Property<?>> properties;
-    private Property<Long> idProperty;
+    private List<org.brightify.torch.compile.Property> properties = new ArrayList<Property>();
+    private Property idProperty;
 
     @Override
     public Element getElement() {
@@ -131,20 +130,20 @@ public class EntityInfoImpl implements EntityInfo {
     }
 
     @Override
-    public List<Property<?>> getProperties() {
+    public List<Property> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Property<?>> properties) {
+    public void setProperties(List<Property> properties) {
         this.properties = properties;
     }
 
     @Override
-    public Property<Long> getIdProperty() {
+    public Property getIdProperty() {
         return idProperty;
     }
 
-    public void setIdProperty(Property<Long> idProperty) {
+    public void setIdProperty(Property idProperty) {
         this.idProperty = idProperty;
     }
 }

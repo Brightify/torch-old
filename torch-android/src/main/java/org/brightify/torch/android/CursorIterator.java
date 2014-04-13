@@ -2,6 +2,7 @@ package org.brightify.torch.android;
 
 import android.database.Cursor;
 import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.Torch;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -10,43 +11,45 @@ import java.util.NoSuchElementException;
 * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
 */
 public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
-    protected final EntityMetadata<ENTITY> mEntityMetadata;
-    protected final Cursor mCursor;
+    private final Torch torch;
+    protected final EntityMetadata<ENTITY> entityMetadata;
+    protected final Cursor cursor;
     protected boolean mFirst = true;
     protected boolean mHasNext = false;
 
-    public CursorIterator(EntityMetadata<ENTITY> entityMetadata, Cursor cursor) {
+    public CursorIterator(Torch torch, EntityMetadata<ENTITY> entityMetadata, Cursor cursor) {
         if(cursor.isClosed()) {
             throw new IllegalStateException("The cursor is closed!");
         }
-        mCursor = cursor;
-        mEntityMetadata = entityMetadata;
-        if(!mCursor.moveToFirst()) {
-            mCursor.close();
+        this.torch = torch;
+        this.cursor = cursor;
+        this.entityMetadata = entityMetadata;
+        if(!this.cursor.moveToFirst()) {
+            this.cursor.close();
         }
     }
 
     @Override
     public boolean hasNext() { // this goes forever when there is no data!
-        return !mCursor.isClosed();
+        return !cursor.isClosed();
     }
 
     @Override
     public ENTITY next() {
-        if(mCursor.isClosed()) {
+        if(cursor.isClosed()) {
             throw new NoSuchElementException("The cursor is closed!");
         }
 
         ENTITY entity;
         try {
-            entity = mEntityMetadata.createFromCursor(mCursor);
+            entity = entityMetadata.createFromCursor(torch, cursor);
         } catch (Exception e) {
             // FIXME handle the exception better
             throw new RuntimeException(e);
         }
 
-        if(!mCursor.moveToNext()) {
-            mCursor.close();
+        if(!cursor.moveToNext()) {
+            cursor.close();
         }
 
         return entity;

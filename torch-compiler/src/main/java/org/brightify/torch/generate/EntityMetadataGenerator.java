@@ -14,12 +14,11 @@ import java.util.Date;
  */
 public class EntityMetadataGenerator extends SourceFileGenerator {
 
-    private final TypeHelper typeHelper;
+    private TypeHelper typeHelper;
 
     public EntityMetadataGenerator(ProcessingEnvironment processingEnvironment, Reflections reflections) {
         super(processingEnvironment);
 
-        this.typeHelper = new TypeHelperImpl(processingEnvironment, reflections);
     }
 
     public void generateMetadata(EntityInfo entity) {

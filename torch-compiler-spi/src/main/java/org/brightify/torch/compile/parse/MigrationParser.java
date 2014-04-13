@@ -1,7 +1,6 @@
 package org.brightify.torch.compile.parse;
 
 import org.brightify.torch.compile.migration.MigrationMethod;
-import org.brightify.torch.compile.migration.MigrationPath;
 
 import javax.lang.model.element.Element;
 import java.util.Map;

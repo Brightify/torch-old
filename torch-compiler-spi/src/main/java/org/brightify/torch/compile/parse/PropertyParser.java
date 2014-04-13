@@ -10,6 +10,6 @@ import java.util.Map;
  */
 public interface PropertyParser {
 
-    Map<String, Property<?>> parseEntityElement(Element element);
+    Map<String, Property> parseEntityElement(Element element);
 
 }

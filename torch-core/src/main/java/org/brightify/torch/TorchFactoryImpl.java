@@ -5,6 +5,7 @@ import org.brightify.torch.model.Table;
 import org.brightify.torch.model.Table$;
 import org.brightify.torch.model.TableDetails;
 import org.brightify.torch.model.TableDetails$;
+import org.brightify.torch.sql.statement.DropTable;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.Validate;
 
@@ -111,20 +112,20 @@ public class TorchFactoryImpl implements TorchFactory {
                              .single();
         MigrationAssistant<ENTITY> migrationAssistant = databaseEngine.getMigrationAssistant(metadata);
         if (table == null) {
-            migrationAssistant.createTable();
+            createTable(metadata);
             table = new Table();
             table.setTableName(metadata.getTableName());
             table.setVersion(metadata.getVersion());
         } else if (!table.getVersion().equals(metadata.getVersion())) {
             if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
-                migrationAssistant.dropCreateTable();
+                dropCreateTable(metadata);
             } else {
                 try {
                     metadata.migrate(migrationAssistant, table.getVersion(), metadata.getVersion());
                 } catch (Exception e) {
                     if (metadata.getMigrationType() == Entity.MigrationType.TRY_MIGRATE) {
                         e.printStackTrace();
-                        migrationAssistant.dropCreateTable();
+                        dropCreateTable(metadata);
                     } else {
                         throw new RuntimeException(e);
                     }

@@ -1,10 +1,21 @@
 package org.brightify.torch.compile.parse;
 
 import com.google.inject.Inject;
+import com.sun.codemodel.JAssign;
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JStatement;
+import com.sun.codemodel.JVar;
 import org.brightify.torch.annotation.Accessor;
+import org.brightify.torch.annotation.Id;
 import org.brightify.torch.annotation.Ignore;
+import org.brightify.torch.annotation.Index;
+import org.brightify.torch.annotation.NotNull;
+import org.brightify.torch.annotation.Unique;
+import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyImpl;
 import org.brightify.torch.parse.EntityParseException;
+import org.brightify.torch.util.TypeHelper;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -35,15 +46,21 @@ public class PropertyParserImpl implements PropertyParser {
     @Inject
     private Types types;
 
+    @Inject
+    private TypeHelper typeHelper;
+
+    @Inject
+    private EntityContext entityContext;
+
     @Override
-    public Map<String, Property<?>> parseEntityElement(Element element) {
+    public Map<String, Property> parseEntityElement(Element element) {
         Map<String, GetSetPair> getSetPairMap = new HashMap<String, GetSetPair>();
         for (Element property : element.getEnclosedElements()) {
             parseGetSetPairs(getSetPairMap, property);
         }
 
 
-        Map<String, Property<?>> propertyMap = new HashMap<String, Property<?>>();
+        Map<String, Property> propertyMap = new HashMap<String, Property>();
         for (GetSetPair pair : getSetPairMap.values()) {
             parsePropertyElement(propertyMap, pair);
         }
@@ -78,6 +95,7 @@ public class PropertyParserImpl implements PropertyParser {
             getterSetter.setName(name);
 
             pair = new GetSetPair();
+            pair.setColumnName(name);
             pair.setGetter(getterSetter);
             pair.setSetter(getterSetter);
             pair.setType(element.asType());
@@ -146,9 +164,6 @@ public class PropertyParserImpl implements PropertyParser {
                     throw new EntityParseException(element, dupliciteAccessorMessage, "Getter", name, columnName);
                 } else if (accessorType == Accessor.Type.SET && pair.setter() != null) {
                     throw new EntityParseException(element, dupliciteAccessorMessage, "Setter", name, columnName);
-                } else {
-                    throw new IllegalStateException(
-                            "Reached branch that should never be reached. Please report this as a major bug!");
                 }
             } else if (pair == null || accessor != null) {
                 pair = new GetSetPair();
@@ -213,8 +228,8 @@ public class PropertyParserImpl implements PropertyParser {
         if (!types.isSameType(pair.getType(), type)) {
             throw new EntityParseException(element,
                                            "Getter's return type and setter's parameter types do not match " +
-                                           "for property %s!",
-                                           pair.getColumnName()
+                                           "for property %s! Stored type: %s, other type: %s",
+                                           pair.getColumnName(), pair.getType(), type
             );
         }
     }
@@ -237,12 +252,30 @@ public class PropertyParserImpl implements PropertyParser {
                element.getParameters().size() == 1;
     }
 
-    private void parsePropertyElement(Map<String, Property<?>> propertyMap, GetSetPair pair) {
+    private void parsePropertyElement(Map<String, Property> propertyMap, GetSetPair pair) {
         // We take all annotations only from getter
         Element element = pair.getter().getElement();
         Set<Modifier> modifiers = element.getModifiers();
-        String name = element.getSimpleName().toString();
-        String fullName = element.toString();
+        String name = pair.getColumnName();
+
+        Index index = element.getAnnotation(Index.class);
+        Id id = element.getAnnotation(Id.class);
+        NotNull notNull = element.getAnnotation(NotNull.class);
+        Unique unique = element.getAnnotation(Unique.class);
+
+        TypeMirror typeMirror = pair.getType();
+
+        PropertyImpl<?> property = new PropertyImpl<Object>();
+        property.setId(id);
+        property.setIndex(index);
+        property.setNotNull(notNull);
+        property.setUnique(unique);
+        property.setName(name);
+        property.setTypeMirror(typeMirror);
+        property.setGetter(pair.getter());
+        property.setSetter(pair.setter());
+
+        propertyMap.put(name, property);
 
         if (element.getKind() == ElementKind.FIELD) {
 
@@ -256,14 +289,14 @@ public class PropertyParserImpl implements PropertyParser {
         String name = element.getSimpleName().toString();
         Set<Modifier> modifiers = element.getModifiers();
         if (modifiers.contains(Modifier.PRIVATE)) {
-            messager.printMessage(Diagnostic.Kind.NOTE, "Property " + name +
+            messager.printMessage(Diagnostic.Kind.NOTE, "Element " + name +
                                                         " ignored because it is private. Torch do not support private" +
-                                                        " properties because it cannot access them.", element);
+                                                        " elements because it cannot access them.", element);
             return true;
         }
         if (element.getAnnotation(Ignore.class) != null) {
             messager.printMessage(Diagnostic.Kind.NOTE,
-                                  "Property " + name +
+                                  "Element " + name +
                                   " ignored because it was marked with @Ignore annotation.", element
             );
             return true;
@@ -330,13 +363,13 @@ public class PropertyParserImpl implements PropertyParser {
         }
 
         @Override
-        public String getValue() {
-            return getName();
+        public JExpression getValue(JVar entity) {
+            return entity.ref(getName());
         }
 
         @Override
-        public String setValue(String value) {
-            return getName() + " = " + value;
+        public JStatement setValue(JVar entity, JExpression value) {
+            return JAssign.assign(entity.ref(getName()), value);
         }
 
         @Override
@@ -363,8 +396,8 @@ public class PropertyParserImpl implements PropertyParser {
         }
 
         @Override
-        public String getValue() {
-            return getName() + "()";
+        public JExpression getValue(JVar entity) {
+            return entity.invoke(getName());
         }
 
         @Override
@@ -391,8 +424,8 @@ public class PropertyParserImpl implements PropertyParser {
         }
 
         @Override
-        public String setValue(String value) {
-            return getName() + "(" + value + ")";
+        public JStatement setValue(JVar entity, JExpression value) {
+            return entity.invoke(getName()).arg(value);
         }
 
         @Override

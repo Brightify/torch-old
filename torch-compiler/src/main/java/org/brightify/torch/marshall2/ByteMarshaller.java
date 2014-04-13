@@ -1,15 +1,21 @@
 package org.brightify.torch.marshall2;
 
-import org.brightify.torch.parse.Property;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JVar;
+import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.sql.TypeAffinity;
 import org.brightify.torch.sql.affinity.IntegerAffinity;
-
-import static org.brightify.torch.generate.MetadataSourceFile.CURSOR;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class ByteMarshaller extends AbstractMarshaller<Byte> {
+public class ByteMarshaller extends AbstractMarshaller {
+
+    public ByteMarshaller() {
+        super(Byte.class);
+    }
 
     @Override
     public TypeAffinity getAffinity() {
@@ -17,7 +23,12 @@ public class ByteMarshaller extends AbstractMarshaller<Byte> {
     }
 
     @Override
-    protected String fromCursor(Property property) {
-        return "(Byte) " + CURSOR + ".getInt(" + getIndex(property) + ")";
+    protected boolean nullable(Property property) {
+        return !property.getType().getKind().isPrimitive();
+    }
+
+    @Override
+    protected JExpression fromCursor(JVar torch, JVar cursor, JVar index, JVar entity, Property property) {
+        return JExpr.cast(CodeModelTypes.BYTE, cursor.invoke("getInt").arg(index));
     }
 }

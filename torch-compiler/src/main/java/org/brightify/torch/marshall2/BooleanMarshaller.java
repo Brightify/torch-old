@@ -1,23 +1,33 @@
 package org.brightify.torch.marshall2;
 
-import org.brightify.torch.parse.Property;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JVar;
+import org.brightify.torch.compile.Property;
 import org.brightify.torch.sql.TypeAffinity;
 import org.brightify.torch.sql.affinity.IntegerAffinity;
-
-import static org.brightify.torch.generate.MetadataSourceFile.CURSOR;
-import static org.brightify.torch.generate.MetadataSourceFile.ENTITY;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class BooleanMarshaller extends AbstractMarshaller<Boolean> {
+public class BooleanMarshaller extends AbstractMarshaller {
+
+    public BooleanMarshaller() {
+        super(Boolean.class);
+    }
+
     @Override
     public TypeAffinity getAffinity() {
         return IntegerAffinity.getInstance();
     }
 
     @Override
-    protected String fromCursor(Property property) {
-        return CURSOR + ".getInt(" + getIndex(property) + ") > 0";
+    protected boolean nullable(Property property) {
+        return !property.getType().getKind().isPrimitive();
+    }
+
+    @Override
+    protected JExpression fromCursor(JVar torch, JVar cursor, JVar index, JVar entity, Property property) {
+        return cursor.invoke("getInt").arg(index).gt(JExpr.lit(0)); // CURSOR + ".getInt(" + getIndex(property) + ") > 0";
     }
 }

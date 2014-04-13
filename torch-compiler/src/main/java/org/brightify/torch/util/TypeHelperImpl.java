@@ -1,85 +1,47 @@
 package org.brightify.torch.util;
 
+import com.google.common.primitives.Primitives;
 import com.google.inject.Inject;
-import org.brightify.torch.filter.ColumnInfo;
-import org.brightify.torch.filter.ColumnProvider;
-import org.brightify.torch.filter.DefaultColumnProvider;
-import org.brightify.torch.marshall.CursorMarshallerInfo;
-import org.brightify.torch.marshall.CursorMarshallerProvider;
-import org.brightify.torch.marshall.StreamMarshallerInfo;
-import org.brightify.torch.marshall.StreamMarshallerProvider;
-import org.brightify.torch.parse.Property;
+import org.brightify.torch.compile.filter.ColumnProvider;
+import org.brightify.torch.compile.filter.DefaultColumnProvider;
+import org.brightify.torch.compile.Property;
 import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class TypeHelperImpl implements TypeHelper {
-    private final ProcessingEnvironment environment;
-    private final Set<CursorMarshallerProvider> cursorMarshallerProviders = new HashSet<CursorMarshallerProvider>();
-    private final Set<StreamMarshallerProvider> streamMarshallerProviders = new HashSet<StreamMarshallerProvider>();
-    private final Set<ColumnProvider> columnProviders = new HashSet<ColumnProvider>();
-    private final ColumnProvider defaultColumnProvider = new DefaultColumnProvider();
+
 
     @Inject
-    public TypeHelperImpl(ProcessingEnvironment environment, Reflections reflections) {
-        this.environment = environment;
+    private ProcessingEnvironment environment;
 
-        Set<Class<? extends CursorMarshallerProvider>> cursorMarshallerProviderClasses = reflections.getSubTypesOf(
-                CursorMarshallerProvider.class);
+    @Inject
+    private Types types;
 
-        for (Class<? extends CursorMarshallerProvider> marshallerProviderClass : cursorMarshallerProviderClasses) {
-            try {
-                CursorMarshallerProvider marshallerProvider = marshallerProviderClass.newInstance();
-                cursorMarshallerProviders.add(marshallerProvider);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Couldn't instantiate cursor marshaller provider " + marshallerProviderClass.getSimpleName() +
-                                "!", e);
-            }
-        }
+    @Inject
+    private Elements elements;
 
-        Set<Class<? extends StreamMarshallerProvider>> streamMarshallerProviderClasses = reflections.getSubTypesOf(
-                StreamMarshallerProvider.class);
-
-        for (Class<? extends StreamMarshallerProvider> marshallerProviderClass : streamMarshallerProviderClasses) {
-            try {
-                StreamMarshallerProvider marshallerProvider = marshallerProviderClass.newInstance();
-                streamMarshallerProviders.add(marshallerProvider);
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Couldn't instantiate stream marshaller provider " + marshallerProviderClass.getSimpleName() +
-                                "!", e);
-            }
-        }
-
-        Set<Class<? extends ColumnProvider>> columnProviderClasses = reflections.getSubTypesOf(ColumnProvider.class);
-
-        for (Class<? extends ColumnProvider> columnProviderClass : columnProviderClasses) {
-            // DefaultColumnProvider handles all columns that aren't supported so it can't be added to providers.
-            if(columnProviderClass == DefaultColumnProvider.class) {
-                continue;
-            }
-            try {
-                ColumnProvider columnProvider = columnProviderClass.newInstance();
-                columnProviders.add(columnProvider);
-            } catch (Exception e) {
-                throw new RuntimeException("Couldn't instantiate column provider " + columnProviderClass
-                        .getSimpleName() + "!", e);
-            }
-        }
-    }
 
     @Override
     public ProcessingEnvironment getProcessingEnvironment() {
@@ -101,65 +63,34 @@ public class TypeHelperImpl implements TypeHelper {
     }
 
     @Override
-    public CursorMarshallerInfo getCursorMarshallerInfo(Property property) {
-        for (CursorMarshallerProvider cursorMarshallerProvider : cursorMarshallerProviders) {
-            if (!cursorMarshallerProvider.isSupported(this, property)) {
-                continue;
-            }
-            CursorMarshallerInfo marshallerInfo = cursorMarshallerProvider.getMarshallerInfo(this, property);
-            if (marshallerInfo == null) {
-                throw new IllegalStateException(
-                        "Marshaller provider " + cursorMarshallerProvider.getClass().getSimpleName() +
-                                " returned null as marshaller info even though it reports type " +
-                                property.getType() + " as supported!");
-            }
-            return marshallerInfo;
+    public TypeElement elementOf(Class<?> cls) {
+        return elements.getTypeElement(cls.getName());
+    }
+
+    @Override
+    public TypeMirror typeOf(Class<?> cls) {
+        boolean wasArray = false;
+        boolean wasPrimitive = false;
+        if(cls.isArray()) {
+            cls = cls.getComponentType();
+            wasArray = true;
         }
-        return null;
-    }
-
-    @Override
-    public StreamMarshallerInfo getStreamMarshallerInfo(TypeMirror typeMirror) {
-        for (StreamMarshallerProvider streamMarshallerProvider : streamMarshallerProviders) {
-            if (!streamMarshallerProvider.isSupported(this, typeMirror)) {
-                continue;
-            }
-            StreamMarshallerInfo marshallerInfo = streamMarshallerProvider.getMarshallerInfo(this, typeMirror);
-            if (marshallerInfo == null) {
-                throw new IllegalStateException(
-                        "Marshaller provider " + streamMarshallerProvider.getClass().getSimpleName() +
-                                " returned null as marshaller info even though it reports type " +
-                                typeMirror + " as supported!");
-            }
-            return marshallerInfo;
+        if(cls.isPrimitive()) {
+            cls = Primitives.wrap(cls);
+            wasPrimitive = true;
         }
-        return null;
-    }
 
-    @Override
-    public ColumnInfo getColumnInfo(Property property) {
-        for (ColumnProvider columnProvider : columnProviders) {
-            if (!columnProvider.isSupported(this, property)) {
-                continue;
-            }
-            ColumnInfo columnInfo = columnProvider.getColumnInfo(this, property);
-            if (columnInfo == null) {
-                throw new IllegalStateException("Column provider " + columnProvider.getClass().getSimpleName() + " " +
-                        "returned null as column info even through it reports type" + property.getType() + " as supported!");
-            }
-            return columnInfo;
+        TypeMirror typeMirror = elementOf(cls).asType();
+
+        if(wasPrimitive) {
+            typeMirror = types.unboxedType(typeMirror);
         }
-        return defaultColumnProvider.getColumnInfo(this, property);
-    }
 
-    @Override
-    public TypeElement elementOf(Class cls) {
-        return environment.getElementUtils().getTypeElement(cls.getName());
-    }
+        if(wasArray) {
+            typeMirror = types.getArrayType(typeMirror);
+        }
 
-    @Override
-    public TypeMirror typeOf(Class cls) {
-        return elementOf(cls).asType();
+        return typeMirror;
     }
 
     @Override
@@ -170,15 +101,6 @@ public class TypeHelperImpl implements TypeHelper {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private DeclaredType listOf(Class<?> bound) {
-        return listOf(bound != null ? typeOf(bound) : null);
-    }
-
-    private DeclaredType listOf(TypeMirror bound) {
-        return environment.getTypeUtils().getDeclaredType(environment.getElementUtils().getTypeElement(
-                "java.util.List"), bound);
     }
 
     @Override
@@ -198,57 +120,59 @@ public class TypeHelperImpl implements TypeHelper {
         }
     }
 
-    /*
-    public static void prepare(ProcessingEnvironment environment) {
-        sEnvironment = environment;
+    @Override
+    public Map<TypeVariable<?>, Type> genericParameters(Class<?> targetClass, Class<?> cls, ParameterizedType type) {
+        TypeVariable<?>[] parameters = cls.getTypeParameters();
+        Type[] actualParameters;
+        if (type != null) {
+            actualParameters = type.getActualTypeArguments();
+        } else {
+            actualParameters = parameters;
+        }
 
-        addSupportedClass(Boolean.class, IntegerAffinity.class, "cursor.getInt(index) > 0");
-        addSupportedClass(Byte.class, IntegerAffinity.class, "(Byte) cursor.getInt(index)");
-        addSupportedClass(Short.class, IntegerAffinity.class, "cursor.getShort(index)");
-        addSupportedClass(Integer.class, IntegerAffinity.class, "cursor.getInt(index)");
-        addSupportedClass(Long.class, IntegerAffinity.class, "cursor.getLong(index)");
+        Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
+        for (int i = 0; i < parameters.length; i++) {
+            map.put(parameters[i], actualParameters[i]);
+        }
+        if (cls == targetClass) {
+            return map;
+        }
 
-        addSupportedClass(Float.class, RealAffinity.class, "cursor.getFloat(index)");
-        addSupportedClass(Double.class, RealAffinity.class, "cursor.getDouble(index)");
+        List<Type> genericParents = new ArrayList<Type>();
 
-        addSupportedClass(String.class, TextAffinity.class, "cursor.getString(index)");
+        Type[] genericInterfaces = cls.getGenericInterfaces();
+        Type genericSuperclass = cls.getGenericSuperclass();
 
-//        addSupportedClass(byte[].class, "cursor.getBlob(index)");
-        addSupportedClass(Key.class, "Key.keyFromByteArray(cursor.getBlob(index)");
-        addSupportedType(listOf(String.class), "", "");
+        Collections.addAll(genericParents, genericInterfaces);
+        genericParents.add(genericSuperclass);
 
+        for (Type genericInterface : genericParents) {
+            ParameterizedType parameterizedInterface = (ParameterizedType) genericInterface;
+            Class<?> rawClass = (Class<?>) parameterizedInterface.getRawType();
+
+            Map<TypeVariable<?>, Type> genericInterfaceMap = genericParameters(targetClass, rawClass,
+                                      parameterizedInterface);
+            if (genericInterfaceMap != null) {
+                for (TypeVariable<?> key : genericInterfaceMap.keySet()) {
+                    Type value = genericInterfaceMap.get(key);
+                    if (value instanceof TypeVariable) {
+                        genericInterfaceMap.put(key, map.get(value));
+                    }
+                }
+                return genericInterfaceMap;
+            }
+        }
+        return null;
     }
 
-    private static void addSupportedClass(Class<?> cls, String fromCursor) {
-        addSupportedClass(cls, NoneAffinity.class, fromCursor);
+    private DeclaredType listOf(Class<?> bound) {
+        return listOf(bound != null ? typeOf(bound) : null);
     }
 
-    private static void addSupportedClass(Class<?> cls, Class<? extends AbstractTypeAffinity> affinity,
-    String fromCursor) {
-        addSupportedClass(cls, affinity, fromCursor, "%getter%");
+    private DeclaredType listOf(TypeMirror bound) {
+        return environment.getTypeUtils().getDeclaredType(environment.getElementUtils().getTypeElement(
+                "java.util.List"), bound);
     }
-
-    private static void addSupportedClass(Class<?> cls, Class<? extends AbstractTypeAffinity> affinity,
-    String fromCursor,
-                                          String toCursor) {
-        addSupportedType(typeOf(cls), affinity, fromCursor, toCursor);
-    }
-
-    private static void addSupportedType(TypeMirror typeMirror, String fromCursor, String toCursor) {
-        addSupportedType(typeMirror, NoneAffinity.class, fromCursor, toCursor);
-    }
-
-    private static void addSupportedType(TypeMirror typeMirror, Class<? extends AbstractTypeAffinity> affinity,
-    String fromCursor,
-                                         String toCursor) {
-        assert !SUPPORTED_TYPES_.contains(typeMirror);
-
-        SUPPORTED_TYPES_.add(typeMirror);
-        TYPE_TO_AFFINITY.put(typeMirror, affinity);
-        FROM_CURSOR.put(typeMirror, fromCursor);
-        TO_CURSOR.put(typeMirror, toCursor);
-    }
-*/
 
 
 }

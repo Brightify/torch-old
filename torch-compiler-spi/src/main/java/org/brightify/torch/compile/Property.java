@@ -1,5 +1,8 @@
 package org.brightify.torch.compile;
 
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JStatement;
+import com.sun.codemodel.JVar;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.NotNull;
@@ -11,12 +14,8 @@ import javax.lang.model.type.TypeMirror;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface Property<T> {
+public interface Property {
     public static final String COLUMN_PREFIX = "torch_";
-
-    String getValue();
-
-    String setValue(String value);
 
     Id getId();
 
@@ -30,18 +29,24 @@ public interface Property<T> {
 
     String getColumnName();
 
-    TypeMirror getTypeMirror();
+    TypeMirror getType();
 
-    Class<T> getType();
+    Getter getGetter();
+
+    void setGetter(Getter getter);
+
+    Setter getSetter();
+
+    void setSetter(Setter setter);
 
     interface Getter {
-        String getValue();
+        JExpression getValue(JVar entity);
 
         Element getElement();
     }
 
     interface Setter {
-        String setValue(String value);
+        JStatement setValue(JVar entity, JExpression value);
 
         Element getElement();
     }

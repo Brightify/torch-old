@@ -15,18 +15,4 @@ public interface MigrationAssistant<ENTITY> {
 
     void removeColumn(String name);
 
-
-
-    @Deprecated
-    void dropTable();
-
-    @Deprecated
-    void createTable();
-
-    @Deprecated
-    void dropCreateTable();
-
-    @Deprecated
-    boolean tableExists();
-
 }

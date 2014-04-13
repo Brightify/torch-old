@@ -54,7 +54,7 @@ public class CollectionCursorMarshallersProvider implements CursorMarshallerProv
 
         DeclaredType declaredType = (DeclaredType) property.getType();
         TypeMirror itemType = declaredType.getTypeArguments().iterator().next();
-        StreamMarshallerInfo itemMarshallerInfo = typeHelper.getStreamMarshallerInfo(itemType);
+        StreamMarshallerInfo itemMarshallerInfo = null; // typeHelper.getStreamMarshallerInfo(itemType);
         if (itemMarshallerInfo == null) {
             return null;
         }

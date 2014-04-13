@@ -34,9 +34,9 @@ public interface EntityInfo {
 
     List<MigrationPath> getMigrationPaths();
 
-    List<Property<?>> getProperties();
+    List<Property> getProperties();
 
-    Property<?> getIdProperty();
+    Property getIdProperty();
 
 
 }

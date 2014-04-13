@@ -40,7 +40,7 @@ public class AndroidSQLiteMigrationAssistant<ENTITY> implements MigrationAssista
     public void removeColumn(String name) {
         throw new UnsupportedOperationException("Not implemented!");
     }
-
+/*
     @Override
     public void createTable() {
         if(!tableExists()) {
@@ -76,7 +76,7 @@ public class AndroidSQLiteMigrationAssistant<ENTITY> implements MigrationAssista
             cursor.close();
         }
         return false;
-    }
+    }*/
 
     private SQLiteDatabase getDatabase() {
         return databaseEngine.getDatabase();
