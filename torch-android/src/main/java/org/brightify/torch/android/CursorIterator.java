@@ -12,18 +12,16 @@ import java.util.NoSuchElementException;
 */
 public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
     private final Torch torch;
-    protected final EntityMetadata<ENTITY> entityMetadata;
-    protected final Cursor cursor;
-    protected boolean mFirst = true;
-    protected boolean mHasNext = false;
+    private final LoadQuery<ENTITY> query;
+    private final Cursor cursor;
 
-    public CursorIterator(Torch torch, EntityMetadata<ENTITY> entityMetadata, Cursor cursor) {
+    public CursorIterator(Torch torch, LoadQuery<ENTITY> query) {
+        cursor = query.run(torch);
         if(cursor.isClosed()) {
             throw new IllegalStateException("The cursor is closed!");
         }
         this.torch = torch;
-        this.cursor = cursor;
-        this.entityMetadata = entityMetadata;
+        this.query = query;
         if(!this.cursor.moveToFirst()) {
             this.cursor.close();
         }
@@ -42,7 +40,7 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
 
         ENTITY entity;
         try {
-            entity = entityMetadata.createFromCursor(torch, cursor);
+            entity = query.getEntityMetadata().createFromCursor(torch, cursor, query.getLoadGroups());
         } catch (Exception e) {
             // FIXME handle the exception better
             throw new RuntimeException(e);

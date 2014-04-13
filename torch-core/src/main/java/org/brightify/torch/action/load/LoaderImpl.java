@@ -33,9 +33,9 @@ import org.brightify.torch.action.load.sync.OrderLimitListLoader;
 import org.brightify.torch.action.load.sync.OrderLoader;
 import org.brightify.torch.action.load.sync.TypedFilterOrderLimitListLoader;
 import org.brightify.torch.action.load.sync.TypedLoader;
-import org.brightify.torch.filter.Column;
 import org.brightify.torch.filter.EntityFilter;
-import org.brightify.torch.filter.NumberColumn;
+import org.brightify.torch.filter.NumberProperty;
+import org.brightify.torch.filter.Property;
 import org.brightify.torch.util.AsyncRunner;
 import org.brightify.torch.util.Callback;
 import org.brightify.torch.util.Validate;
@@ -108,7 +108,7 @@ public class LoaderImpl<ENTITY> implements
     public List<ENTITY> list() {
         LinkedList<ENTITY> list = new LinkedList<ENTITY>();
 
-        for(ENTITY entity : this) {
+        for (ENTITY entity : this) {
             list.addLast(entity);
         }
 
@@ -217,7 +217,7 @@ public class LoaderImpl<ENTITY> implements
 
         LoaderType.TypedLoaderType typedLoaderType = (LoaderType.TypedLoaderType) loaderType;
         EntityMetadata<ENTITY> metadata = torch.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
-        NumberColumn<Long> idColumn = metadata.getIdColumn();
+        NumberProperty<Long> idColumn = metadata.getIdColumn();
 
         EntityFilter filter = null;
         for (Long id : ids) {

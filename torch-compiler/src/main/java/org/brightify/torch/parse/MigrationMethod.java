@@ -1,6 +1,6 @@
 package org.brightify.torch.parse;
 
-import org.brightify.torch.util.VersionComparator;
+import org.brightify.torch.compile.util.VersionComparator;
 
 import javax.lang.model.element.ExecutableElement;
 

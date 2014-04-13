@@ -2,7 +2,9 @@ package org.brightify.torch.action.relation;
 
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
+import org.brightify.torch.filter.ListProperty;
 import org.brightify.torch.filter.RelationColumn;
+import org.brightify.torch.util.LazyArrayList;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -30,27 +32,37 @@ public class RelationResolverImpl implements RelationResolver {
         }
 
         @Override
-        public <COLUMN extends RelationColumn<ENTITY, VALUE>, VALUE> TypedRelationResolverOnProperty<ENTITY, COLUMN,
-                        VALUE> onProperty(RelationColumn<ENTITY, VALUE> value) {
+        public <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> value) {
             return null;
         }
     }
 
-    private static class TypedRelationResolverOnPropertyImpl<ENTITY, COLUMN extends RelationColumn<ENTITY, VALUE>, VALUE>
-            implements TypedRelationResolverOnProperty<ENTITY, COLUMN, VALUE> {
+    private static class TypedRelationResolverOnPropertyImpl<ENTITY, VALUE>
+            implements TypedRelationResolverOnProperty<ENTITY, VALUE> {
+
+        private final Torch torch;
+        private final Class<ENTITY> entityClass;
+        private final ListProperty<ENTITY, VALUE> property;
+
+        private TypedRelationResolverOnPropertyImpl(Torch torch, Class<ENTITY> entityClass,
+                                                    ListProperty<ENTITY, VALUE> property) {
+            this.torch = torch;
+            this.entityClass = entityClass;
+            this.property = property;
+        }
 
         @Override
-        public VALUE parentId(Long id) {
+        public LazyArrayList<VALUE> parentId(Long id) {
             return null;
         }
 
         @Override
-        public VALUE parent(ENTITY entity) {
+        public LazyArrayList<VALUE> parent(ENTITY entity) {
             return null;
         }
 
         @Override
-        public VALUE parentKey(Key<ENTITY> key) {
+        public LazyArrayList<VALUE> parentKey(Key<ENTITY> key) {
             return null;
         }
     }

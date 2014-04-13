@@ -5,9 +5,11 @@ import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.Migration;
+import org.brightify.torch.model.Table;
 import org.brightify.torch.util.MigrationAssistant;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
 * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -20,8 +22,7 @@ public class TestObject implements Serializable {
     @Id
     public Long id;
 
-    //public byte[] byteArrayField = new byte[1024];
-
+    public byte[] byteArrayField = new byte[1024];
     public Integer intField = 1;
     public int intPrimitiveField = 100;
     public String stringField = "testString";
@@ -32,6 +33,9 @@ public class TestObject implements Serializable {
     protected String protectedTest = "protectedTest";
     String defaultTest = "defaultTest";
     public String group; // Test for #20, should be forbidden column name, but we add torch_ to every column name
+    public Table table;
+//    public List<Table> tables;
+    public List<String> strings;
 
     @Accessor
     public String getProtectedTest() {

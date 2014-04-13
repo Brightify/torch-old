@@ -1,5 +1,7 @@
 package org.brightify.torch.action.load.sync;
 
+import org.brightify.torch.util.LazyArrayList;
+
 import java.util.List;
 
 /**

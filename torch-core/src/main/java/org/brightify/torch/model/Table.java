@@ -2,6 +2,7 @@ package org.brightify.torch.model;
 
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
+import org.brightify.torch.annotation.Load;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -51,4 +52,5 @@ public class Table {
     public void setDetails(TableDetails details) {
         this.details = details;
     }
+
 }

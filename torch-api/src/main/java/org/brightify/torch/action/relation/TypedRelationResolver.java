@@ -1,5 +1,6 @@
 package org.brightify.torch.action.relation;
 
+import org.brightify.torch.filter.ListProperty;
 import org.brightify.torch.filter.RelationColumn;
 
 /**
@@ -7,7 +8,6 @@ import org.brightify.torch.filter.RelationColumn;
  */
 public interface TypedRelationResolver<ENTITY> {
 
-    <COLUMN extends RelationColumn<ENTITY, VALUE>, VALUE>
-    TypedRelationResolverOnProperty<ENTITY, COLUMN, VALUE> onProperty(RelationColumn<ENTITY, VALUE> value);
+    <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> value);
 
 }

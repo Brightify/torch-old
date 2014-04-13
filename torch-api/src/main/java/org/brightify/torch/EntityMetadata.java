@@ -1,14 +1,16 @@
 package org.brightify.torch;
 
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.filter.NumberColumn;
+import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.util.MigrationAssistant;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface EntityMetadata<ENTITY> {
-    NumberColumn<Long> getIdColumn();
+    NumberProperty<Long> getIdColumn();
 
     String[] getColumns();
 
@@ -28,7 +30,7 @@ public interface EntityMetadata<ENTITY> {
 
     EntityDescription describeEntity();
 
-    ENTITY createFromRawEntity(RawEntity cursor) throws Exception;
+    ENTITY createFromRawEntity(Torch torch, RawEntity cursor, List<Class<?>> loadGroups) throws Exception;
 
     void toRawEntity(ENTITY entity, RawEntity rawEntity) throws Exception;
 

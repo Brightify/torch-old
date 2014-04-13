@@ -4,6 +4,8 @@ critical bug is found, which fixing would mean changing the API.
 
 # Torch [![Build Status](https://travis-ci.org/brightify/torch.png?branch=develop)](https://travis-ci.org/brightify/torch)
 
+Support this project using flattr: [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=TadeasKriz&url=http://github.com/brightify/torch&title=Torch&language=&tags=github&category=software)
+
 **Torch** is an Open Source library that makes data storage on Android easy.
 
 ### [**Documentation**](https://github.com/brightify/torch/wiki/Home)

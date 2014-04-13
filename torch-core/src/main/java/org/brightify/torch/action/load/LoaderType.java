@@ -1,7 +1,7 @@
 package org.brightify.torch.action.load;
 
 import org.brightify.torch.action.load.sync.OrderLoader;
-import org.brightify.torch.filter.Column;
+import org.brightify.torch.filter.Property;
 import org.brightify.torch.filter.EntityFilter;
 
 /**
@@ -78,10 +78,10 @@ abstract class LoaderType {
 
     public static class OrderLoaderType extends LoaderType {
 
-        protected final Column<?> mOrderColumn;
+        protected final Property<?> mOrderProperty;
 
-        public OrderLoaderType(Column<?> orderColumn) {
-            mOrderColumn = orderColumn;
+        public OrderLoaderType(Property<?> orderProperty) {
+            mOrderProperty = orderProperty;
         }
 
         @Override

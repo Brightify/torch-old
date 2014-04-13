@@ -10,12 +10,10 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.compile.EntityInfo;
+import org.brightify.torch.compile.EntityMirror;
 import org.brightify.torch.compile.Property;
 import org.brightify.torch.compile.util.CodeModelTypes;
-import org.brightify.torch.util.TypeHelper;
-
-import javax.lang.model.type.TypeMirror;
+import org.brightify.torch.compile.util.TypeHelper;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -26,13 +24,19 @@ public class EntityGeneratorImpl implements EntityGenerator {
     private TypeHelper typeHelper;
 
     @Override
-    public JCodeModel generate(EntityInfo entityInfo) throws Exception {
-        JCodeModel codeModel = CodeModelTypes.getCodeModel();
+    public void generate(EntityMirror entityMirror) throws Exception {
+        JCodeModel codeModel = CodeModelTypes.CODE_MODEL;
 
-        JDefinedClass definedClass = codeModel._class(entityInfo.getFullName());
+        JDefinedClass definedClass = codeModel._class(entityMirror.getFullName());
+
+        generate(entityMirror, definedClass);
+    }
+
+    @Override
+    public void generate(EntityMirror entityMirror, JDefinedClass definedClass) throws Exception {
         JAnnotationUse annotationUse = definedClass.annotate(Entity.class);
 
-        for (Property property : entityInfo.getProperties()) {
+        for (Property property : entityMirror.getProperties()) {
             Class<?> type = typeHelper.classOf(property.getType());
 
             JFieldVar field =  definedClass.field(JMod.PRIVATE, type, property.getName());
@@ -58,8 +62,6 @@ public class EntityGeneratorImpl implements EntityGenerator {
                 getterMethod.annotate(property.getUnique().annotationType());
             }
         }
-
-        return codeModel;
     }
 
     private String uppercaseFirstLetter(String s) {

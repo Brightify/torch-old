@@ -19,6 +19,7 @@ public class KeyFactory {
         return new Key<ENTITY>(entityClass, id);
     }
 
+    @SuppressWarnings("unchecked")
     public static <ENTITY> Key<ENTITY> create(ENTITY entity) {
         Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
         EntityMetadata<ENTITY> metadata = TorchService.factory().getEntities().getMetadata(entityClass);

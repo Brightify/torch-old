@@ -1,12 +1,9 @@
 package org.brightify.torch.android;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.EntityMetadata;
-import org.brightify.torch.filter.Column;
-import org.brightify.torch.sql.statement.DropTable;
-import org.brightify.torch.util.MigrationAssistant;
+import org.brightify.torch.filter.Property;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -22,12 +19,12 @@ public class AndroidSQLiteMigrationAssistant<ENTITY> implements MigrationAssista
     }
 
     @Override
-    public void addColumn(Column<?> column) {
+    public void addColumn(Property<?> property) {
         throw new UnsupportedOperationException("Not implemented!");
     }
 
     @Override
-    public void changeColumnType(Column<?> column, Class<?> from, Class<?> to) {
+    public void changeColumnType(Property<?> property, Class<?> from, Class<?> to) {
         throw new UnsupportedOperationException("Not implemented!");
     }
 

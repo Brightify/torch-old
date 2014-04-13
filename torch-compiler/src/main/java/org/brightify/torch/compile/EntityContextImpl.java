@@ -2,7 +2,7 @@ package org.brightify.torch.compile;
 
 import com.google.inject.Inject;
 import org.brightify.torch.EntityMetadata;
-import org.brightify.torch.util.TypeHelper;
+import org.brightify.torch.compile.util.TypeHelper;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
@@ -34,7 +34,7 @@ public class EntityContextImpl implements EntityContext {
 
     private Set<Class<?>> entityClasses = new HashSet<Class<?>>();
 
-    private Set<EntityInfo> entityInfos = new HashSet<EntityInfo>();
+    private Set<EntityMirror> entityMirrors = new HashSet<EntityMirror>();
 
     public EntityContextImpl() {
 
@@ -75,14 +75,14 @@ public class EntityContextImpl implements EntityContext {
     }
 
     @Override
-    public Set<EntityInfo> getEntityInfos() {
-        return entityInfos;
+    public Set<EntityMirror> getEntityMirrors() {
+        return entityMirrors;
     }
 
     @Override
-    public void registerEntityInfo(EntityInfo entityInfo) {
-        entityInfos.add(entityInfo);
-        messager.printMessage(Diagnostic.Kind.NOTE, "Registered entity info " + entityInfo.getFullName() + " to entity context.");
+    public void registerEntityInfo(EntityMirror entityMirror) {
+        entityMirrors.add(entityMirror);
+        messager.printMessage(Diagnostic.Kind.NOTE, "Registered entity info " + entityMirror.getFullName() + " to entity context.");
     }
 
     @Override
@@ -99,8 +99,8 @@ public class EntityContextImpl implements EntityContext {
             }
         }
 
-        for (EntityInfo entityInfo : entityInfos) {
-            if (entityInfo.getFullName().equals(name)) {
+        for (EntityMirror entityMirror : entityMirrors) {
+            if (entityMirror.getFullName().equals(name)) {
                 return true;
             }
         }
@@ -140,11 +140,11 @@ public class EntityContextImpl implements EntityContext {
 
         builder.append("Source entities: [\n");
         i = 0;
-        for (EntityInfo entityInfo : entityInfos) {
+        for (EntityMirror entityMirror : entityMirrors) {
             if(i > 0) {
                 builder.append(", \n");
             }
-            builder.append("\t").append(entityInfo.getFullName());
+            builder.append("\t").append(entityMirror.getFullName());
             i++;
         }
         builder.append("]\n");

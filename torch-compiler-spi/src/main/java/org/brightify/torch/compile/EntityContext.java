@@ -10,9 +10,9 @@ public interface EntityContext {
 
     Set<Class<?>> getEntityClasses();
 
-    Set<EntityInfo> getEntityInfos();
+    Set<EntityMirror> getEntityMirrors();
 
-    void registerEntityInfo(EntityInfo entityInfo);
+    void registerEntityInfo(EntityMirror entityMirror);
 
     void registerEntityClass(Class<?> entityClass);
 

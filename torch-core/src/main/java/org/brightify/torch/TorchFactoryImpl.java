@@ -1,9 +1,10 @@
 package org.brightify.torch;
 
 import org.brightify.torch.annotation.Entity;
+import org.brightify.torch.internal.SQLiteMaster;
+import org.brightify.torch.internal.SQLiteMaster$;
 import org.brightify.torch.model.Table;
 import org.brightify.torch.model.Table$;
-import org.brightify.torch.model.TableDetails;
 import org.brightify.torch.model.TableDetails$;
 import org.brightify.torch.sql.statement.DropTable;
 import org.brightify.torch.util.MigrationAssistant;
@@ -15,10 +16,12 @@ import java.util.Set;
 public class TorchFactoryImpl implements TorchFactory {
     private final DatabaseEngine databaseEngine;
 
+    private final SQLiteMaster$ sqLiteMasterMetadata = SQLiteMaster$.create();
     private final Table$ tableMetadata = Table$.create();
     private final TableDetails$ tableDetailsMetadata = TableDetails$.create();
+    
     private final EntitiesImpl entities = new EntitiesImpl();
-
+    
     public TorchFactoryImpl(DatabaseEngine databaseEngine) {
         this(databaseEngine, Collections.<EntityMetadata<?>>emptySet());
     }
@@ -63,6 +66,7 @@ public class TorchFactoryImpl implements TorchFactory {
 
     private void registerInternalEntities() {
         // We need to register our metadata
+        entities.registerMetadata(sqLiteMasterMetadata);
         entities.registerMetadata(tableMetadata);
         MigrationAssistant<Table> tableMigrationAssistant = databaseEngine.getMigrationAssistant(tableMetadata);
         tableMigrationAssistant.createTable();
@@ -71,6 +75,13 @@ public class TorchFactoryImpl implements TorchFactory {
                 databaseEngine.getMigrationAssistant(tableDetailsMetadata);
         tableDetailsMigrationAssistant.createTable();
     }
+
+
+//    private boolean tableExists(EntityMetadata<?> entityMetadata) {
+//        String tableName = entityMetadata.getTableName();
+//
+//        return begin().load().type(SQLiteMaster.class).filter(SQLiteMaster$.tableName.equalTo(tableName)).count() > 0;
+//    }
 
     private void verifyConfiguration() {
         // TODO When there is more configuration, verify it
@@ -97,11 +108,32 @@ public class TorchFactoryImpl implements TorchFactory {
     }
 
     @Override
+    public TorchFactory register(Class<?>... entityClasses) {
+        TorchFactory returnFactory = this;
+        for (Class<?> entityClass : entityClasses) {
+            returnFactory = register(entityClass);
+        }
+        return returnFactory;
+    }
+
+    @Override
     public <ENTITY> TorchFactory register(Class<ENTITY> entityClass) {
 
 
         EntityMetadata<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
         return register(metadata);
+    }
+
+    @Override
+    public TorchFactory register(List<EntityMetadata<?>> metadataList) throws IllegalArgumentException {
+        if(metadataList == null) {
+            throw new IllegalArgumentException("List of metadata cannot be null!");
+        }
+        TorchFactory returnFactory = this;
+        for (EntityMetadata<?> metadata : metadataList) {
+            returnFactory = register(metadata);
+        }
+        return returnFactory;
     }
 
     @Override
@@ -136,7 +168,7 @@ public class TorchFactoryImpl implements TorchFactory {
             begin().save().entity(table);
         }
 
-
+        
         return this;
     }
 

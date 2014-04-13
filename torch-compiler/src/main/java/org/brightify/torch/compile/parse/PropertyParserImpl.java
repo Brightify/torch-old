@@ -15,7 +15,7 @@ import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.Property;
 import org.brightify.torch.compile.PropertyImpl;
 import org.brightify.torch.parse.EntityParseException;
-import org.brightify.torch.util.TypeHelper;
+import org.brightify.torch.compile.util.TypeHelper;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;

@@ -1,5 +1,6 @@
 package org.brightify.torch.model;
 
+import org.brightify.torch.Key;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 
@@ -13,6 +14,7 @@ public class TableDetails {
 
     @Id
     public Long id;
+    public Key<Table> tableKey;
 //    public List<String> columns;
 
 }

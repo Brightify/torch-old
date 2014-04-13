@@ -2,12 +2,12 @@ package org.brightify.torch.compile.parse;
 
 import com.google.inject.Inject;
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.compile.EntityInfo;
-import org.brightify.torch.compile.EntityInfoImpl;
+import org.brightify.torch.compile.EntityMirror;
+import org.brightify.torch.compile.EntityMirrorImpl;
 import org.brightify.torch.compile.Property;
 import org.brightify.torch.parse.EntityParseException;
 import org.brightify.torch.util.Helper;
-import org.brightify.torch.util.TypeHelper;
+import org.brightify.torch.compile.util.TypeHelper;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -33,7 +33,7 @@ public class EntityParserImpl implements EntityParser {
     private PropertyParser propertyParser;
 
     @Override
-    public EntityInfo parseEntityElement(Element element) {
+    public EntityMirror parseEntityElement(Element element) {
         Entity entity = element.getAnnotation(Entity.class);
         if (entity == null) {
             throw new EntityParseException(element, "Object %s was not annotated with @Entity!", element);
@@ -44,7 +44,7 @@ public class EntityParserImpl implements EntityParser {
             return null;
         }
 
-        EntityInfoImpl info = new EntityInfoImpl();
+        EntityMirrorImpl info = new EntityMirrorImpl();
 
         info.setName(element.getSimpleName().toString());
         info.setFullName(element.toString());
