@@ -119,7 +119,7 @@ public class LoaderImpl<ENTITY> implements
             return null;
         }
 
-        return iterator().next();
+        return iterator.next();
     }
 
     @Override
