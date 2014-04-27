@@ -59,7 +59,16 @@ public class LoadQuery<ENTITY> {
             if(Settings.isQueryArgumentsLoggingEnabled()) {
                 sql = sql + " with arguments: " + Arrays.deepToString(selectionArgs);
             }
-            Log.d(TAG, sql);
+
+            if(Settings.isStackTraceQueryLoggingEnabled()) {
+                try {
+                    throw new Exception(sql);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.d(TAG, sql);
+            }
         }
     }
 

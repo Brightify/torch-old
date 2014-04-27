@@ -58,6 +58,16 @@ public class Settings {
         disableBooleanSetting(BooleanSetting.QUERY_ARGUMENTS_LOGGING);
     }
 
+    public static boolean isStackTraceQueryLoggingEnabled() {
+        return isBooleanSettingEnabled(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
+    }
+    public static void enableStackTraceQueryLogging() {
+        enableBooleanSetting(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
+    }
+    public static void disableStackTraceQueryLogging() {
+        disableBooleanSetting(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
+    }
+
     private static void logStateChange(BooleanSetting setting, boolean oldState) {
         boolean newState = isBooleanSettingEnabled(setting);
         if (oldState == newState) {
@@ -80,8 +90,8 @@ public class Settings {
             // This should never happen, but we can never make assumptions.
             Log.w(TAG,
                   "Enable '" + setting.getName() + "' has been previously called " + Integer.MAX_VALUE +
-                  " times! Make sure " +
-                  "you're not calling it in a loop!");
+                  " times! Make sure you're not calling it in a loop!"
+            );
         } else {
             value++;
         }
@@ -111,7 +121,8 @@ public class Settings {
     private enum BooleanSetting {
         DEBUG("Debug mode"),
         QUERY_LOGGING("Query logging"),
-        QUERY_ARGUMENTS_LOGGING("Query arguments logging");
+        QUERY_ARGUMENTS_LOGGING("Query arguments logging"),
+        STACK_TRACE_QUERY_LOGGING("Stack trace query logging");
 
         private final String name;
 
