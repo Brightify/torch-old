@@ -22,48 +22,113 @@ public class Settings {
         }
     }
 
+    /**
+     * Returns true if debug mode is enabled, false otherwise.
+     */
     public static boolean isDebugModeEnabled() {
         return isBooleanSettingEnabled(BooleanSetting.DEBUG);
     }
 
+    /**
+     * Enables debug mode. Currently does not do anything useful.
+     */
     public static void enableDebugMode() {
         enableBooleanSetting(BooleanSetting.DEBUG);
     }
 
+    /**
+     * Disables debug mode.
+     */
     public static void disableDebugMode() {
         disableBooleanSetting(BooleanSetting.DEBUG);
     }
 
+    /**
+     * Returns true if query logging is enabled, false otherwise.
+     *
+     * @see Settings#enableQueryLogging()
+     */
     public static boolean isQueryLoggingEnabled() {
         return isBooleanSettingEnabled(BooleanSetting.QUERY_LOGGING);
     }
 
+    /**
+     * Enables query logging. If query logging is enabled, Torch will log all SQL queries into the logcat. This however
+     * does not include non-SQL commands like save or delete. This will be fixed in a future release.
+     * <p/>
+     * Enabling this will reduce the performance! Always be sure to disable the logging in a production package!
+     */
     public static void enableQueryLogging() {
         enableBooleanSetting(BooleanSetting.QUERY_LOGGING);
     }
 
+    /**
+     * Disables query logging.
+     *
+     * @see Settings#enableQueryLogging()
+     */
     public static void disableQueryLogging() {
         disableBooleanSetting(BooleanSetting.QUERY_LOGGING);
     }
 
+    /**
+     * Returns true if logging query arguments is enabled, false otherwise.
+     *
+     * @see Settings#enableQueryArgumentsLogging()
+     */
     public static boolean isQueryArgumentsLoggingEnabled() {
         return isBooleanSettingEnabled(BooleanSetting.QUERY_ARGUMENTS_LOGGING);
     }
 
+    /**
+     * Enables logging of query arguments. This way you can directly see which arguments are used with the SQL query.
+     * Enabling this option without {@link Settings#enableQueryLogging()} will result in nothing being shown in the log.
+     * The query arguments logging is basically just an extension of the query logging itself.
+     * <p/>
+     * Enabling this will reduce the performance! Always be sure to disable the logging in a production package!
+     */
     public static void enableQueryArgumentsLogging() {
         enableBooleanSetting(BooleanSetting.QUERY_ARGUMENTS_LOGGING);
     }
 
+    /**
+     * Disables logging of query arguments.
+     *
+     * @see Settings#enableQueryArgumentsLogging()
+     */
     public static void disableQueryArgumentsLogging() {
         disableBooleanSetting(BooleanSetting.QUERY_ARGUMENTS_LOGGING);
     }
 
+    /**
+     * Returns true if stack trace query logging is enabled, false otherwise.
+     *
+     * @see Settings#enableStackTraceQueryLogging()
+     */
     public static boolean isStackTraceQueryLoggingEnabled() {
         return isBooleanSettingEnabled(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
     }
+
+    /**
+     * Enables logging of stacktraces on query. This way you can easily see which methods were invoked and which lines,
+     * so you can debug just using the logcat, without actually attaching the debugger to your application. This is very
+     * useful when you do many queries at once and just some of them might be wrong, or called from a wrong place, where
+     * debugging step by step might not show the issue.
+     * <p/>
+     * This once again will have no effect, if you will not enable the query logging itself. This is similarly to the
+     * arguments logging just an extension of the query logging.
+     * <p/>
+     * Enabling this will reduce the performance! Always be sure to disable the logging in a production package!
+     */
     public static void enableStackTraceQueryLogging() {
         enableBooleanSetting(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
     }
+
+    /**
+     * Disables logging of stacktraces on query.
+     *
+     * @see Settings#enableStackTraceQueryLogging()
+     */
     public static void disableStackTraceQueryLogging() {
         disableBooleanSetting(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
     }
