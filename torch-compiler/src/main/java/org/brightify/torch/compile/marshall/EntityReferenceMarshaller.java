@@ -6,7 +6,7 @@ import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.Ref;
 import org.brightify.torch.compile.EntityContext;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.sql.TypeAffinity;
@@ -46,8 +46,8 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, Property property) {
-        JExpression getValue = super.marshallValue(holder, property);
+    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+        JExpression getValue = super.marshallValue(holder, propertyMirror);
         return holder.torch
                 .invoke("save")
                 .invoke("entity").arg(getValue)
@@ -55,15 +55,15 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index, Property property) {
+    protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index, PropertyMirror propertyMirror) {
         return holder.torch
                 .invoke("load")
-                .invoke("type").arg(CodeModelTypes.ref(property).dotclass())
+                .invoke("type").arg(CodeModelTypes.ref(propertyMirror).dotclass())
                 .invoke("id").arg(holder.cursor.invoke("getLong").arg(index));
     }
 
     @Override
-    protected boolean nullable(Property property) {
+    protected boolean nullable(PropertyMirror propertyMirror) {
         return true;
     }
 
@@ -73,13 +73,13 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JClass columnClass(Property property) {
-        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(property).toString()));
+    protected JClass columnClass(PropertyMirror propertyMirror) {
+        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
     }
 
     @Override
-    protected JClass columnClassImpl(Property property) {
-        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(property)
+    protected JClass columnClassImpl(PropertyMirror propertyMirror) {
+        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
                                                                                       .toString()));
     }
 }

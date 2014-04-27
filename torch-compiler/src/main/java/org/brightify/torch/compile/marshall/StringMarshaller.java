@@ -3,7 +3,7 @@ package org.brightify.torch.compile.marshall;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JVar;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.sql.TypeAffinity;
@@ -24,23 +24,23 @@ public class StringMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JClass columnClass(Property property) {
+    protected JClass columnClass(PropertyMirror propertyMirror) {
         return CodeModelTypes.STRING_PROPERTY;
     }
 
     @Override
-    protected JClass columnClassImpl(Property property) {
+    protected JClass columnClassImpl(PropertyMirror propertyMirror) {
         return CodeModelTypes.STRING_PROPERTY_IMPL;
     }
 
     @Override
-    protected boolean nullable(Property property) {
+    protected boolean nullable(PropertyMirror propertyMirror) {
         return true;
     }
 
     @Override
     protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index,
-                                     Property property) {
+                                     PropertyMirror propertyMirror) {
         return holder.cursor.invoke("getString").arg(index);
     }
 }

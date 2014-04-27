@@ -22,5 +22,5 @@ public interface EntityContext {
 
     boolean containsEntity(Class<?> entityClass);
 
-    boolean containsEntity(Property property);
+    boolean containsEntity(PropertyMirror propertyMirror);
 }

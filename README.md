@@ -6,6 +6,8 @@ critical bug is found, which fixing would mean changing the API.
 
 Support this project using flattr: [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=TadeasKriz&url=http://github.com/brightify/torch&title=Torch&language=&tags=github&category=software)
 
+<a href="https://flattr.com/submit/auto?user_id=TadeasKriz&url=https%3A%2F%2Fgithub.com%2Fbrightify%2Ftorch" target="_blank"><img src="//api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0"></a>
+
 **Torch** is an Open Source library that makes data storage on Android easy.
 
 ### [**Documentation**](https://github.com/brightify/torch/wiki/Home)

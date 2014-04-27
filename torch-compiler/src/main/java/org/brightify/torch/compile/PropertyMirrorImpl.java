@@ -10,7 +10,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class PropertyImpl<T> implements Property {
+public class PropertyMirrorImpl implements PropertyMirror {
 
     private Id id;
     private Index index;

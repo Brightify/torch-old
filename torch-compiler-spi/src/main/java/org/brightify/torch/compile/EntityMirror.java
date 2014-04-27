@@ -34,9 +34,9 @@ public interface EntityMirror {
 
     List<MigrationPath> getMigrationPaths();
 
-    List<Property> getProperties();
+    List<PropertyMirror> getProperties();
 
-    Property getIdProperty();
+    PropertyMirror getIdPropertyMirror();
 
 
 }

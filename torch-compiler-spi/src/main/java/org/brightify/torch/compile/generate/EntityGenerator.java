@@ -10,6 +10,10 @@ public interface EntityGenerator {
 
     void generate(EntityMirror entityMirror) throws Exception;
 
+    void generate(EntityMirror entityMirror, boolean annotations) throws Exception;
+
     void generate(EntityMirror entityMirror, JDefinedClass definedClass) throws Exception;
+
+    void generate(EntityMirror entityMirror, JDefinedClass definedClass, boolean annotations) throws Exception;
 
 }

@@ -11,7 +11,7 @@ import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.compile.EntityMirror;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
 
@@ -25,6 +25,11 @@ public class EntityGeneratorImpl implements EntityGenerator {
 
     @Override
     public void generate(EntityMirror entityMirror) throws Exception {
+        generate(entityMirror, true);
+    }
+
+    @Override
+    public void generate(EntityMirror entityMirror, boolean annotations) throws Exception {
         JCodeModel codeModel = CodeModelTypes.CODE_MODEL;
 
         JDefinedClass definedClass = codeModel._class(entityMirror.getFullName());
@@ -34,32 +39,42 @@ public class EntityGeneratorImpl implements EntityGenerator {
 
     @Override
     public void generate(EntityMirror entityMirror, JDefinedClass definedClass) throws Exception {
-        JAnnotationUse annotationUse = definedClass.annotate(Entity.class);
+        generate(entityMirror, definedClass, true);
+    }
 
-        for (Property property : entityMirror.getProperties()) {
-            Class<?> type = typeHelper.classOf(property.getType());
+    @Override
+    public void generate(EntityMirror entityMirror, JDefinedClass definedClass, boolean annotations) throws Exception {
+        if(annotations) {
+            JAnnotationUse annotationUse = definedClass.annotate(Entity.class);
+        }
 
-            JFieldVar field =  definedClass.field(JMod.PRIVATE, type, property.getName());
+        for (PropertyMirror propertyMirror : entityMirror.getProperties()) {
+            Class<?> type = typeHelper.classOf(propertyMirror.getType());
 
-            JMethod getterMethod = definedClass.method(JMod.PUBLIC, type, "get" + uppercaseFirstLetter(property.getName()));
+            JFieldVar field =  definedClass.field(JMod.PRIVATE, type, propertyMirror.getName());
+
+            JMethod getterMethod = definedClass.method(JMod.PUBLIC, type, "get" + uppercaseFirstLetter(propertyMirror.getName()));
             getterMethod.body()._return(field);
 
-            JMethod setterMethod = definedClass.method(JMod.PUBLIC, Void.TYPE, "set" + uppercaseFirstLetter(property.getName()));
-            JVar setterParameter = setterMethod.param(type, property.getName());
+            JMethod setterMethod = definedClass.method(JMod.PUBLIC, Void.TYPE, "set" + uppercaseFirstLetter(
+                    propertyMirror.getName()));
+            JVar setterParameter = setterMethod.param(type, propertyMirror.getName());
             setterMethod.body().assign(JExpr._this().ref(field), setterParameter);
 
-            // FIXME add some more dynamic way to set annotations
-            if(property.getId() != null) {
-                getterMethod.annotate(property.getId().annotationType());
-            }
-            if(property.getIndex() != null) {
-                getterMethod.annotate(property.getIndex().annotationType());
-            }
-            if(property.getNotNull() != null) {
-                getterMethod.annotate(property.getNotNull().annotationType());
-            }
-            if(property.getUnique() != null) {
-                getterMethod.annotate(property.getUnique().annotationType());
+            if(annotations) {
+                // FIXME add some more dynamic way to set annotations
+                if (propertyMirror.getId() != null) {
+                    getterMethod.annotate(propertyMirror.getId().annotationType());
+                }
+                if (propertyMirror.getIndex() != null) {
+                    getterMethod.annotate(propertyMirror.getIndex().annotationType());
+                }
+                if (propertyMirror.getNotNull() != null) {
+                    getterMethod.annotate(propertyMirror.getNotNull().annotationType());
+                }
+                if (propertyMirror.getUnique() != null) {
+                    getterMethod.annotate(propertyMirror.getUnique().annotationType());
+                }
             }
         }
     }

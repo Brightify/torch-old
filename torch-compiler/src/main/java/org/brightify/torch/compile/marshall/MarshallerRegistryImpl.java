@@ -2,7 +2,7 @@ package org.brightify.torch.compile.marshall;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.reflections.Reflections;
 
 import javax.annotation.PostConstruct;
@@ -62,13 +62,13 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Marshaller getMarshaller(Property property) {
-        return getMarshaller(property.getType());
+    public Marshaller getMarshaller(PropertyMirror propertyMirror) {
+        return getMarshaller(propertyMirror.getType());
     }
 
     @Override
-    public Marshaller getMarshallerOrThrow(Property property) {
-        return getMarshallerOrThrow(property.getType());
+    public Marshaller getMarshallerOrThrow(PropertyMirror propertyMirror) {
+        return getMarshallerOrThrow(propertyMirror.getType());
     }
 
     @Override

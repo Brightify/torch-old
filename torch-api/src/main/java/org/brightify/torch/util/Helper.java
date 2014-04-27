@@ -2,6 +2,8 @@ package org.brightify.torch.util;
 
 import org.brightify.torch.filter.ListProperty;
 
+import java.util.List;
+
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
@@ -25,7 +27,7 @@ public class Helper {
 
     public static String tableNameFromClass(Class<?> cls, boolean simpleName) {
         if (!simpleName) {
-            return tableNameFromClassName(cls.getName());
+            return tableNameFromClassName(cls.getCanonicalName());
         } else {
             return tableNameFromClassName(cls.getSimpleName());
         }
@@ -36,10 +38,14 @@ public class Helper {
     }
 
     public static <ENTITY> String bindingTableNameFromClassAndProperty(Class<ENTITY> entityClass,
-                                                                       ListProperty<ENTITY, ?> property) {
+                                                                       ListProperty property) {
 
 
-        return tableNameFromClass(entityClass) + BINDING_TABLE_NAME_GLUE + property.getName();
+        return bindingTableName(entityClass.getCanonicalName(), property.getName());
+    }
+
+    public static String bindingTableName(String className, String propertyName) {
+        return tableNameFromClassName(className) + BINDING_TABLE_NAME_GLUE + propertyName;
     }
 
 }

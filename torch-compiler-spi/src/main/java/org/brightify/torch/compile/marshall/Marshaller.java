@@ -1,9 +1,8 @@
 package org.brightify.torch.compile.marshall;
 
-import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JStatement;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.sql.ColumnDef;
 import org.brightify.torch.sql.statement.CreateTable;
@@ -20,11 +19,12 @@ public interface Marshaller {
 
     int getPriority();
 
-    ColumnDef createColumn(List<CreateTable> tablesToCreate, Property property);
+    ColumnDef createColumn(EntityMetadataGenerator.ClassHolder holder, List<CreateTable> tablesToCreate,
+                           PropertyMirror propertyMirror);
 
-    JFieldVar createColumnField(JDefinedClass definedClass, Property property);
+    JFieldVar createColumnField(EntityMetadataGenerator.ClassHolder holder, PropertyMirror propertyMirror);
 
-    JStatement marshall(EntityMetadataGenerator.ToContentValuesHolder holder, Property property);
+    JStatement marshall(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror);
 
-    JStatement unmarshall(EntityMetadataGenerator.CreateFromCursorHolder holder, Property property);
+    JStatement unmarshall(EntityMetadataGenerator.CreateFromCursorHolder holder, PropertyMirror propertyMirror);
 }

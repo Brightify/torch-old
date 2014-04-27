@@ -3,7 +3,7 @@ package org.brightify.torch.compile.marshall;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JVar;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.sql.TypeAffinity;
@@ -27,23 +27,23 @@ public class SerializableMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, Property property) {
-        JExpression getValue = super.marshallValue(holder, property);
+    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+        JExpression getValue = super.marshallValue(holder, propertyMirror);
 
         return CodeModelTypes.SERIALIZER.staticInvoke("serialize").arg(getValue);
     }
 
     @Override
     protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index,
-                                     Property property) {
+                                     PropertyMirror propertyMirror) {
         JExpression getBlob = holder.cursor.invoke("getBlob").arg(index);
-        JExpression propertyTypeClass = CodeModelTypes.ref(property).dotclass();
+        JExpression propertyTypeClass = CodeModelTypes.ref(propertyMirror).dotclass();
 
         return CodeModelTypes.SERIALIZER.staticInvoke("deserialize").arg(getBlob).arg(propertyTypeClass);
     }
 
     @Override
-    protected boolean nullable(Property property) {
+    protected boolean nullable(PropertyMirror propertyMirror) {
         return true;
     }
 
@@ -53,12 +53,12 @@ public class SerializableMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JClass columnClass(Property property) {
+    protected JClass columnClass(PropertyMirror propertyMirror) {
         return CodeModelTypes.GENERIC_PROPERTY;
     }
 
     @Override
-    protected JClass columnClassImpl(Property property) {
+    protected JClass columnClassImpl(PropertyMirror propertyMirror) {
         return CodeModelTypes.GENERIC_PROPERTY;
     }
 }

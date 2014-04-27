@@ -8,7 +8,7 @@ import com.sun.codemodel.JOp;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.Key;
 import org.brightify.torch.compile.EntityContext;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
@@ -61,15 +61,15 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, Property property) {
-        JExpression getValue = super.marshallValue(holder, property);
+    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+        JExpression getValue = super.marshallValue(holder, propertyMirror);
         return JOp.cond(getValue.ne(JExpr._null()), getValue.invoke("getId"), JExpr._null());
     }
 
     @Override
     protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index,
-                                     Property property) {
-        TypeMirror keyType = typeHelper.singleGenericParameter(property.getType());
+                                     PropertyMirror propertyMirror) {
+        TypeMirror keyType = typeHelper.singleGenericParameter(propertyMirror.getType());
         return CodeModelTypes.KEY
                 .staticInvoke("create")
                 .arg(CodeModelTypes.ref(keyType.toString()).dotclass())
@@ -77,7 +77,7 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected boolean nullable(Property property) {
+    protected boolean nullable(PropertyMirror propertyMirror) {
         return true;
     }
 
@@ -87,12 +87,12 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JClass columnClass(Property property) {
+    protected JClass columnClass(PropertyMirror propertyMirror) {
         return CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG);
     }
 
     @Override
-    protected JClass columnClassImpl(Property property) {
+    protected JClass columnClassImpl(PropertyMirror propertyMirror) {
         return CodeModelTypes.NUMBER_PROPERTY_IMPL.narrow(CodeModelTypes.LONG);
     }
 }

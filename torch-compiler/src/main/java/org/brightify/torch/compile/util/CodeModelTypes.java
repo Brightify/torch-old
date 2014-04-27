@@ -6,15 +6,17 @@ import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.filter.BooleanProperty;
 import org.brightify.torch.filter.GenericProperty;
 import org.brightify.torch.filter.ListProperty;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.StringProperty;
+import org.brightify.torch.util.LazyArrayList;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.MigrationException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +36,7 @@ public class CodeModelTypes {
     public static final JClass OBJECT = ref(Object.class.getCanonicalName());
     public static final JClass CLASS = ref(Class.class.getCanonicalName());
     public static final JClass LIST = ref(List.class.getCanonicalName());
+    public static final JClass ARRAY_LIST = ref(ArrayList.class.getCanonicalName());
     // Torch classes
     public static final JClass TORCH = ref(Torch.class.getCanonicalName());
     public static final JClass MIGRATION_ASSISTANT = ref(MigrationAssistant.class.getCanonicalName());
@@ -43,6 +46,7 @@ public class CodeModelTypes {
     public static final JClass KEY_FACTORY = ref("org.brightify.torch.KeyFactory");
     public static final JClass SERIALIZER = ref("org.brightify.torch.util.Serializer");
     public static final JClass ENTITY_METADATA = ref(EntityMetadata.class.getCanonicalName());
+    public static final JClass LAZY_ARRAY_LIST = ref(LazyArrayList.class.getCanonicalName());
     // Torch properties
     public static final JClass BOOLEAN_PROPERTY = ref(BooleanProperty.class.getCanonicalName());
     public static final JClass BOOLEAN_PROPERTY_IMPL = ref(BOOLEAN_PROPERTY.fullName() + "Impl");
@@ -69,7 +73,7 @@ public class CodeModelTypes {
         return CODE_MODEL.ref(cls);
     }
 
-    public static JClass ref(Property property) {
-        return ref(property.getType().toString());
+    public static JClass ref(PropertyMirror propertyMirror) {
+        return ref(propertyMirror.getType().toString());
     }
 }

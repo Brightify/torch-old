@@ -14,7 +14,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface Property {
+public interface PropertyMirror {
     public static final String COLUMN_PREFIX = "torch_";
 
     Id getId();

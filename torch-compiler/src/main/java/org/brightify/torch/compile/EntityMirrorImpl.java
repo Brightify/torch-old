@@ -27,8 +27,8 @@ public class EntityMirrorImpl implements EntityMirror {
     private List<MigrationMethod> migrationMethods = new ArrayList<MigrationMethod>();
     private List<MigrationPath> migrationPaths = new ArrayList<MigrationPath>();
 
-    private List<org.brightify.torch.compile.Property> properties = new ArrayList<Property>();
-    private Property idProperty;
+    private List<PropertyMirror> properties = new ArrayList<PropertyMirror>();
+    private PropertyMirror idPropertyMirror;
 
     @Override
     public Element getElement() {
@@ -130,20 +130,20 @@ public class EntityMirrorImpl implements EntityMirror {
     }
 
     @Override
-    public List<Property> getProperties() {
+    public List<PropertyMirror> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Property> properties) {
+    public void setProperties(List<PropertyMirror> properties) {
         this.properties = properties;
     }
 
     @Override
-    public Property getIdProperty() {
-        return idProperty;
+    public PropertyMirror getIdPropertyMirror() {
+        return idPropertyMirror;
     }
 
-    public void setIdProperty(Property idProperty) {
-        this.idProperty = idProperty;
+    public void setIdPropertyMirror(PropertyMirror idPropertyMirror) {
+        this.idPropertyMirror = idPropertyMirror;
     }
 }

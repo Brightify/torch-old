@@ -12,7 +12,7 @@ import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JStatement;
 import com.sun.codemodel.JVar;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.sql.ColumnDef;
@@ -52,59 +52,59 @@ public abstract class AbstractMarshaller implements Marshaller {
     }
 
     @Override
-    public JStatement marshall(EntityMetadataGenerator.ToContentValuesHolder holder, Property property) {
+    public JStatement marshall(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
         return holder.contentValues
-                .invoke("put").arg(JExpr.lit(property.getColumnName())).arg(marshallValue(holder, property));
+                .invoke("put").arg(JExpr.lit(propertyMirror.getColumnName())).arg(marshallValue(holder, propertyMirror));
     }
 
     @Override
-    public JStatement unmarshall(EntityMetadataGenerator.CreateFromCursorHolder holder, Property property) {
+    public JStatement unmarshall(EntityMetadataGenerator.CreateFromCursorHolder holder, PropertyMirror propertyMirror) {
         JBlock block= new JBlock();
-        JVar index = block.decl(CodeModelTypes.INTEGER, "index", getIndex(holder.cursor, property));
+        JVar index = block.decl(CodeModelTypes.INTEGER, "index", getIndex(holder.cursor, propertyMirror));
         JConditional isNull = block._if(index.ne(JExpr._null()));
 
-        isNull._then().add(property.getSetter().setValue(holder.entity, fromCursor(holder, index, property)));
-        if(nullable(property)) {
-            isNull._else().add(property.getSetter().setValue(holder.entity, JExpr._null()));
+        isNull._then().add(propertyMirror.getSetter().setValue(holder.entity, fromCursor(holder, index, propertyMirror)));
+        if(nullable(propertyMirror)) {
+            isNull._else().add(propertyMirror.getSetter().setValue(holder.entity, JExpr._null()));
         }
         return block;
     }
 
     @Override
-    public ColumnDef createColumn(List<CreateTable> tablesToCreate, Property property) {
-        ColumnDef columnDef = new ColumnDef(property.getColumnName());
+    public ColumnDef createColumn(EntityMetadataGenerator.ClassHolder holder, List<CreateTable> tablesToCreate, PropertyMirror propertyMirror) {
+        ColumnDef columnDef = new ColumnDef(propertyMirror.getColumnName());
         columnDef.setTypeAffinity(getAffinity());
         return columnDef;
     }
 
     @Override
-    public JFieldVar createColumnField(JDefinedClass definedClass, Property property) {
-        return definedClass.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, columnClass(property), property.getName(),
-                                  columnClassInvocation(property));
+    public JFieldVar createColumnField(EntityMetadataGenerator.ClassHolder holder, PropertyMirror propertyMirror) {
+        return holder.definedClass.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, columnClass(propertyMirror), propertyMirror.getName(),
+                                  columnClassInvocation(propertyMirror));
     }
 
-    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, Property property) {
-        return property.getGetter().getValue(holder.entity);
+    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+        return propertyMirror.getGetter().getValue(holder.entity);
     }
 
-    protected JInvocation columnClassInvocation(Property property) {
-        return JExpr._new(columnClassImpl(property)).arg(property.getColumnName());
+    protected JInvocation columnClassInvocation(PropertyMirror propertyMirror) {
+        return JExpr._new(columnClassImpl(propertyMirror)).arg(propertyMirror.getColumnName());
     }
 
-    public static JExpression getIndex(JVar cursor, Property property) {
-        return cursor.invoke("getColumnIndexOrThrow").arg(JExpr.lit(property.getColumnName()));
+    public static JExpression getIndex(JVar cursor, PropertyMirror propertyMirror) {
+        return cursor.invoke("getColumnIndexOrThrow").arg(JExpr.lit(propertyMirror.getColumnName()));
     }
 
     protected abstract JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index,
-                                              Property property);
+                                              PropertyMirror propertyMirror);
 
-    protected abstract boolean nullable(Property property);
+    protected abstract boolean nullable(PropertyMirror propertyMirror);
 
     protected abstract TypeAffinity getAffinity();
 
-    protected abstract JClass columnClass(Property property);
+    protected abstract JClass columnClass(PropertyMirror propertyMirror);
 
-    protected abstract JClass columnClassImpl(Property property);
+    protected abstract JClass columnClassImpl(PropertyMirror propertyMirror);
 
 
 }

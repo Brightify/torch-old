@@ -12,8 +12,8 @@ import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.NotNull;
 import org.brightify.torch.annotation.Unique;
 import org.brightify.torch.compile.EntityContext;
-import org.brightify.torch.compile.Property;
-import org.brightify.torch.compile.PropertyImpl;
+import org.brightify.torch.compile.PropertyMirror;
+import org.brightify.torch.compile.PropertyMirrorImpl;
 import org.brightify.torch.parse.EntityParseException;
 import org.brightify.torch.compile.util.TypeHelper;
 
@@ -53,14 +53,14 @@ public class PropertyParserImpl implements PropertyParser {
     private EntityContext entityContext;
 
     @Override
-    public Map<String, Property> parseEntityElement(Element element) {
+    public Map<String, PropertyMirror> parseEntityElement(Element element) {
         Map<String, GetSetPair> getSetPairMap = new HashMap<String, GetSetPair>();
         for (Element property : element.getEnclosedElements()) {
             parseGetSetPairs(getSetPairMap, property);
         }
 
 
-        Map<String, Property> propertyMap = new HashMap<String, Property>();
+        Map<String, PropertyMirror> propertyMap = new HashMap<String, PropertyMirror>();
         for (GetSetPair pair : getSetPairMap.values()) {
             parsePropertyElement(propertyMap, pair);
         }
@@ -252,7 +252,7 @@ public class PropertyParserImpl implements PropertyParser {
                element.getParameters().size() == 1;
     }
 
-    private void parsePropertyElement(Map<String, Property> propertyMap, GetSetPair pair) {
+    private void parsePropertyElement(Map<String, PropertyMirror> propertyMap, GetSetPair pair) {
         // We take all annotations only from getter
         Element element = pair.getter().getElement();
         Set<Modifier> modifiers = element.getModifiers();
@@ -265,7 +265,7 @@ public class PropertyParserImpl implements PropertyParser {
 
         TypeMirror typeMirror = pair.getType();
 
-        PropertyImpl<?> property = new PropertyImpl<Object>();
+        PropertyMirrorImpl property = new PropertyMirrorImpl();
         property.setId(id);
         property.setIndex(index);
         property.setNotNull(notNull);
@@ -309,8 +309,8 @@ public class PropertyParserImpl implements PropertyParser {
 
         private TypeMirror type;
         private String columnName;
-        private Property.Getter getter;
-        private Property.Setter setter;
+        private PropertyMirror.Getter getter;
+        private PropertyMirror.Setter setter;
 
         public TypeMirror getType() {
             return type;
@@ -328,24 +328,24 @@ public class PropertyParserImpl implements PropertyParser {
             this.columnName = columnName;
         }
 
-        public Property.Getter getter() {
+        public PropertyMirror.Getter getter() {
             return getter;
         }
 
-        public void setGetter(Property.Getter getter) {
+        public void setGetter(PropertyMirror.Getter getter) {
             this.getter = getter;
         }
 
-        public Property.Setter setter() {
+        public PropertyMirror.Setter setter() {
             return setter;
         }
 
-        public void setSetter(Property.Setter setter) {
+        public void setSetter(PropertyMirror.Setter setter) {
             this.setter = setter;
         }
     }
 
-    public static class FieldGetterSetter implements Property.Getter, Property.Setter {
+    public static class FieldGetterSetter implements PropertyMirror.Getter, PropertyMirror.Setter {
 
         private final Element element;
         private String name;
@@ -378,7 +378,7 @@ public class PropertyParserImpl implements PropertyParser {
         }
     }
 
-    public static class AccessorGetter implements Property.Getter {
+    public static class AccessorGetter implements PropertyMirror.Getter {
 
         private final Element element;
         private String name;
@@ -406,7 +406,7 @@ public class PropertyParserImpl implements PropertyParser {
         }
     }
 
-    public static class AccessorSetter implements Property.Setter {
+    public static class AccessorSetter implements PropertyMirror.Setter {
 
         private final Element element;
         private String name;

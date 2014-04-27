@@ -2,7 +2,7 @@ package org.brightify.torch.compile.util;
 
 import com.google.common.primitives.Primitives;
 import com.google.inject.Inject;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -43,8 +43,8 @@ public class TypeHelperImpl implements TypeHelper {
     }
 
     @Override
-    public TypeMirror getWrappedType(Property property) {
-        return getWrappedType(property.getType());
+    public TypeMirror getWrappedType(PropertyMirror propertyMirror) {
+        return getWrappedType(propertyMirror.getType());
     }
 
     @Override

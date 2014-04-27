@@ -119,8 +119,8 @@ public class EntityContextImpl implements EntityContext {
     }
 
     @Override
-    public boolean containsEntity(Property property) {
-        return containsEntity(property.getType().toString());
+    public boolean containsEntity(PropertyMirror propertyMirror) {
+        return containsEntity(propertyMirror.getType().toString());
     }
 
     @Override

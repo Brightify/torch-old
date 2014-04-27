@@ -5,7 +5,6 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.compile.EntityMirror;
-import org.brightify.torch.compile.Property;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>

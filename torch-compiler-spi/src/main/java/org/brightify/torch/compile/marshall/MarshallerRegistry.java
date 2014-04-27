@@ -1,6 +1,6 @@
 package org.brightify.torch.compile.marshall;
 
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -9,9 +9,9 @@ import javax.lang.model.type.TypeMirror;
  */
 public interface MarshallerRegistry {
 
-    Marshaller getMarshaller(Property property);
+    Marshaller getMarshaller(PropertyMirror propertyMirror);
 
-    Marshaller getMarshallerOrThrow(Property property);
+    Marshaller getMarshallerOrThrow(PropertyMirror propertyMirror);
 
     Marshaller getMarshallerOrThrow(TypeMirror type);
 

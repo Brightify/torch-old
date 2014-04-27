@@ -1,6 +1,6 @@
 package org.brightify.torch.compile.parse;
 
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 
 import javax.lang.model.element.Element;
 import java.util.Map;
@@ -10,6 +10,6 @@ import java.util.Map;
  */
 public interface PropertyParser {
 
-    Map<String, Property> parseEntityElement(Element element);
+    Map<String, PropertyMirror> parseEntityElement(Element element);
 
 }

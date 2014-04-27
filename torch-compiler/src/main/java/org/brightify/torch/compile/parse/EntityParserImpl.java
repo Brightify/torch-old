@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.compile.EntityMirror;
 import org.brightify.torch.compile.EntityMirrorImpl;
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.parse.EntityParseException;
 import org.brightify.torch.util.Helper;
 import org.brightify.torch.compile.util.TypeHelper;
@@ -64,17 +64,20 @@ public class EntityParserImpl implements EntityParser {
         info.setVersion(entity.version());
         info.setMigrationType(entity.migration());
 
-        info.setProperties(new ArrayList<Property>(propertyParser.parseEntityElement(element).values()));
-        for (Property property : info.getProperties()) {
-            if (property.getId() != null) {
-                if (info.getIdProperty() != null) {
-                    throw new EntityParseException(property.getGetter().getElement(),
+        info.setProperties(new ArrayList<PropertyMirror>(propertyParser.parseEntityElement(element).values()));
+        for (PropertyMirror propertyMirror : info.getProperties()) {
+            if (propertyMirror.getId() != null) {
+                if (info.getIdPropertyMirror() != null) {
+                    throw new EntityParseException(propertyMirror.getGetter().getElement(),
                                                    "There can be exactly one @Id property in each entity!");
                 }
 
-                info.setIdProperty((Property) property);
+                info.setIdPropertyMirror(propertyMirror);
             }
         }
+        // We need ID property to be the first
+        info.getProperties().remove(info.getIdPropertyMirror());
+        info.getProperties().add(0, info.getIdPropertyMirror());
 
         return info;
     }

@@ -1,11 +1,10 @@
 package org.brightify.torch.compile.util;
 
-import org.brightify.torch.compile.Property;
+import org.brightify.torch.compile.PropertyMirror;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -19,7 +18,7 @@ import java.util.Map;
 public interface TypeHelper {
     ProcessingEnvironment getProcessingEnvironment();
 
-    TypeMirror getWrappedType(Property property);
+    TypeMirror getWrappedType(PropertyMirror propertyMirror);
 
     TypeMirror getWrappedType(TypeMirror propertyType);
 
