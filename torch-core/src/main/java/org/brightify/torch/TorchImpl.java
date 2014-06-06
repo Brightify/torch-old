@@ -5,7 +5,7 @@ import org.brightify.torch.action.delete.Deleter;
 import org.brightify.torch.action.delete.DeleterImpl;
 import org.brightify.torch.action.load.sync.Loader;
 import org.brightify.torch.action.load.LoaderImpl;
-import org.brightify.torch.action.relation.RelationResolver;
+import org.brightify.torch.relation.RelationResolver;
 import org.brightify.torch.action.relation.RelationResolverImpl;
 import org.brightify.torch.action.save.Saver;
 import org.brightify.torch.action.save.SaverImpl;
@@ -40,8 +40,4 @@ public class TorchImpl implements Torch {
         return new SaverImpl(this);
     }
 
-    @Override
-    public RelationResolver relation() {
-        return new RelationResolverImpl(this);
-    }
 }

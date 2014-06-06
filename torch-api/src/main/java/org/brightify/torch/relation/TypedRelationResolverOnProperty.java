@@ -1,4 +1,4 @@
-package org.brightify.torch.action.relation;
+package org.brightify.torch.relation;
 
 import org.brightify.torch.Key;
 import org.brightify.torch.filter.RelationColumn;

@@ -1,4 +1,4 @@
-package org.brightify.torch.action.relation;
+package org.brightify.torch.relation;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>

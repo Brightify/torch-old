@@ -51,9 +51,13 @@ public interface TorchFactory {
      */
     <ENTITY> TorchFactory register(EntityMetadata<ENTITY> metadata);
 
+    /**
+     * Returns an instance of relation resolver.
+     */
+    RelationResolver getRelationResolver();
+    
     public interface Configuration {
 
         void configureFactory(TorchFactory factory);
-
     }
 }

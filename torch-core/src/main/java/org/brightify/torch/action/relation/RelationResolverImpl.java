@@ -1,9 +1,12 @@
 package org.brightify.torch.action.relation;
 
+import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
 import org.brightify.torch.filter.ListProperty;
-import org.brightify.torch.filter.RelationColumn;
+import org.brightify.torch.relation.RelationResolver;
+import org.brightify.torch.relation.TypedRelationResolver;
+import org.brightify.torch.relation.TypedRelationResolverOnProperty;
 import org.brightify.torch.util.LazyArrayList;
 
 /**
@@ -32,8 +35,8 @@ public class RelationResolverImpl implements RelationResolver {
         }
 
         @Override
-        public <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> value) {
-            return null;
+        public <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> property) {
+            return new TypedRelationResolverOnPropertyImpl<ENTITY, VALUE>(torch, entityClass, property);
         }
     }
 
@@ -43,27 +46,32 @@ public class RelationResolverImpl implements RelationResolver {
         private final Torch torch;
         private final Class<ENTITY> entityClass;
         private final ListProperty<ENTITY, VALUE> property;
+        private final EntityMetadata<ENTITY> metadata;
 
         private TypedRelationResolverOnPropertyImpl(Torch torch, Class<ENTITY> entityClass,
                                                     ListProperty<ENTITY, VALUE> property) {
             this.torch = torch;
             this.entityClass = entityClass;
             this.property = property;
+            this.metadata = torch.getFactory().getEntities().getMetadata(entityClass);
         }
 
         @Override
         public LazyArrayList<VALUE> parentId(Long id) {
+            String sql = "SELECT * FROM ... WHERE ";
+
+
             return null;
         }
 
         @Override
         public LazyArrayList<VALUE> parent(ENTITY entity) {
-            return null;
+            return parentId(metadata.getEntityId(entity));
         }
 
         @Override
         public LazyArrayList<VALUE> parentKey(Key<ENTITY> key) {
-            return null;
+            return parentId(key.getId());
         }
     }
 

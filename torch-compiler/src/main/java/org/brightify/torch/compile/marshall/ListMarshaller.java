@@ -12,20 +12,17 @@ import com.sun.codemodel.JMod;
 import com.sun.codemodel.JStatement;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.compile.EntityContext;
-import org.brightify.torch.compile.EntityMirror;
-import org.brightify.torch.compile.EntityMirrorImpl;
 import org.brightify.torch.compile.PropertyMirror;
-import org.brightify.torch.compile.PropertyMirrorImpl;
 import org.brightify.torch.compile.generate.EntityGenerator;
 import org.brightify.torch.compile.generate.EntityMetadataGenerator;
-import org.brightify.torch.compile.generate.EntityMetadataGeneratorImpl;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.sql.ColumnDef;
+import org.brightify.torch.sql.IndexedColumn;
 import org.brightify.torch.sql.affinity.IntegerAffinity;
+import org.brightify.torch.sql.constraint.TableConstraint;
 import org.brightify.torch.sql.statement.CreateTable;
 import org.brightify.torch.util.Helper;
-import org.brightify.torch.util.LazyArrayList;
 
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
@@ -58,9 +55,9 @@ public class ListMarshaller implements Marshaller {
     @Override
     public boolean accepts(TypeMirror type) {
         DeclaredType lazyList =
-                types.getDeclaredType(typeHelper.elementOf(LazyArrayList.class), types.getWildcardType(null, null));
+                types.getDeclaredType(typeHelper.elementOf(List.class), types.getWildcardType(null, null));
 
-        if(!types.isAssignable(lazyList, typeHelper.getWrappedType(type))) {
+        if(!types.isAssignable(typeHelper.getWrappedType(type), lazyList)) {
             return false;
         }
 
@@ -84,7 +81,7 @@ public class ListMarshaller implements Marshaller {
                                 JExpr._new(CodeModelTypes.ARRAY_LIST.narrow(listType)));
         JExpression propertyItems = propertyMirror.getGetter().getValue(holder.entity);
 
-        JConditional isLazyList = block._if(propertyItems._instanceof(CodeModelTypes.LAZY_ARRAY_LIST.narrow(listType)));
+        JConditional isLazyList = block._if(propertyItems._instanceof(CodeModelTypes.LAZY_ARRAY_LIST));
 
         isLazyList._then().assign(items, JExpr.cast(CodeModelTypes.LAZY_ARRAY_LIST.narrow(listType), propertyItems));
         JForEach forEachItem = isLazyList._else().forEach(listType, "item", propertyItems);
@@ -97,24 +94,23 @@ public class ListMarshaller implements Marshaller {
 
     @Override
     public JStatement unmarshall(EntityMetadataGenerator.CreateFromCursorHolder holder, PropertyMirror propertyMirror) {
+
         JExpression relation = holder.torch
-                .invoke("relation")
+                .invoke("getFactory")
+                .invoke("getRelationResolver")
                 .invoke("with").arg(CodeModelTypes.ref(holder.classHolder.entityMirror.getFullName()).dotclass())
                 .invoke("onProperty").arg(holder.classHolder.definedClass.staticRef(propertyMirror.getName()))
                 .invoke("parentId").arg(holder.classHolder.entityMirror.getIdPropertyMirror().getGetter().getValue(
                         holder.entity));
 
         return propertyMirror.getSetter().setValue(holder.entity, relation);
+
     }
 
     @Override
     public ColumnDef createColumn(EntityMetadataGenerator.ClassHolder holder, List<CreateTable> tablesToCreate, PropertyMirror propertyMirror) {
         CreateTable table = new CreateTable();
         table.setTableName(Helper.bindingTableName(holder.entityMirror.getFullName(), propertyMirror.getName()));
-
-        ColumnDef idColumn = new ColumnDef("torch_id");
-        idColumn.setTypeAffinity(IntegerAffinity.getInstance());
-        table.addColumnDef(idColumn);
 
         ColumnDef parentIdColumn = new ColumnDef("torch_parent");
         parentIdColumn.setTypeAffinity(IntegerAffinity.getInstance());
@@ -128,9 +124,24 @@ public class ListMarshaller implements Marshaller {
         valueColumn.setTypeAffinity(IntegerAffinity.getInstance());
         table.addColumnDef(valueColumn);
 
+        TableConstraint.PrimaryKey primaryKey = new TableConstraint.PrimaryKey();
+
+        IndexedColumn parentColumnIndexed = new IndexedColumn();
+        parentColumnIndexed.setColumnName(parentIdColumn.getName());
+        parentColumnIndexed.setDirection(IndexedColumn.Direction.ASC);
+
+        IndexedColumn indexColumnIndexed = new IndexedColumn();
+        indexColumnIndexed.setColumnName(indexColumn.getName());
+        indexColumnIndexed.setDirection(IndexedColumn.Direction.ASC);
+
+        primaryKey.addIndexedColumn(parentColumnIndexed);
+        primaryKey.addIndexedColumn(indexColumnIndexed);
+
+        table.addTableConstraint(primaryKey);
+
         tablesToCreate.add(table);
 
-        EntityMirror listEntity = createEntityMirror(holder, propertyMirror);
+        /*EntityMirror listEntity = createEntityMirror(holder, propertyMirror);
 
         try {
             entityGenerator.generate(listEntity, holder.definedClass._class(listEntity.getSimpleName()), false);
@@ -138,7 +149,7 @@ public class ListMarshaller implements Marshaller {
             metadataGenerator.generate(listEntity, holder.definedClass._class(listEntity.getSimpleName() + EntityMetadataGeneratorImpl.METADATA_POSTFIX));
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
         return null;
     }

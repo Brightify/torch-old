@@ -6,6 +6,7 @@ import org.brightify.torch.internal.SQLiteMaster$;
 import org.brightify.torch.model.Table;
 import org.brightify.torch.model.Table$;
 import org.brightify.torch.model.TableDetails$;
+import org.brightify.torch.relation.RelationResolver;
 import org.brightify.torch.sql.statement.DropTable;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.Validate;
@@ -172,6 +173,11 @@ public class TorchFactoryImpl implements TorchFactory {
         return this;
     }
 
+    @Override
+    public RelationResolver getRelationResolver() {
+        return new RelationResolverImpl(begin());
+    }
+
     public static class BasicConfiguration implements Configuration {
         public static BasicConfiguration create() {
             return new BasicConfiguration();
@@ -181,5 +187,4 @@ public class TorchFactoryImpl implements TorchFactory {
         public void configureFactory(TorchFactory factory) {
         }
     }
-
 }
