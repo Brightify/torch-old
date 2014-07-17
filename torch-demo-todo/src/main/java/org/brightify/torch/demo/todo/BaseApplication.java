@@ -1,30 +1,31 @@
 package org.brightify.torch.demo.todo;
 
-import android.app.Application;
-import org.brightify.torch.TorchService;
+import com.googlecode.androidannotations.annotations.EApplication;
+import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Settings;
+import org.brightify.torch.android.TorchApplication;
 import org.brightify.torch.demo.todo.model.Task$;
 import org.brightify.torch.demo.todo.model.User$;
-import com.googlecode.androidannotations.annotations.EApplication;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @EApplication
-public class BaseApplication extends Application {
+public class BaseApplication extends TorchApplication {
 
     @Override
     public void onCreate() {
-        super.onCreate();
-        initBrightify();
-    }
-
-    void initBrightify() {
         Settings.enableQueryLogging();
         Settings.enableDebugMode();
-        TorchService
-                .with(this)
-                .register(User$.create())
-                .register(Task$.create());
+
+        super.onCreate();
+    }
+
+    @Override
+    protected EntityMetadata<?>[] getMetadataForRegistration() {
+        return new EntityMetadata<?>[] {
+                User$.create(),
+                Task$.create()
+        };
     }
 }
