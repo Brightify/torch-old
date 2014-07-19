@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
-* @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+* @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
 */
 public abstract class SourceFile {
     protected ProcessingEnvironment processingEnv;

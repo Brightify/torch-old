@@ -27,11 +27,12 @@ public class TorchServiceTest extends ActivityInstrumentationTestCase2<MainTestA
     @UiThreadTest
     @MediumTest
     public void testInitialization() {
-        TorchService.with(getActivity());
+        final AndroidSQLiteEngine engine =
+                new AndroidSQLiteEngine(getActivity().getApplicationContext(), Settings.DEFAULT_DATABASE_NAME, null);
 
-        assertNotNull(TorchService.factory().forceOpenOrCreateDatabase());
+        TorchService.with(engine);
 
-        TorchService.factory().deleteDatabase();
+        engine.wipe();
 
         TorchService.forceUnload();
     }
@@ -39,6 +40,9 @@ public class TorchServiceTest extends ActivityInstrumentationTestCase2<MainTestA
     @MediumTest
     public void testAsyncInitialization() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+
+        final AndroidSQLiteEngine engine =
+                new AndroidSQLiteEngine(getActivity().getApplicationContext(), Settings.DEFAULT_DATABASE_NAME, null);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -53,7 +57,7 @@ public class TorchServiceTest extends ActivityInstrumentationTestCase2<MainTestA
                     public void onFailure(Exception e) {
                         throw new RuntimeException(e);
                     }
-                }).with(getActivity())
+                }).with(engine)
                         .register(TestObject.class)
                         .submit();
             }
@@ -62,9 +66,9 @@ public class TorchServiceTest extends ActivityInstrumentationTestCase2<MainTestA
 
         assertTrue(latch.await(30, TimeUnit.SECONDS));
 
-        assertNotNull(TorchService.torch().getDatabase());
+        assertNotNull(engine.getDatabase());
 
-        TorchService.factory().deleteDatabase();
+        engine.wipe();
 
         TorchService.forceUnload();
     }

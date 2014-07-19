@@ -2,8 +2,6 @@ package org.brightify.torch;
 
 import android.test.AndroidTestCase;
 
-import static org.brightify.torch.TorchService.factory;
-
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
@@ -13,20 +11,22 @@ public class TorchFactoryTest extends AndroidTestCase {
     private static final int TEST_DATABASE_VERSION = 59;
     private static final boolean TEST_ENABLE_QUERY_LOGGING = true;
 
+    private AndroidSQLiteEngine engine;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        TorchService.with(getContext());
+        engine = new AndroidSQLiteEngine(getContext().getApplicationContext(), Settings.DEFAULT_DATABASE_NAME, null);
 
-        assertNotNull(factory().forceOpenOrCreateDatabase());
+        TorchService.with(engine);
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
 
-        factory().deleteDatabase();
+        engine.wipe();
 
         TorchService.forceUnload();
     }

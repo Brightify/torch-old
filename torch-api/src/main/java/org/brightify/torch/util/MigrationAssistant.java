@@ -1,7 +1,7 @@
 package org.brightify.torch.util;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface MigrationAssistant<ENTITY> {
 

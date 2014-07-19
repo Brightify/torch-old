@@ -1,17 +1,16 @@
 package org.brightify.torch;
 
-import android.content.Context;
-
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface AsyncInitializer {
 
     /**
-     * Prepare {@link AsyncFactoryBuilder} with {@link android.content.Context}.
+     * Prepare an {@link AsyncEntityRegistrarSubmit} with given {@link DatabaseEngine}.
      *
-     * @param context Any context, {@link android.content.Context#getApplicationContext()} will be used.
+     * @param databaseEngine DatabaseEngine which will be used by {@link Torch} instances created by this factory, never
+     *                       null.
      */
-    AsyncEntityRegistrarSubmit with(Context context);
+    AsyncEntityRegistrarSubmit with(DatabaseEngine databaseEngine);
 
 }

@@ -6,7 +6,7 @@ import org.brightify.torch.annotation.Id;
 import java.util.List;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @Entity
 public class TableDetails {

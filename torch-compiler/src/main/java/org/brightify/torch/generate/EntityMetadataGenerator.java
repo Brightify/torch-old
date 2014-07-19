@@ -9,7 +9,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import java.util.Date;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class EntityMetadataGenerator extends SourceFileGenerator {
 

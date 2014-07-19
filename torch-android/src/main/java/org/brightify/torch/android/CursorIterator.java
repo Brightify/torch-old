@@ -1,4 +1,4 @@
-package org.brightify.torch.action.load;
+package org.brightify.torch.android;
 
 import android.database.Cursor;
 import org.brightify.torch.EntityMetadata;

@@ -1,22 +1,22 @@
-package org.brightify.torch.util;
+package org.brightify.torch.android;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import org.brightify.torch.TorchFactory;
+import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.sql.statement.DropTable;
 import org.brightify.torch.util.MigrationAssistant;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class MigrationAssistantImpl<ENTITY> implements MigrationAssistant<ENTITY> {
+public class AndroidSQLiteMigrationAssistant<ENTITY> implements MigrationAssistant<ENTITY> {
 
-    private final TorchFactory torchFactory;
+    private final AndroidSQLiteEngine databaseEngine;
     private final EntityMetadata<ENTITY> entityMetadata;
 
-    public MigrationAssistantImpl(TorchFactory torchFactory, EntityMetadata<ENTITY> entityMetadata) {
-        this.torchFactory = torchFactory;
+    public AndroidSQLiteMigrationAssistant(AndroidSQLiteEngine databaseEngine, EntityMetadata<ENTITY> entityMetadata) {
+        this.databaseEngine = databaseEngine;
         this.entityMetadata = entityMetadata;
     }
 
@@ -32,7 +32,7 @@ public class MigrationAssistantImpl<ENTITY> implements MigrationAssistant<ENTITY
         if(tableExists()) {
             DropTable dropTable = new DropTable();
             dropTable.setTableName(entityMetadata.getTableName());
-            dropTable.setDatabaseName(torchFactory.getDatabaseName());
+            dropTable.setDatabaseName(databaseEngine.getDatabaseName());
             dropTable.run(getDatabase());
         }
     }
@@ -58,6 +58,6 @@ public class MigrationAssistantImpl<ENTITY> implements MigrationAssistant<ENTITY
     }
 
     private SQLiteDatabase getDatabase() {
-        return torchFactory.getDatabaseEngine().getDatabase();
+        return databaseEngine.getDatabase();
     }
 }

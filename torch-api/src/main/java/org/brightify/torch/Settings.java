@@ -1,20 +1,27 @@
 package org.brightify.torch;
 
-import android.util.Log;
+import org.brightify.torch.util.SerialExecutor;
+import org.brightify.torch.util.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Calling these methods, you can tweak Torch a little bit. Make sure you know what you're doing!
  *
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class Settings {
     public static final String DEFAULT_DATABASE_NAME = "torch_main_database";
-    private static final String TAG = Settings.class.getSimpleName();
+    public static final String METADATA_POSTFIX = "$";
 
+    private static final Logger logger = LoggerFactory.getLogger(Settings.class);
     private static final Map<BooleanSetting, Integer> booleanSettings = new HashMap<BooleanSetting, Integer>();
+
+    private static Executor asyncExecutor = SerialExecutor.INSTANCE;
 
     static {
         for (BooleanSetting setting : BooleanSetting.values()) {
@@ -133,12 +140,31 @@ public class Settings {
         disableBooleanSetting(BooleanSetting.STACK_TRACE_QUERY_LOGGING);
     }
 
+    /**
+     * Returns currently set executor for the {@link org.brightify.torch.util.AsyncRunner}.
+     * <p/>
+     * Default is {@link SerialExecutor#INSTANCE}.
+     */
+    public static Executor getAsyncExecutor() {
+        return asyncExecutor;
+    }
+
+    /**
+     * Sets a custom executor for the {@link org.brightify.torch.util.AsyncRunner}.
+     *
+     * @see Settings#getAsyncExecutor()
+     */
+    public static void setAsyncExecutor(Executor executor) {
+        Validate.argumentNotNull(executor, "Specified executor cannot be null!");
+        asyncExecutor = executor;
+    }
+
     private static void logStateChange(BooleanSetting setting, boolean oldState) {
         boolean newState = isBooleanSettingEnabled(setting);
         if (oldState == newState) {
             return;
         }
-        Log.d(TAG, setting.getName() + " " + (newState ? "enabled" : "disabled"));
+        logger.debug(setting.getName() + " " + (newState ? "enabled" : "disabled"));
     }
 
     private static boolean isBooleanSettingEnabled(BooleanSetting setting) {
@@ -153,10 +179,8 @@ public class Settings {
             value = 1;
         } else if (value == Integer.MAX_VALUE) {
             // This should never happen, but we can never make assumptions.
-            Log.w(TAG,
-                  "Enable '" + setting.getName() + "' has been previously called " + Integer.MAX_VALUE +
-                  " times! Make sure you're not calling it in a loop!"
-            );
+            logger.warn("Enable '" + setting.getName() + "' has been previously called " + Integer.MAX_VALUE +
+                        " times! Make sure you're not calling it in a loop!");
         } else {
             value++;
         }
@@ -191,7 +215,7 @@ public class Settings {
 
         private final String name;
 
-        private BooleanSetting(String name) {
+        private BooleanSetting(final String name) {
             this.name = name;
         }
 

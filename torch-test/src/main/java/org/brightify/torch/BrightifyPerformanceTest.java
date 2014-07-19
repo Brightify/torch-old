@@ -22,7 +22,7 @@ import static org.brightify.torch.TorchService.torch;
 public class BrightifyPerformanceTest extends AndroidTestCase {
 
     private static final String TAG = "PerfTest";
-    private static final int COUNT = 1000;
+    private static final int COUNT = 1;
 
 
     @Override
@@ -46,12 +46,15 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
     }
 
     public void testOrmPerformance() {
+        AndroidSQLiteEngine engine = null;
         try {
             Debug.startMethodTracing("testOrmPerformance");
             long start = System.currentTimeMillis();
             long time = start;
 
-            TorchService.with(getContext()).register(TestObject$.create());
+            engine = new AndroidSQLiteEngine(getContext(), Settings.DEFAULT_DATABASE_NAME, null);
+
+            TorchService.with(engine).register(TestObject$.create());
 
             Log.d(TAG, "ORM - Init: " + (System.currentTimeMillis() - time) + "ms");
             time = System.currentTimeMillis();
@@ -79,7 +82,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
 
             Log.d(TAG, "ORM - Complete: " + (System.currentTimeMillis() - start) + "ms");
         } finally {
-            TorchService.factory().deleteDatabase();
+            engine.wipe();
             TorchService.forceUnload();
             Debug.stopMethodTracing();
         }

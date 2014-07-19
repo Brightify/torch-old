@@ -7,18 +7,18 @@ import org.brightify.torch.filter.EntityFilter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public abstract class LoaderType<ENTITY> {
+abstract class LoaderType {
 
-    public abstract void prepareQuery(LoadQuery.Configuration<ENTITY> configuration);
+    public abstract void prepareQuery(LoaderImpl<?>.LoadQueryImpl query);
 
-    public static class NopLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class NopLoaderType extends LoaderType {
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl configuration) {
             // does nothing
         }
     }
 
-    public static class SingleGroupLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class SingleGroupLoaderType extends LoaderType {
 
         protected final Class<?> mLoadGroup;
 
@@ -27,12 +27,12 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.addLoadGroup(mLoadGroup);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.addLoadGroup(mLoadGroup);
         }
     }
 
-    public static class MultipleGroupLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class MultipleGroupLoaderType extends LoaderType {
 
         protected final Class<?>[] mLoadGroups;
 
@@ -41,26 +41,28 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.addLoadGroups(mLoadGroups);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.addLoadGroups(mLoadGroups);
         }
     }
 
-    public static class TypedLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class TypedLoaderType extends LoaderType {
 
-        protected final Class<ENTITY> mEntityClass;
+        @SuppressWarnings("rawtypes")
+        protected final Class mEntityClass;
 
-        public TypedLoaderType(Class<ENTITY> entityClass) {
+        public TypedLoaderType(Class<?> entityClass) {
             mEntityClass = entityClass;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.setEntityClass(mEntityClass);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.setEntityClass(mEntityClass);
         }
     }
 
-    public static class FilterLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class FilterLoaderType extends LoaderType {
 
         protected final EntityFilter mEntityFilter;
 
@@ -69,12 +71,12 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.addEntityFilter(mEntityFilter);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.addEntityFilter(mEntityFilter);
         }
     }
 
-    public static class OrderLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class OrderLoaderType extends LoaderType {
 
         protected final Column<?> mOrderColumn;
 
@@ -83,12 +85,12 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.addOrdering(mOrderColumn, OrderLoader.Direction.ASCENDING);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.addOrdering(mOrderColumn, OrderLoader.Direction.ASCENDING);
         }
     }
 
-    public static class DirectionLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class DirectionLoaderType extends LoaderType {
 
         protected final OrderLoader.Direction mDirection;
 
@@ -97,12 +99,12 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.setLastOrderDirection(mDirection);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.setLastOrderDirection(mDirection);
         }
     }
 
-    public static class LimitLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class LimitLoaderType extends LoaderType {
 
         protected final int mLimit;
 
@@ -111,12 +113,12 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.setLimit(mLimit);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.setLimit(mLimit);
         }
     }
 
-    public static class OffsetLoaderType<ENTITY> extends LoaderType<ENTITY> {
+    public static class OffsetLoaderType extends LoaderType {
 
         protected final int mOffset;
 
@@ -125,8 +127,8 @@ public abstract class LoaderType<ENTITY> {
         }
 
         @Override
-        public void prepareQuery(LoadQuery.Configuration<ENTITY> configuration) {
-            configuration.setOffset(mOffset);
+        public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+            query.setOffset(mOffset);
         }
     }
 

@@ -8,7 +8,7 @@ import org.brightify.torch.util.TypeHelper;
 import javax.lang.model.util.Types;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class StringColumnProvider implements ColumnProvider {
     @Override

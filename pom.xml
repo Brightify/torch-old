@@ -23,6 +23,7 @@
         <module>torch-test</module>
         <module>torch-bridge</module>
         <module>torch-demo-todo</module>
+        <module>torch-android</module>
     </modules>
 
     <licenses>

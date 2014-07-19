@@ -1,6 +1,5 @@
 package org.brightify.torch.action.delete;
 
-import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.EntityMetadata;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
@@ -9,12 +8,11 @@ import org.brightify.torch.util.Callback;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class DeleterImpl implements Deleter, AsyncDeleter {
 
@@ -73,36 +71,12 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
             throw new IllegalArgumentException("Keys cannot be null!");
         }
 
-        SQLiteDatabase db = torch.getDatabase();
-
-        db.beginTransaction();
-        try {
-            Map<Key<ENTITY>, Boolean> results = new HashMap<Key<ENTITY>, Boolean>();
-            EntityMetadata<ENTITY> metadata = null;
-            for (Key<ENTITY> key : keys) {
-                if (metadata == null) {
-                    metadata = torch.getFactory().getEntities().getMetadata(key.getType());
-                }
-
-                int affected = db.delete(metadata.getTableName(), metadata.getIdColumn().getName() + " = ?",
-                                         new String[] { String.valueOf(key.getId()) });
-                if (affected > 1) {
-                    throw new IllegalStateException("Delete command affected more than one row at once!");
-                }
-
-                results.put(key, affected == 1);
-            }
-
-            db.setTransactionSuccessful();
-            return results;
-        } finally {
-            db.endTransaction();
-        }
+        return torch.getFactory().getDatabaseEngine().delete(keys);
     }
 
     @Override
     public <ENTITY> void entity(Callback<Boolean> callback, final ENTITY entity) {
-        AsyncRunner.run(callback, new AsyncRunner.Task<Boolean>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<Boolean>() {
             @Override
             public Boolean doWork() throws Exception {
                 return entity(entity);
@@ -112,7 +86,7 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
 
     @Override
     public <ENTITY> void entities(Callback<Map<Key<ENTITY>, Boolean>> callback, final ENTITY... entities) {
-        AsyncRunner.run(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
             @Override
             public Map<Key<ENTITY>, Boolean> doWork() throws Exception {
                 return entities(entities);
@@ -122,7 +96,7 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
 
     @Override
     public <ENTITY> void entities(Callback<Map<Key<ENTITY>, Boolean>> callback, final Iterable<ENTITY> entities) {
-        AsyncRunner.run(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
             @Override
             public Map<Key<ENTITY>, Boolean> doWork() throws Exception {
                 return entities(entities);
@@ -132,7 +106,7 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
 
     @Override
     public <ENTITY> void key(Callback<Boolean> callback, final Key<ENTITY> key) {
-        AsyncRunner.run(callback, new AsyncRunner.Task<Boolean>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<Boolean>() {
             @Override
             public Boolean doWork() throws Exception {
                 return key(key);
@@ -142,7 +116,7 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
 
     @Override
     public <ENTITY> void keys(Callback<Map<Key<ENTITY>, Boolean>> callback, final Key<ENTITY>... keys) {
-        AsyncRunner.run(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
             @Override
             public Map<Key<ENTITY>, Boolean> doWork() throws Exception {
                 return keys(keys);
@@ -152,7 +126,7 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
 
     @Override
     public <ENTITY> void keys(Callback<Map<Key<ENTITY>, Boolean>> callback, final Iterable<Key<ENTITY>> keys) {
-        AsyncRunner.run(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<Map<Key<ENTITY>, Boolean>>() {
             @Override
             public Map<Key<ENTITY>, Boolean> doWork() throws Exception {
                 return keys(keys);

@@ -24,15 +24,6 @@ public class TorchImpl implements Torch {
     }
 
     @Override
-    public SQLiteDatabase getDatabase() {
-        SQLiteDatabase db = mFactory.getDatabaseEngine().getDatabase();
-        if(!db.isOpen()) {
-            throw new IllegalStateException("Database is closed, should be opened!");
-        }
-        return db;
-    }
-
-    @Override
     public Deleter delete() {
         return new DeleterImpl(this);
     }

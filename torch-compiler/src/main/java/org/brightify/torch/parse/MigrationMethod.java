@@ -5,7 +5,7 @@ import org.brightify.torch.util.VersionComparator;
 import javax.lang.model.element.ExecutableElement;
 
 /**
- * @author <a href="mailto:tkriz@redhat.com">Tadeas Kriz</a>
+ * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class MigrationMethod {
 

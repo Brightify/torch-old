@@ -1,6 +1,5 @@
 package org.brightify.torch;
 
-import android.content.Context;
 import org.brightify.torch.util.AsyncRunner;
 import org.brightify.torch.util.Callback;
 
@@ -14,7 +13,7 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
         AsyncEntityRegistrarSubmit {
 
     private Callback<TorchFactory> callback;
-    private Context context;
+    private DatabaseEngine databaseEngine;
     private boolean submitted;
     private Set<EntityMetadata<?>> metadatas = new LinkedHashSet<EntityMetadata<?>>();
 
@@ -27,8 +26,8 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     }
 
     @Override
-    public AsyncEntityRegistrarSubmit with(Context context) {
-        this.context = context.getApplicationContext();
+    public AsyncEntityRegistrarSubmit with(DatabaseEngine databaseEngine) {
+        this.databaseEngine = databaseEngine;
         return this;
     }
 
@@ -49,14 +48,10 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     public void submit() {
         submitted = true;
 
-        AsyncRunner.run(callback, new AsyncRunner.Task<TorchFactory>() {
+        AsyncRunner.submit(callback, new AsyncRunner.Task<TorchFactory>() {
             @Override
             public TorchFactory doWork() throws Exception {
-                TorchFactory factory = new TorchFactoryImpl(context, metadatas);
-
-                factory.forceOpenOrCreateDatabase();
-
-                return factory;
+                return new TorchFactoryImpl(databaseEngine, metadatas);
             }
         });
     }

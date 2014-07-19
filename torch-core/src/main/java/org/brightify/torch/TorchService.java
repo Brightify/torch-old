@@ -1,8 +1,8 @@
 package org.brightify.torch;
 
-import android.content.Context;
 import android.util.Log;
 import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.Validate;
 
 import java.util.LinkedList;
 
@@ -22,10 +22,7 @@ public class TorchService {
 
     /**
      * Using this method the database will get opened (or created if it doesn't yet exist) in background.
-     * In order to get all async callbacks delivered on UI Thread, you have to call this on UI Thread
-     * <p/>
-     * This overrides the {@link BasicFactoryConfiguration#isImmediateDatabaseCreation()}
-     * setting, making it true
+     * In order to get all async callbacks delivered on UI Thread, you have to call this on UI Thread.
      *
      * @param callback will be called when database is opened or on failure, on UI thread
      * @return Asynchronous initializer.
@@ -52,16 +49,13 @@ public class TorchService {
      * Loads the TorchFactory with passed context. In order to get all async callbacks delivered on UI Thread,
      * you have to call this on UI Thread
      *
-     * @param context Any context you can provide, {@link android.content.Context#getApplicationContext()} will be used.
+     * @param engine A database engine to be used in the factory.
      * @return EntityRegistrar for {@link org.brightify.torch.annotation.Entity} registration
      */
-    public static TorchFactory with(Context context) {
-        if (factoryInstance != null) {
-            throw new IllegalStateException("Call TorchService#forceUnload if you want to reload " +
-                    "TorchFactory!");
-        }
+    public static TorchFactory with(DatabaseEngine engine) {
+        Validate.isNull(factoryInstance, "Call TorchService#forceUnload if you want to reload TorchFactory!");
 
-        factoryInstance = new TorchFactoryImpl(context.getApplicationContext());
+        factoryInstance = new TorchFactoryImpl(engine);
 
         return factoryInstance;
     }

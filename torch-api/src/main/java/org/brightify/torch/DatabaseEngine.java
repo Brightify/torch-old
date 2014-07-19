@@ -1,28 +1,28 @@
 package org.brightify.torch;
 
-import android.database.sqlite.SQLiteDatabase;
+import org.brightify.torch.action.load.LoadQuery;
+import org.brightify.torch.util.MigrationAssistant;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface DatabaseEngine {
-    String getDatabaseName();
 
-    void setOnConfigureDatabaseListener(OnConfigureDatabaseListener onConfigureDatabaseListener);
+    <ENTITY> Iterator<ENTITY> load(LoadQuery<ENTITY> loadQuery);
 
-    void setOnCreateDatabaseListener(OnCreateDatabaseListener onCreateDatabaseListener);
+    <ENTITY> int count(LoadQuery<ENTITY> loadQuery);
 
-    SQLiteDatabase getDatabase();
+    <ENTITY> Map<Key<ENTITY>, ENTITY> save(Iterable<ENTITY> entities);
 
-    void close();
+    <ENTITY> Map<Key<ENTITY>, Boolean> delete(Iterable<Key<ENTITY>> keys);
 
-    boolean deleteDatabase();
+    <ENTITY> MigrationAssistant<ENTITY> getMigrationAssistant(EntityMetadata<ENTITY> metadata);
 
-    public interface OnConfigureDatabaseListener {
-        void onConfigureDatabase(SQLiteDatabase db);
-    }
+    void setTorchFactory(TorchFactory factory);
 
-    public interface OnCreateDatabaseListener {
-        void onCreateDatabase(SQLiteDatabase db);
-    }
+    boolean wipe();
+
 }

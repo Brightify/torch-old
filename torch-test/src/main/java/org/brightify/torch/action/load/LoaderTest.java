@@ -1,8 +1,10 @@
 package org.brightify.torch.action.load;
 
 import android.test.suitebuilder.annotation.MediumTest;
+import org.brightify.torch.AndroidSQLiteEngine;
 import org.brightify.torch.BaseActivityInstrumentationTestCase2;
 import org.brightify.torch.Key;
+import org.brightify.torch.Settings;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
@@ -32,6 +34,8 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     private TestObject testObject2;
     private TestObject testObject3;
 
+    private AndroidSQLiteEngine engine;
+
     public LoaderTest() {
         super(MainTestActivity.class);
     }
@@ -40,9 +44,9 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     protected void setUp() throws Exception {
         super.setUp();
 
-        TorchService.with(getActivity()).register(TestObject.class);
+        engine = new AndroidSQLiteEngine(getActivity(), Settings.DEFAULT_DATABASE_NAME, null);
 
-        TorchService.factory().forceOpenOrCreateDatabase();
+        TorchService.with(engine).register(TestObject.class);
 
         testObject = createTestObject();
         testObject.intField = -10;
@@ -72,11 +76,10 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
     @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
-
-        assertTrue(TorchService.factory().deleteDatabase());
-
+        engine.wipe();
+        engine = null;
         TorchService.forceUnload();
+        super.tearDown();
     }
 
     private TestObject createTestObject() {

@@ -1,8 +1,5 @@
 package org.brightify.torch;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.filter.NumberColumn;
 import org.brightify.torch.util.MigrationAssistant;
@@ -29,11 +26,11 @@ public interface EntityMetadata<ENTITY> {
 
     Key<ENTITY> createKey(ENTITY entity);
 
-    void createTable(SQLiteDatabase db);
+    EntityDescription describeEntity();
 
-    ENTITY createFromCursor(Cursor cursor) throws Exception;
+    ENTITY createFromRawEntity(RawEntity cursor) throws Exception;
 
-    ContentValues toContentValues(ENTITY entity) throws Exception;
+    void toRawEntity(ENTITY entity, RawEntity rawEntity) throws Exception;
 
     void migrate(MigrationAssistant<ENTITY> assistant, String sourceVersion, String targetVersion) throws Exception;
 }

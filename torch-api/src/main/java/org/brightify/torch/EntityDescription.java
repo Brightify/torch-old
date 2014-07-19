@@ -3,8 +3,10 @@ package org.brightify.torch;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface FactoryConfiguration {
+public interface EntityDescription {
 
-    void configureFactory(TorchFactory factory);
+    String[] getProperties();
+
+    Class<?>[] getPropertyTypes();
 
 }
