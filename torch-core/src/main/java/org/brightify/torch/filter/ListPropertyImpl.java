@@ -5,8 +5,8 @@ package org.brightify.torch.filter;
  */
 public class ListPropertyImpl<PARENT, T> extends PropertyImpl<T> implements ListProperty<PARENT, T> {
 
-    public ListPropertyImpl(String columnName) {
-        super(columnName);
+    public ListPropertyImpl(String name, String safeName, Class<T> type, Feature... features) {
+        super(name, safeName, type, features);
     }
 
     @Override

@@ -3,9 +3,11 @@ package org.brightify.torch;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
+import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.Constants;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +30,7 @@ public class TorchServiceTest extends ActivityInstrumentationTestCase2<MainTestA
     @MediumTest
     public void testInitialization() {
         final AndroidSQLiteEngine engine =
-                new AndroidSQLiteEngine(getActivity().getApplicationContext(), Settings.DEFAULT_DATABASE_NAME, null);
+                new AndroidSQLiteEngine(getActivity().getApplicationContext(), Constants.DEFAULT_DATABASE_NAME, null);
 
         TorchService.with(engine);
 
@@ -42,7 +44,7 @@ public class TorchServiceTest extends ActivityInstrumentationTestCase2<MainTestA
         final CountDownLatch latch = new CountDownLatch(1);
 
         final AndroidSQLiteEngine engine =
-                new AndroidSQLiteEngine(getActivity().getApplicationContext(), Settings.DEFAULT_DATABASE_NAME, null);
+                new AndroidSQLiteEngine(getActivity().getApplicationContext(), Constants.DEFAULT_DATABASE_NAME, null);
 
         getActivity().runOnUiThread(new Runnable() {
             @Override

@@ -2,16 +2,15 @@ package org.brightify.torch.compile.marshall;
 
 import com.google.inject.Inject;
 import com.sun.codemodel.JClass;
+import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
-import com.sun.codemodel.JVar;
-import org.brightify.torch.Ref;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
-import org.brightify.torch.compile.generate.EntityMetadataGenerator;
+import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
+import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.sql.TypeAffinity;
 import org.brightify.torch.sql.affinity.IntegerAffinity;
-import org.brightify.torch.compile.util.TypeHelper;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.type.TypeMirror;
@@ -31,7 +30,7 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     private TypeHelper typeHelper;
 
     public EntityReferenceMarshaller() {
-        super(Ref.class);
+        super(Long.class);
     }
 
     @Override
@@ -46,20 +45,24 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+    protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder,
+                                        PropertyMirror propertyMirror) {
         JExpression getValue = super.marshallValue(holder, propertyMirror);
-        return holder.torch
+        return holder.torchFactory
+                .invoke("begin")
                 .invoke("save")
                 .invoke("entity").arg(getValue)
                 .invoke("getId");
     }
 
     @Override
-    protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index, PropertyMirror propertyMirror) {
-        return holder.torch
+    protected JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
+                                        PropertyMirror propertyMirror) {
+        return holder.torchFactory
+                .invoke("begin")
                 .invoke("load")
                 .invoke("type").arg(CodeModelTypes.ref(propertyMirror).dotclass())
-                .invoke("id").arg(holder.cursor.invoke("getLong").arg(index));
+                .invoke("id").arg(holder.rawEntity.invoke("getLong").arg(JExpr.lit(propertyMirror.getSafeName())));
     }
 
     @Override
@@ -73,13 +76,14 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JClass columnClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
+    protected JClass propertyClass(PropertyMirror propertyMirror) {
+        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.LONG); // CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
+                                                                            //       .toString()));
     }
 
     @Override
-    protected JClass columnClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
-                                                                                      .toString()));
+    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
+        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.LONG); //CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
+                                                           //                             .toString()));
     }
 }

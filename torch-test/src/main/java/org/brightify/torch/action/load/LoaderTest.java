@@ -1,17 +1,16 @@
 package org.brightify.torch.action.load;
 
 import android.test.suitebuilder.annotation.MediumTest;
-import org.brightify.torch.AndroidSQLiteEngine;
 import org.brightify.torch.BaseActivityInstrumentationTestCase2;
 import org.brightify.torch.Key;
-import org.brightify.torch.Settings;
 import org.brightify.torch.TorchService;
+import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
 import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.Constants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,13 +20,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.brightify.torch.TorchService.torch;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestActivity> {
 
-    private ArrayList<TestObject> savedData;
+    private TestObject[] savedData;
 
     private TestObject testObject;
     private TestObject testObject1;
@@ -44,7 +45,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     protected void setUp() throws Exception {
         super.setUp();
 
-        engine = new AndroidSQLiteEngine(getActivity(), Settings.DEFAULT_DATABASE_NAME, null);
+        engine = new AndroidSQLiteEngine(getActivity(), Constants.DEFAULT_DATABASE_NAME, null);
 
         TorchService.with(engine).register(TestObject.class);
 
@@ -64,11 +65,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         testObject3.intField = 1000;
         testObject3.booleanField = true;
 
-        savedData = new ArrayList<TestObject>();
-        savedData.add(testObject);
-        savedData.add(testObject1);
-        savedData.add(testObject2);
-        savedData.add(testObject3);
+        savedData = new TestObject[] { testObject, testObject1, testObject2, testObject3 };
 
         Map<Key<TestObject>, TestObject> savedDataMap = torch().save().entities(savedData);
         assertEquals(4, savedDataMap.size());
@@ -111,7 +108,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadAllEntities() {
         List<TestObject> objects = torch().load().type(TestObject.class).list();
-        assertEquals(savedData, objects);
+        assertThat(objects, contains(testObject, testObject1, testObject2, testObject3));
     }
 
     @MediumTest
@@ -120,7 +117,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         torch().load().async().type(TestObject.class).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                assertEquals(savedData, data);
+                assertThat(data, contains(testObject, testObject1, testObject2, testObject3));
                 latch.countDown();
             }
 
@@ -198,56 +195,43 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         List<TestObject> objectsOrdered = torch().load().type(TestObject.class)
                                                  .orderBy(TestObject$.intField).desc().list();
 
-        ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
-
-        Collections.reverse(saved);
-
-        assertEquals(saved, objectsOrdered);
+        assertThat(objectsOrdered, contains(testObject3, testObject2, testObject1, testObject));
     }
 
     @MediumTest
     public void testLoadOrderedDescendingAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).orderBy(TestObject$.intField).desc().list(new Callback<List<TestObject>>() {
-            @Override
-            public void onSuccess(List<TestObject> data) {
-                ArrayList<TestObject> saved = new ArrayList<TestObject>(savedData);
-                Collections.reverse(saved);
+        torch().load().async().type(TestObject.class).orderBy(TestObject$.intField).desc().list(
+                new Callback<List<TestObject>>() {
+                    @Override
+                    public void onSuccess(List<TestObject> data) {
+                        List<TestObject> saved = Arrays.asList(savedData);
+                        Collections.reverse(saved);
 
-                assertEquals(saved, data);
+                        assertEquals(saved, data);
 
-                latch.countDown();
-            }
+                        latch.countDown();
+                    }
 
-            @Override
-            public void onFailure(Exception e) {
-                fail("Failed to load data: " + e.getMessage());
-            }
-        });
+                    @Override
+                    public void onFailure(Exception e) {
+                        fail("Failed to load data: " + e.getMessage());
+                    }
+                });
 
         assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
 
     @MediumTest
     public void testLoadLimited() {
-        List<TestObject> objectsLimited = torch().load().type(TestObject.class)
-                                                 .limit(2).list();
+        List<TestObject> objectsLimited = torch().load().type(TestObject.class).limit(2).list();
 
-        ArrayList<TestObject> saved = new ArrayList<TestObject>();
-        saved.add(testObject);
-        saved.add(testObject1);
+        assertThat(objectsLimited, contains(testObject, testObject1));
 
-        assertEquals(saved, objectsLimited);
+        List<TestObject> objectsLimitedWithOffset = torch().load().type(TestObject.class).limit(2).offset(1).list();
 
-        List<TestObject> objectsLimitedWithOffset = torch().load().type(TestObject.class)
-                                                           .limit(2).offset(1).list();
-
-        saved.clear();
-        saved.add(testObject1);
-        saved.add(testObject2);
-
-        assertEquals(saved, objectsLimitedWithOffset);
+        assertThat(objectsLimitedWithOffset, contains(testObject1, testObject2));
     }
 
     @MediumTest
@@ -257,11 +241,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         torch().load().async().type(TestObject.class).limit(2).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                ArrayList<TestObject> saved = new ArrayList<TestObject>();
-                saved.add(testObject);
-                saved.add(testObject1);
-
-                assertEquals(saved, data);
+                assertThat(data, contains(testObject, testObject1));
 
                 firstLatch.countDown();
             }
@@ -279,11 +259,8 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         torch().load().async().type(TestObject.class).limit(2).offset(1).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                ArrayList<TestObject> saved = new ArrayList<TestObject>();
-                saved.add(testObject1);
-                saved.add(testObject2);
+                assertThat(data, contains(testObject1, testObject2));
 
-                assertEquals(saved, data);
                 secondLatch.countDown();
             }
 

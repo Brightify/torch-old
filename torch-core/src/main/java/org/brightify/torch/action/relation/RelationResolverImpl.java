@@ -1,6 +1,6 @@
 package org.brightify.torch.action.relation;
 
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
 import org.brightify.torch.filter.ListProperty;
@@ -46,14 +46,14 @@ public class RelationResolverImpl implements RelationResolver {
         private final Torch torch;
         private final Class<ENTITY> entityClass;
         private final ListProperty<ENTITY, VALUE> property;
-        private final EntityMetadata<ENTITY> metadata;
+        private final EntityDescription<ENTITY> metadata;
 
         private TypedRelationResolverOnPropertyImpl(Torch torch, Class<ENTITY> entityClass,
                                                     ListProperty<ENTITY, VALUE> property) {
             this.torch = torch;
             this.entityClass = entityClass;
             this.property = property;
-            this.metadata = torch.getFactory().getEntities().getMetadata(entityClass);
+            this.metadata = torch.getFactory().getEntities().getDescription(entityClass);
         }
 
         @Override

@@ -5,27 +5,27 @@ package org.brightify.torch.filter;
  */
 public class NumberPropertyImpl<T> extends GenericPropertyImpl<T> implements NumberProperty<T> {
 
-    public NumberPropertyImpl(String columnName) {
-        super(columnName);
+    public NumberPropertyImpl(String name, String safeName, Class<T> type, Feature... features) {
+        super(name, safeName, type, features);
     }
 
     @Override
     public EntityFilter greaterThan(T value) {
-        return EntityFilter.filter(getName() + " > ?", value);
+        return EntityFilter.filter(getSafeName() + " > ?", value);
     }
 
     @Override
     public EntityFilter lessThan(T value) {
-        return EntityFilter.filter(getName() + " < ?", value);
+        return EntityFilter.filter(getSafeName() + " < ?", value);
     }
 
     @Override
     public EntityFilter greaterThanOrEqualTo(T value) {
-        return EntityFilter.filter(getName() + " >= ?", value);
+        return EntityFilter.filter(getSafeName() + " >= ?", value);
     }
 
     @Override
     public EntityFilter lessThanOrEqualTo(T value) {
-        return EntityFilter.filter(getName() + " <= ?", value);
+        return EntityFilter.filter(getSafeName() + " <= ?", value);
     }
 }

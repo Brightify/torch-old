@@ -20,7 +20,7 @@ public interface EntityMirror {
 
     String getFullName();
 
-    String getTableName();
+    String getSafeName();
 
     boolean isDelete();
 

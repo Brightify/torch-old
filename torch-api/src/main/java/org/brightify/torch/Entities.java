@@ -8,9 +8,12 @@ import java.util.Collection;
 public interface Entities {
     <ENTITY> Key<ENTITY> keyOf(ENTITY entity);
 
-    Collection<EntityMetadata<?>> getAllMetadatas();
+    Collection<EntityDescription<?>> getAllDescriptions();
 
-    <ENTITY> EntityMetadata<ENTITY> getMetadata(Class<ENTITY> entityClass);
+    <ENTITY> EntityDescription<ENTITY> getDescription(Class<ENTITY> entityClass);
 
-    <ENTITY> EntityMetadata<ENTITY> getMetadata(String tableName);
+    <ENTITY> EntityDescription<ENTITY> getDescription(String name);
+
+    // FIXME this should be done differently (and have name registerDescription)
+    <ENTITY> void registerMetadata(EntityDescription<ENTITY> metadata);
 }

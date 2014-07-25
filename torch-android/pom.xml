@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>
-            <artifactId>torch-api</artifactId>
+            <artifactId>torch-core</artifactId>
         </dependency>
     </dependencies>
 

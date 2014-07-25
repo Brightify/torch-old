@@ -1,6 +1,6 @@
 package org.brightify.torch.util;
 
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Torch;
 import org.brightify.torch.TorchService;
 
@@ -15,11 +15,11 @@ import java.util.ListIterator;
  */
 public class TorchListImpl<BACKING_ENTITY extends KeyValueEntity<Long, E>, E> implements TorchList<BACKING_ENTITY, E> {
 
-    private final EntityMetadata<BACKING_ENTITY> metadata;
+    private final EntityDescription<BACKING_ENTITY> metadata;
     private final ArrayList<BACKING_ENTITY> entities;
 
     public TorchListImpl(Class<BACKING_ENTITY> backingEntityClass, List<E> values) {
-        this.metadata = TorchService.factory().getEntities().getMetadata(backingEntityClass);
+        this.metadata = TorchService.factory().getEntities().getDescription(backingEntityClass);
         this.entities = new ArrayList<BACKING_ENTITY>();
     }
 

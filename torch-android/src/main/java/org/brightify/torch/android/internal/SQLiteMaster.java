@@ -1,4 +1,4 @@
-package org.brightify.torch.internal;
+package org.brightify.torch.android.internal;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>

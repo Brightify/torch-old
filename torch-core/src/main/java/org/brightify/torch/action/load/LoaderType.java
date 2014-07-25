@@ -49,44 +49,44 @@ abstract class LoaderType {
     public static class TypedLoaderType extends LoaderType {
 
         @SuppressWarnings("rawtypes")
-        protected final Class mEntityClass;
+        protected final Class entityClass;
 
         public TypedLoaderType(Class<?> entityClass) {
-            mEntityClass = entityClass;
+            this.entityClass = entityClass;
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
-            query.setEntityClass(mEntityClass);
+            query.setEntityClass(entityClass);
         }
     }
 
     public static class FilterLoaderType extends LoaderType {
 
-        protected final EntityFilter mEntityFilter;
+        protected final EntityFilter entityFilter;
 
         public FilterLoaderType(EntityFilter entityFilter) {
-            mEntityFilter = entityFilter;
+            this.entityFilter = entityFilter;
         }
 
         @Override
         public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
-            query.addEntityFilter(mEntityFilter);
+            query.addEntityFilter(entityFilter);
         }
     }
 
     public static class OrderLoaderType extends LoaderType {
 
-        protected final Property<?> mOrderProperty;
+        protected final Property<?> orderProperty;
 
         public OrderLoaderType(Property<?> orderProperty) {
-            mOrderProperty = orderProperty;
+            this.orderProperty = orderProperty;
         }
 
         @Override
         public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
-            query.addOrdering(mOrderColumn, OrderLoader.Direction.ASCENDING);
+            query.addOrdering(orderProperty, OrderLoader.Direction.ASCENDING);
         }
     }
 

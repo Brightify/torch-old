@@ -4,11 +4,11 @@ package org.brightify.torch;
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class RefImpl<ENTITY> implements Ref<ENTITY> {
-    private final EntityMetadata<ENTITY> metadata;
+    private final EntityDescription<ENTITY> metadata;
     private final Class<ENTITY> entityClass;
     private final ENTITY entity;
 
-    public RefImpl(EntityMetadata<ENTITY> metadata, ENTITY entity) {
+    public RefImpl(EntityDescription<ENTITY> metadata, ENTITY entity) {
         this.metadata = metadata;
         this.entityClass = metadata.getEntityClass();
         this.entity = entity;

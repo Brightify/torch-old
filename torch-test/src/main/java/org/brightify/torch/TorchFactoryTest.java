@@ -1,6 +1,8 @@
 package org.brightify.torch;
 
 import android.test.AndroidTestCase;
+import org.brightify.torch.android.AndroidSQLiteEngine;
+import org.brightify.torch.util.Constants;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -17,7 +19,7 @@ public class TorchFactoryTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        engine = new AndroidSQLiteEngine(getContext().getApplicationContext(), Settings.DEFAULT_DATABASE_NAME, null);
+        engine = new AndroidSQLiteEngine(getContext().getApplicationContext(), Constants.DEFAULT_DATABASE_NAME, null);
 
         TorchService.with(engine);
     }

@@ -1,7 +1,7 @@
 package org.brightify.torch.compile;
 
 import com.google.inject.Inject;
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
@@ -42,7 +42,7 @@ public class EntityContextImpl implements EntityContext {
 
     @PostConstruct
     private void init() {
-        Set<String> metadataClassNames = reflections.getStore().getSubTypesOf(EntityMetadata.class.getCanonicalName());
+        Set<String> metadataClassNames = reflections.getStore().getSubTypesOf(EntityDescription.class.getCanonicalName());
 
         for (String metadataClassName : metadataClassNames) {
             Class<?> actualMetadataClass;
@@ -59,7 +59,7 @@ public class EntityContextImpl implements EntityContext {
             }
 
             Map<TypeVariable<?>, Type> params =
-                    typeHelper.genericParameters(EntityMetadata.class, actualMetadataClass, null);
+                    typeHelper.genericParameters(EntityDescription.class, actualMetadataClass, null);
             Type entityType = params.values().iterator().next();
             if(entityType instanceof Class<?>) {
                 registerEntityClass((Class<?>) entityType);

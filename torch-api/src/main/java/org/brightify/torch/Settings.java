@@ -1,10 +1,12 @@
 package org.brightify.torch;
 
+import org.brightify.torch.annotation.Index;
 import org.brightify.torch.util.SerialExecutor;
 import org.brightify.torch.util.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -15,9 +17,6 @@ import java.util.concurrent.Executor;
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class Settings {
-    public static final String DEFAULT_DATABASE_NAME = "torch_main_database";
-    public static final String METADATA_POSTFIX = "$";
-
     private static final Logger logger = LoggerFactory.getLogger(Settings.class);
     private static final Map<BooleanSetting, Integer> booleanSettings = new HashMap<BooleanSetting, Integer>();
 
@@ -27,6 +26,13 @@ public class Settings {
         for (BooleanSetting setting : BooleanSetting.values()) {
             forceDisableBooleanSetting(setting);
         }
+
+        new Index() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Index.class;
+            }
+        };
     }
 
     /**

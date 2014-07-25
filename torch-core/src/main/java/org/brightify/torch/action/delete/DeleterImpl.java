@@ -1,6 +1,6 @@
 package org.brightify.torch.action.delete;
 
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
 import org.brightify.torch.util.AsyncRunner;
@@ -43,11 +43,11 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
             throw new IllegalArgumentException("Entities cannot be null!");
         }
 
-        EntityMetadata<ENTITY> metadata = null;
+        EntityDescription<ENTITY> metadata = null;
         LinkedList<Key<ENTITY>> keys = new LinkedList<Key<ENTITY>>();
         for (ENTITY entity : entities) {
             if (metadata == null) {
-                metadata = torch.getFactory().getEntities().getMetadata((Class<ENTITY>) entity.getClass());
+                metadata = torch.getFactory().getEntities().getDescription((Class<ENTITY>) entity.getClass());
             }
             keys.addLast(metadata.createKey(entity));
         }

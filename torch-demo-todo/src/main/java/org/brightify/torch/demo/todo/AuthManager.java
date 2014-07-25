@@ -1,7 +1,7 @@
 package org.brightify.torch.demo.todo;
 
 import org.brightify.torch.TorchService;
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Key;
 import org.brightify.torch.demo.todo.model.User;
 import com.googlecode.androidannotations.annotations.EBean;
@@ -24,7 +24,7 @@ public class AuthManager {
     }
 
     public void setLoggedUser(User user) {
-        EntityMetadata<User> metadata = TorchService.factory().getEntities().getMetadata(User.class);
+        EntityDescription<User> metadata = TorchService.factory().getEntities().getDescription(User.class);
         loggedUser = metadata.createKey(user);
     }
 }

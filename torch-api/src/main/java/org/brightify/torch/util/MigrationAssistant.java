@@ -7,12 +7,20 @@ import org.brightify.torch.filter.Property;
  */
 public interface MigrationAssistant<ENTITY> {
 
-    void addColumn(Property<?> property);
+    void addProperty(Property<?> property);
 
-    void changeColumnType(Property<?> property, Class<?> from, Class<?> to);
+    void changePropertyType(Property<?> property, Class<?> from, Class<?> to);
 
-    void renameColumn(String from, String to);
+    void renameProperty(String from, String to);
 
-    void removeColumn(String name);
+    void removeProperty(String name);
+
+    void createStore();
+
+    void deleteStore();
+
+    void recreateStore();
+
+    boolean storeExists();
 
 }

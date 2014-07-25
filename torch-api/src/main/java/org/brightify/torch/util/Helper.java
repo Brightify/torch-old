@@ -21,19 +21,36 @@ public class Helper {
         return camelCase.toLowerCase();
     }
 
-    public static String tableNameFromClass(Class<?> cls) {
-        return tableNameFromClass(cls, false);
+    public static String stringsToString(List<String> strings, String delimiter) {
+        StringBuilder builder = new StringBuilder();
+        appendStrings(strings, builder, delimiter);
+        return builder.toString();
     }
 
-    public static String tableNameFromClass(Class<?> cls, boolean simpleName) {
-        if (!simpleName) {
-            return tableNameFromClassName(cls.getCanonicalName());
-        } else {
-            return tableNameFromClassName(cls.getSimpleName());
+    public static void appendStrings(Iterable<String> strings, StringBuilder builder, String delimiter) {
+        int i = 0;
+        for (String string : strings) {
+            if(i>0){
+                builder.append(delimiter);
+            }
+            builder.append(string);
+            i++;
         }
     }
 
-    public static String tableNameFromClassName(String name) {
+    public static String safeNameFromClass(Class<?> cls) {
+        return safeNameFromClass(cls, false);
+    }
+
+    public static String safeNameFromClass(Class<?> cls, boolean simpleName) {
+        if (!simpleName) {
+            return safeNameFromClassName(cls.getCanonicalName());
+        } else {
+            return safeNameFromClassName(cls.getSimpleName());
+        }
+    }
+
+    public static String safeNameFromClassName(String name) {
         return name.replace('.', '_');
     }
 
@@ -45,7 +62,7 @@ public class Helper {
     }
 
     public static String bindingTableName(String className, String propertyName) {
-        return tableNameFromClassName(className) + BINDING_TABLE_NAME_GLUE + propertyName;
+        return safeNameFromClassName(className) + BINDING_TABLE_NAME_GLUE + propertyName;
     }
 
 }

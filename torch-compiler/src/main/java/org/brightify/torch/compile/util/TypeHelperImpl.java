@@ -2,17 +2,30 @@ package org.brightify.torch.compile.util;
 
 import com.google.common.primitives.Primitives;
 import com.google.inject.Inject;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
 import org.brightify.torch.compile.PropertyMirror;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
@@ -35,7 +48,6 @@ public class TypeHelperImpl implements TypeHelper {
 
     @Inject
     private Elements elements;
-
 
     @Override
     public ProcessingEnvironment getProcessingEnvironment() {
@@ -161,7 +173,7 @@ public class TypeHelperImpl implements TypeHelper {
 
     @Override
     public List<? extends TypeMirror> genericParameters(TypeMirror type) {
-        if(type instanceof DeclaredType) {
+        if (type instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType) type;
             return declaredType.getTypeArguments();
         } else {
@@ -173,11 +185,76 @@ public class TypeHelperImpl implements TypeHelper {
     public TypeMirror singleGenericParameter(TypeMirror type) {
         List<? extends TypeMirror> parameters = genericParameters(type);
 
-        if(parameters.size() != 1) {
+        if (parameters.size() != 1) {
             throw new IllegalStateException("Number of generic parameters was not 1!");
         }
 
         return parameters.iterator().next();
+    }
+
+    public <A extends Annotation> A getAnnotation(final List<? extends AnnotationMirror> annotationMirrors,
+                                                  final Class<A> annotationClass) {
+        for (AnnotationMirror annotationMirror : annotationMirrors) {
+            if(annotationMirror.getAnnotationType().toString().equals(annotationClass.getCanonicalName())) {
+                return getAnnotation(annotationMirror, annotationClass);
+            }
+        }
+
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <A extends Annotation> A getAnnotation(final AnnotationMirror annotationMirror,
+                                                   final Class<A> annotationClass) {
+        final Map<String, Object> annotationValues = new HashMap<String, Object>();
+
+        Map<? extends  ExecutableElement, ? extends AnnotationValue> annotationMethods =
+                elements.getElementValuesWithDefaults(annotationMirror);
+        for (ExecutableElement executableElement : annotationMethods.keySet()) {
+            annotationValues.put(executableElement.getSimpleName().toString(), annotationMethods.get(executableElement).getValue());
+        }
+
+        return (A) Proxy.newProxyInstance(annotationClass.getClassLoader(), new Class[] { annotationClass }, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                return annotationValues.get(method.getName());
+            }
+        });
+    }
+
+
+    @Override
+    public JInvocation recreateAnnotation(AnnotationMirror annotationMirror) {
+        JCodeModel codeModel = CodeModelTypes.CODE_MODEL;
+
+        Class<?> annotationClass = classOf(annotationMirror.getAnnotationType());
+        JDefinedClass definedClass = codeModel.anonymousClass(annotationClass);
+
+        Map<? extends ExecutableElement, ? extends AnnotationValue> values =
+                elements.getElementValuesWithDefaults(annotationMirror);
+
+        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+            ExecutableElement executable = entry.getKey();
+            AnnotationValue value = entry.getValue();
+
+            JMethod definedMethod = definedClass.method(
+                    JMod.PUBLIC, codeModel.ref(executable.getReturnType().toString()), executable.getSimpleName().toString());
+            definedMethod.annotate(Override.class);
+            if(value.getValue() instanceof List) {
+                definedMethod.body()._return(JExpr.direct("new " + executable.getReturnType() + value.toString()));
+            } else {
+                definedMethod.body()._return(JExpr.direct(value.toString()));
+            }
+        }
+
+        JMethod annotationType = definedClass.method(
+                JMod.PUBLIC,
+                codeModel.ref(Class.class).narrow(codeModel.ref(Annotation.class).wildcard()),
+                "annotationType");
+        annotationType.annotate(Override.class);
+        annotationType.body()._return(codeModel.ref(annotationClass).dotclass());
+
+        return JExpr._new(definedClass);
     }
 
     private DeclaredType listOf(Class<?> bound) {
@@ -188,6 +265,8 @@ public class TypeHelperImpl implements TypeHelper {
         return environment.getTypeUtils().getDeclaredType(environment.getElementUtils().getTypeElement(
                 "java.util.List"), bound);
     }
+
+    public static class AnnotationWrapper {}
 
 
 }

@@ -11,13 +11,13 @@ import java.util.Map;
  */
 public class EntitiesImpl implements Entities {
 
-    private Map<Class<?>, EntityMetadata<?>> byClass = new HashMap<Class<?>, EntityMetadata<?>>();
-    private Map<String, EntityMetadata<?>> byTableName = new HashMap<String, EntityMetadata<?>>();
+    private Map<Class<?>, EntityDescription<?>> byClass = new HashMap<Class<?>, EntityDescription<?>>();
+    private Map<String, EntityDescription<?>> byTableName = new HashMap<String, EntityDescription<?>>();
 
     @Override
     public <ENTITY> Key<ENTITY> keyOf(ENTITY entity) {
         Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
-        EntityMetadata<ENTITY> metadata = getMetadata(entityClass);
+        EntityDescription<ENTITY> metadata = getDescription(entityClass);
 
         return KeyFactory.create(entityClass, metadata.getEntityId(entity));
     }
@@ -28,23 +28,24 @@ public class EntitiesImpl implements Entities {
     }
 
     @Override
-    public Collection<EntityMetadata<?>> getAllMetadatas() {
+    public Collection<EntityDescription<?>> getAllDescriptions() {
         return byClass.values();
     }
 
     @Override
-    public <ENTITY> EntityMetadata<ENTITY> getMetadata(Class<ENTITY> entityClass) {
-        return (EntityMetadata<ENTITY>) byClass.get(entityClass);
+    public <ENTITY> EntityDescription<ENTITY> getDescription(Class<ENTITY> entityClass) {
+        return (EntityDescription<ENTITY>) byClass.get(entityClass);
     }
 
     @Override
-    public <ENTITY> EntityMetadata<ENTITY> getMetadata(String tableName) {
-        return (EntityMetadata<ENTITY>) byTableName.get(tableName);
+    public <ENTITY> EntityDescription<ENTITY> getDescription(String name) {
+        return (EntityDescription<ENTITY>) byTableName.get(name);
     }
 
-    public <ENTITY> void registerMetadata(EntityMetadata<ENTITY> metadata) {
+    @Override
+    public <ENTITY> void registerMetadata(EntityDescription<ENTITY> metadata) {
         Class<ENTITY> entityClass = metadata.getEntityClass();
-        String tableName = metadata.getTableName();
+        String tableName = metadata.getSafeName();
         if (!byClass.containsKey(entityClass)) { // TODO should this be IllegalArgumentException ?
             byClass.put(entityClass, metadata);
             // throw new IllegalStateException("This entity's metadata are already registered! Class: " + entityClass
@@ -57,13 +58,13 @@ public class EntitiesImpl implements Entities {
 
     }
 
-    public static <ENTITY> EntityMetadata<ENTITY> findMetadata(Class<ENTITY> entityClass) {
+    public static <ENTITY> EntityDescription<ENTITY> findMetadata(Class<ENTITY> entityClass) {
         // TODO Move "Metadata" to constant which is consistent through torch-compiler (probably Settings class)
         String metadataName = entityClass.getName() + "$";
 
         try {
-            Class<EntityMetadata<ENTITY>> metadataClass = (Class<EntityMetadata<ENTITY>>) Class.forName(metadataName);
-            Constructor<EntityMetadata<ENTITY>> constructor = metadataClass.getDeclaredConstructor();
+            Class<EntityDescription<ENTITY>> metadataClass = (Class<EntityDescription<ENTITY>>) Class.forName(metadataName);
+            Constructor<EntityDescription<ENTITY>> constructor = metadataClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (ClassNotFoundException e) {

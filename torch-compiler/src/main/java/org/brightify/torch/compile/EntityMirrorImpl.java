@@ -67,7 +67,7 @@ public class EntityMirrorImpl implements EntityMirror {
     }
 
     @Override
-    public String getTableName() {
+    public String getSafeName() {
         return tableName;
     }
 

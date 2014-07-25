@@ -8,14 +8,17 @@ import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.NotNull;
 import org.brightify.torch.annotation.Unique;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface PropertyMirror {
-    public static final String COLUMN_PREFIX = "torch_";
+
+    List<? extends AnnotationMirror> getAnnotations();
 
     Id getId();
 
@@ -27,7 +30,7 @@ public interface PropertyMirror {
 
     String getName();
 
-    String getColumnName();
+    String getSafeName();
 
     TypeMirror getType();
 

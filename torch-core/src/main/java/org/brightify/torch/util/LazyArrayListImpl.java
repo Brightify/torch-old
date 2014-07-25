@@ -2,7 +2,7 @@ package org.brightify.torch.util;
 
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.TorchService;
 
 import java.util.ArrayList;
@@ -16,17 +16,17 @@ import java.util.List;
  */
 class LazyArrayListImpl<ENTITY> extends ArrayList<ENTITY> implements LazyArrayList<ENTITY> {
 
-    private final EntityMetadata<ENTITY> entityMetadata;
+    private final EntityDescription<ENTITY> entityDescription;
     private final SparseArray<Long> ids = new SparseArray<Long>();
     private final SparseBooleanArray loaded = new SparseBooleanArray();
 
-    public LazyArrayListImpl(EntityMetadata<ENTITY> entityMetadata, Long... ids) {
-        this(entityMetadata, Arrays.asList(ids));
+    public LazyArrayListImpl(EntityDescription<ENTITY> entityDescription, Long... ids) {
+        this(entityDescription, Arrays.asList(ids));
     }
 
-    public LazyArrayListImpl(EntityMetadata<ENTITY> entityMetadata, List<Long> ids) {
+    public LazyArrayListImpl(EntityDescription<ENTITY> entityDescription, List<Long> ids) {
         super(ids.size());
-        this.entityMetadata = entityMetadata;
+        this.entityDescription = entityDescription;
         for (Long id : ids) {
             this.ids.put(super.size(), id);
             loaded.put(super.size(), false);
@@ -52,14 +52,15 @@ class LazyArrayListImpl<ENTITY> extends ArrayList<ENTITY> implements LazyArrayLi
 
     @Override
     public boolean contains(Object o) {
-        if (!entityMetadata.getEntityClass().isAssignableFrom(o.getClass())) {
+        if (!entityDescription.getEntityClass().isAssignableFrom(o.getClass())) {
             return false;
         }
         ENTITY castObject = (ENTITY) o;
-        Long id = entityMetadata.getEntityId(castObject);
+        Long id = entityDescription.getEntityId(castObject);
         if (id != null) {
-            Integer count = TorchService.torch().load().type(entityMetadata.getEntityClass()).filter(entityMetadata
-                    .getIdColumn().equalTo(id)).count();
+            Integer count = TorchService.torch().load().type(entityDescription.getEntityClass()).filter(
+                    entityDescription
+                    .getIdProperty().equalTo(id)).count();
             if (count == 1) {
                 return true;
             }
@@ -77,7 +78,7 @@ class LazyArrayListImpl<ENTITY> extends ArrayList<ENTITY> implements LazyArrayLi
         Boolean loaded = this.loaded.valueAt(i);
         Long id = ids.valueAt(i);
         if (loaded != null && !loaded && id != null) {
-            ENTITY object = TorchService.torch().load().type(entityMetadata.getEntityClass()).id(id);
+            ENTITY object = TorchService.torch().load().type(entityDescription.getEntityClass()).id(id);
             this.loaded.put(i, true);
             super.set(i, object);
             return object;

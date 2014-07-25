@@ -8,13 +8,15 @@ import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JForEach;
+import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JStatement;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
+import org.brightify.torch.compile.feature.FeatureProviderRegistry;
+import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.generate.EntityGenerator;
-import org.brightify.torch.compile.generate.EntityMetadataGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.sql.ColumnDef;
@@ -50,7 +52,10 @@ public class ListMarshaller implements Marshaller {
     private EntityGenerator entityGenerator;
 
     @Inject
-    private EntityMetadataGenerator metadataGenerator;
+    private EntityDescriptionGenerator metadataGenerator;
+
+    @Inject
+    private FeatureProviderRegistry featureProviderRegistry;
 
     @Override
     public boolean accepts(TypeMirror type) {
@@ -72,7 +77,7 @@ public class ListMarshaller implements Marshaller {
     }
 
     @Override
-    public JStatement marshall(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+    public JStatement marshall(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
         JClass listType = CodeModelTypes.ref(typeHelper.singleGenericParameter(propertyMirror.getType()).toString());
 
         JBlock block = new JBlock();
@@ -87,16 +92,15 @@ public class ListMarshaller implements Marshaller {
         JForEach forEachItem = isLazyList._else().forEach(listType, "item", propertyItems);
         forEachItem.body().add(items.invoke("add").arg(forEachItem.var()));
 
-        block.add(holder.torch.invoke("save").invoke("entities").arg(items));
+        block.add(holder.torchFactory.invoke("begin").invoke("save").invoke("entities").arg(items));
 
         return block;
     }
 
     @Override
-    public JStatement unmarshall(EntityMetadataGenerator.CreateFromCursorHolder holder, PropertyMirror propertyMirror) {
+    public JStatement unmarshall(EntityDescriptionGenerator.CreateFromRawEntityHolder holder, PropertyMirror propertyMirror) {
 
-        JExpression relation = holder.torch
-                .invoke("getFactory")
+        JExpression relation = holder.torchFactory
                 .invoke("getRelationResolver")
                 .invoke("with").arg(CodeModelTypes.ref(holder.classHolder.entityMirror.getFullName()).dotclass())
                 .invoke("onProperty").arg(holder.classHolder.definedClass.staticRef(propertyMirror.getName()))
@@ -108,7 +112,7 @@ public class ListMarshaller implements Marshaller {
     }
 
     @Override
-    public ColumnDef createColumn(EntityMetadataGenerator.ClassHolder holder, List<CreateTable> tablesToCreate, PropertyMirror propertyMirror) {
+    public ColumnDef createColumn(EntityDescriptionGenerator.ClassHolder holder, List<CreateTable> tablesToCreate, PropertyMirror propertyMirror) {
         CreateTable table = new CreateTable();
         table.setTableName(Helper.bindingTableName(holder.entityMirror.getFullName(), propertyMirror.getName()));
 
@@ -146,7 +150,7 @@ public class ListMarshaller implements Marshaller {
         try {
             entityGenerator.generate(listEntity, holder.definedClass._class(listEntity.getSimpleName()), false);
 
-            metadataGenerator.generate(listEntity, holder.definedClass._class(listEntity.getSimpleName() + EntityMetadataGeneratorImpl.METADATA_POSTFIX));
+            metadataGenerator.generate(listEntity, holder.definedClass._class(listEntity.getSimpleName() + EntityMetadataGeneratorImpl.DESCRIPTION_POSTFIX));
         } catch (Exception e) {
             e.printStackTrace();
         }*/
@@ -155,7 +159,7 @@ public class ListMarshaller implements Marshaller {
     }
 
     @Override
-    public JFieldVar createColumnField(EntityMetadataGenerator.ClassHolder holder, PropertyMirror propertyMirror) {
+    public JFieldVar createPropertyField(EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror) {
         JClass listType = CodeModelTypes.ref(typeHelper.singleGenericParameter(propertyMirror.getType()).toString());
         JClass entityType = CodeModelTypes.ref(holder.entityMirror.getFullName());
 
@@ -168,7 +172,18 @@ public class ListMarshaller implements Marshaller {
                 .narrow(entityType)
                 .narrow(listType);
 
+        JInvocation invocation = JExpr._new(columnClassImpl)
+                                      .arg(propertyMirror.getName())
+                                      .arg(propertyMirror.getSafeName())
+                                      .arg(listType.dotclass());
+
+        List<JExpression> featureConstructions = featureProviderRegistry.getFeatureConstructions(propertyMirror);
+
+        for (JExpression featureConstruction : featureConstructions) {
+            invocation = invocation.arg(featureConstruction);
+        }
+
         return holder.definedClass.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, columnClass, propertyMirror.getName(),
-                                         JExpr._new(columnClassImpl).arg(propertyMirror.getColumnName()));
+                                         invocation);
     }
 }

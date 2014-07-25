@@ -7,13 +7,28 @@ public class BooleanPropertyImpl implements BooleanProperty {
 
     private final PropertyImpl<Integer> realColumn;
 
-    public BooleanPropertyImpl(String columnName) {
-        realColumn = new PropertyImpl<Integer>(columnName);
+    public BooleanPropertyImpl(String name, String safeName, Feature... features) {
+        realColumn = new PropertyImpl<Integer>(name, safeName, Integer.class, features);
     }
 
     @Override
     public String getName() {
         return realColumn.getName();
+    }
+
+    @Override
+    public String getSafeName() {
+        return realColumn.getSafeName();
+    }
+
+    @Override
+    public Class<Boolean> getType() {
+        return Boolean.class;
+    }
+
+    @Override
+    public Feature[] getFeatures() {
+        return realColumn.getFeatures();
     }
 
     @Override

@@ -1,9 +1,9 @@
 package org.brightify.torch.compile.marshall;
 
+import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
-import com.sun.codemodel.JVar;
 import org.brightify.torch.compile.PropertyMirror;
-import org.brightify.torch.compile.generate.EntityMetadataGenerator;
+import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -15,8 +15,8 @@ public class IntegerMarshaller extends NumberColumnMarshaller {
     }
 
     @Override
-    protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index,
+    protected JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
                                      PropertyMirror propertyMirror) {
-        return holder.cursor.invoke("getInt").arg(index);
+        return holder.rawEntity.invoke("getInteger").arg(JExpr.lit(propertyMirror.getSafeName()));
     }
 }

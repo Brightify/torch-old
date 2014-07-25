@@ -19,7 +19,9 @@ public interface DatabaseEngine {
 
     <ENTITY> Map<Key<ENTITY>, Boolean> delete(Iterable<Key<ENTITY>> keys);
 
-    <ENTITY> MigrationAssistant<ENTITY> getMigrationAssistant(EntityMetadata<ENTITY> metadata);
+    <ENTITY> MigrationAssistant<ENTITY> getMigrationAssistant(EntityDescription<ENTITY> metadata);
+
+    TorchFactory getTorchFactory();
 
     void setTorchFactory(TorchFactory factory);
 

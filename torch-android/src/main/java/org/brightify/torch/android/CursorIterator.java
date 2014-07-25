@@ -1,8 +1,8 @@
 package org.brightify.torch.android;
 
 import android.database.Cursor;
-import org.brightify.torch.EntityMetadata;
-import org.brightify.torch.Torch;
+import org.brightify.torch.TorchFactory;
+import org.brightify.torch.action.load.LoadQuery;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -11,16 +11,18 @@ import java.util.NoSuchElementException;
 * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
 */
 public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
-    private final Torch torch;
+    private final TorchFactory torchFactory;
     private final LoadQuery<ENTITY> query;
     private final Cursor cursor;
+    private final CursorReadableRawEntity cursorRawEntity;
 
-    public CursorIterator(Torch torch, LoadQuery<ENTITY> query) {
-        cursor = query.run(torch);
+    public CursorIterator(TorchFactory torchFactory, LoadQuery<ENTITY> query, Cursor cursor) {
+        this.cursor = cursor;
+        this.cursorRawEntity = new CursorReadableRawEntity(cursor);
         if(cursor.isClosed()) {
             throw new IllegalStateException("The cursor is closed!");
         }
-        this.torch = torch;
+        this.torchFactory = torchFactory;
         this.query = query;
         if(!this.cursor.moveToFirst()) {
             this.cursor.close();
@@ -40,7 +42,7 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
 
         ENTITY entity;
         try {
-            entity = query.getEntityMetadata().createFromCursor(torch, cursor, query.getLoadGroups());
+            entity = query.getEntityDescription().createFromRawEntity(torchFactory, cursorRawEntity, query.getLoadGroups());
         } catch (Exception e) {
             // FIXME handle the exception better
             throw new RuntimeException(e);

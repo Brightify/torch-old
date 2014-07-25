@@ -4,10 +4,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.EntityContextImpl;
+import org.brightify.torch.compile.feature.FeatureProviderRegistry;
+import org.brightify.torch.compile.feature.FeatureProviderRegistryImpl;
+import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
+import org.brightify.torch.compile.generate.EntityDescriptionGeneratorImpl;
 import org.brightify.torch.compile.generate.EntityGenerator;
 import org.brightify.torch.compile.generate.EntityGeneratorImpl;
-import org.brightify.torch.compile.generate.EntityMetadataGenerator;
-import org.brightify.torch.compile.generate.EntityMetadataGeneratorImpl;
 import org.brightify.torch.compile.parse.EntityParser;
 import org.brightify.torch.compile.parse.EntityParserImpl;
 import org.brightify.torch.compile.parse.PropertyParser;
@@ -62,7 +64,8 @@ public class TorchCompilerModule extends AbstractModule {
         bind(Reflections.class).toInstance(reflections);
 
         bind(TypeHelper.class).to(TypeHelperImpl.class);
-        bind(MarshallerRegistry.class).to(MarshallerRegistryImpl.class);
+        bind(MarshallerRegistry.class).to(MarshallerRegistryImpl.class).in(Singleton.class);
+        bind(FeatureProviderRegistry.class).to(FeatureProviderRegistryImpl.class).in(Singleton.class);
 
         bind(EntityParser.class).to(EntityParserImpl.class);
         bind(PropertyParser.class).to(PropertyParserImpl.class);
@@ -71,8 +74,6 @@ public class TorchCompilerModule extends AbstractModule {
         bind(EntityVerifier.class).to(EntityVerifierImpl.class);
 
         bind(EntityGenerator.class).to(EntityGeneratorImpl.class);
-        bind(EntityMetadataGenerator.class).to(EntityMetadataGeneratorImpl.class);
-
-
+        bind(EntityDescriptionGenerator.class).to(EntityDescriptionGeneratorImpl.class);
     }
 }

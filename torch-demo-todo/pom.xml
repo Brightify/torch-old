@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>
-            <artifactId>torch-core</artifactId>
+            <artifactId>torch-android</artifactId>
         </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>

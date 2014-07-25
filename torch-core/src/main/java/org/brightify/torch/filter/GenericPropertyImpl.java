@@ -5,13 +5,13 @@ package org.brightify.torch.filter;
  */
 public class GenericPropertyImpl<T> extends PropertyImpl<T> implements GenericProperty<T> {
 
-    public GenericPropertyImpl(String columnName) {
-        super(columnName);
+    public GenericPropertyImpl(String name, String safeName, Class<T> type, Feature... features) {
+        super(name, safeName, type, features);
     }
 
     @Override
     public EntityFilter in(T... values) {
-        StringBuilder builder = new StringBuilder(getName());
+        StringBuilder builder = new StringBuilder(getSafeName());
         builder.append(" IN (");
         for(int i = 0; i < values.length; i++) {
             if(i > 0) {
@@ -25,7 +25,7 @@ public class GenericPropertyImpl<T> extends PropertyImpl<T> implements GenericPr
 
     @Override
     public EntityFilter notIn(T... values) {
-        StringBuilder builder = new StringBuilder(getName());
+        StringBuilder builder = new StringBuilder(getSafeName());
         builder.append(" NOT IN (");
         for(int i = 0; i < values.length; i++) {
             if(i>0) {

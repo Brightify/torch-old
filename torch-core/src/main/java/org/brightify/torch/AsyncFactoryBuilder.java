@@ -15,7 +15,7 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     private Callback<TorchFactory> callback;
     private DatabaseEngine databaseEngine;
     private boolean submitted;
-    private Set<EntityMetadata<?>> metadatas = new LinkedHashSet<EntityMetadata<?>>();
+    private Set<EntityDescription<?>> metadatas = new LinkedHashSet<EntityDescription<?>>();
 
     AsyncFactoryBuilder(Callback<TorchFactory> callback) {
         this.callback = callback;
@@ -33,13 +33,13 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
 
     @Override
     public <ENTITY> AsyncEntityRegistrarSubmit register(Class<ENTITY> entityClass) {
-        EntityMetadata<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
+        EntityDescription<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
         metadatas.add(metadata);
         return this;
     }
 
     @Override
-    public <ENTITY> AsyncEntityRegistrarSubmit register(EntityMetadata<ENTITY> metadata) {
+    public <ENTITY> AsyncEntityRegistrarSubmit register(EntityDescription<ENTITY> metadata) {
         metadatas.add(metadata);
         return this;
     }

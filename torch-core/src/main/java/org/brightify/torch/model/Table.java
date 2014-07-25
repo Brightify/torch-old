@@ -2,6 +2,7 @@ package org.brightify.torch.model;
 
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
+import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.Load;
 
 /**
@@ -21,6 +22,8 @@ public class Table {
     // public List<Key<TableDetails>> detailList;
 
     @Id
+    @Index
+    @Load(TableDetails.class)
     public Long getId() {
         return id;
     }

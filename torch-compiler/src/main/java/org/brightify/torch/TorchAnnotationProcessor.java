@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.EntityMirror;
-import org.brightify.torch.compile.generate.EntityMetadataGenerator;
+import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.generate.SourceCodeWriter;
 import org.brightify.torch.compile.parse.EntityParser;
 import org.brightify.torch.compile.util.CodeModelTypes;
@@ -40,10 +40,7 @@ public class TorchAnnotationProcessor {
     private EntityContext entityContext;
 
     @Inject
-    private EntityMetadataGenerator metadataGenerator;
-
-//    @Inject
-//    private Injector injector;
+    private EntityDescriptionGenerator metadataGenerator;
 
     public boolean process(Set<? extends TypeElement> annotations) {
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(Entity.class);
@@ -97,7 +94,7 @@ public class TorchAnnotationProcessor {
         for (EntityMirror entityMirror : entityContext.getEntityMirrors()) {
 
 
-//            String metadataPostfix = MetadataSourceFileImpl.METADATA_POSTFIX;
+//            String metadataPostfix = MetadataSourceFileImpl.DESCRIPTION_POSTFIX;
 //            String metadataName = entityInfo.getSimpleName() + metadataPostfix;
 //            String metadataFullName = entityInfo.getFullName() + metadataPostfix;
 //            String internalMetadataName = metadataFullName.replaceAll("\\.", "_");
@@ -108,7 +105,6 @@ public class TorchAnnotationProcessor {
 
                 metadataGenerator.generate(entityMirror);
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new RuntimeException(e);
             }
 
@@ -123,7 +119,6 @@ public class TorchAnnotationProcessor {
         try {
             CodeModelTypes.CODE_MODEL.build(new SourceCodeWriter(environment.getFiler()));
         } catch (IOException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
 

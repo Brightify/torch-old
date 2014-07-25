@@ -1,6 +1,6 @@
 package org.brightify.torch.action.load;
 
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
 import org.brightify.torch.action.load.async.AsyncCountable;
@@ -147,7 +147,7 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public <LOCAL_ENTITY> LoaderImpl<LOCAL_ENTITY> type(Class<LOCAL_ENTITY> entityClass) {
-        if (torch.getFactory().getEntities().getMetadata(entityClass) == null) {
+        if (torch.getFactory().getEntities().getDescription(entityClass) == null) {
             throw new IllegalStateException("Entity not registered!");
         }
         return nextLoader(new LoaderType.TypedLoaderType(entityClass));
@@ -216,8 +216,10 @@ public class LoaderImpl<ENTITY> implements
         }
 
         LoaderType.TypedLoaderType typedLoaderType = (LoaderType.TypedLoaderType) loaderType;
-        EntityMetadata<ENTITY> metadata = torch.getFactory().getEntities().getMetadata(typedLoaderType.mEntityClass);
-        NumberProperty<Long> idColumn = metadata.getIdColumn();
+        // FIXME This should be typesafe!
+        EntityDescription<ENTITY> metadata =
+                torch.getFactory().getEntities().getDescription(typedLoaderType.entityClass);
+        NumberProperty<Long> idColumn = metadata.getIdProperty();
 
         EntityFilter filter = null;
         for (Long id : ids) {
@@ -243,7 +245,7 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
-    public LoaderImpl<ENTITY> orderBy(Column<?> column) {
+    public LoaderImpl<ENTITY> orderBy(Property<?> column) {
         return nextLoader(new LoaderType.OrderLoaderType(column));
     }
 
@@ -339,11 +341,11 @@ public class LoaderImpl<ENTITY> implements
 
     public class LoadQueryImpl implements LoadQuery<ENTITY> {
 
-        private EntityMetadata<ENTITY> entityMetadata;
+        private EntityDescription<ENTITY> entityDescription;
         private Set<Class<?>> loadGroups = new HashSet<Class<?>>();
         private List<EntityFilter> entityFilters = new LinkedList<EntityFilter>();
-        private Map<Column<?>, OrderLoader.Direction> orderMap = new HashMap<Column<?>, Direction>();
-        private Column<?> lastOrderColumn;
+        private Map<Property<?>, OrderLoader.Direction> orderMap = new HashMap<Property<?>, Direction>();
+        private Property<?> lastOrderColumn;
         private Integer limit;
         private Integer offset;
 
@@ -360,12 +362,12 @@ public class LoaderImpl<ENTITY> implements
         }
 
         @Override
-        public EntityMetadata<ENTITY> getEntityMetadata() {
-            return entityMetadata;
+        public EntityDescription<ENTITY> getEntityDescription() {
+            return entityDescription;
         }
 
         public void setEntityClass(Class<ENTITY> entityClass) {
-            entityMetadata = torch.getFactory().getEntities().getMetadata(entityClass);
+            entityDescription = torch.getFactory().getEntities().getDescription(entityClass);
         }
 
         @Override
@@ -391,7 +393,7 @@ public class LoaderImpl<ENTITY> implements
         }
 
         @Override
-        public Map<Column<?>, OrderLoader.Direction> getOrderMap() {
+        public Map<Property<?>, OrderLoader.Direction> getOrderMap() {
             return orderMap;
         }
 
@@ -413,7 +415,7 @@ public class LoaderImpl<ENTITY> implements
             this.offset = offset;
         }
 
-        public void addOrdering(Column<?> orderColumn, Direction orderDirection) {
+        public void addOrdering(Property<?> orderColumn, Direction orderDirection) {
             orderMap.put(orderColumn, orderDirection);
             lastOrderColumn = orderColumn;
         }

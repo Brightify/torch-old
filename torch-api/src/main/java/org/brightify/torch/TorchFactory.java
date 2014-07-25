@@ -1,5 +1,7 @@
 package org.brightify.torch;
 
+import org.brightify.torch.relation.RelationResolver;
+
 /**
  * This class is maintaining the {@link DatabaseEngine} and registered entities. Instances of {@link Torch} spawned by
  * the factory will be able to operate with entities registered in this factory and database. If you need to have more
@@ -30,12 +32,12 @@ public interface TorchFactory {
     /**
      * If the class represents an entity, this method tries to find relevant metadata class and recursively calls itself
      * with the new class. This recursive call is done to ensure the class is indeed an instance of {@link
-     * EntityMetadata}.
+     * EntityDescription}.
      * <p/>
      * If the class represents a metadata, this method instantiates the class and registers it. If you created your own
      * metadata class, ensure it has public no-arg constructor,
      * <p/>
-     * NOTE: We recommend to use {@link TorchFactory#register(EntityMetadata)} with an instance of metadata class in
+     * NOTE: We recommend to use {@link TorchFactory#register(EntityDescription)} with an instance of metadata class in
      * production code as it's more efficient, because it doesn't use reflection.
      *
      * @param entityOrEntityMetadataClass Class of an entity, or of an entity metadata to be registered.
@@ -46,10 +48,10 @@ public interface TorchFactory {
     <ENTITY> TorchFactory register(Class<ENTITY> entityOrEntityMetadataClass);
 
     /**
-     * Registers passed metadata. You can use brightify-compiler to generate the {@link EntityMetadata} or you can make
+     * Registers passed metadata. You can use brightify-compiler to generate the {@link EntityDescription} or you can make
      * your own implementation.
      */
-    <ENTITY> TorchFactory register(EntityMetadata<ENTITY> metadata);
+    <ENTITY> TorchFactory register(EntityDescription<ENTITY> metadata);
 
     /**
      * Returns an instance of relation resolver.

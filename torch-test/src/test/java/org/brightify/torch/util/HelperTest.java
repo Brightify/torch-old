@@ -23,7 +23,7 @@ public class HelperTest {
 
     @Test
     public void testTableNameFromClass() {
-        assertEquals("org_brightify_torch_util_HelperTest", Helper.tableNameFromClass(HelperTest.class, false));
-        assertEquals("org_brightify_torch_model_Table", Helper.tableNameFromClass(Table.class, false));
+        assertEquals("org_brightify_torch_util_HelperTest", Helper.safeNameFromClass(HelperTest.class, false));
+        assertEquals("org_brightify_torch_model_Table", Helper.safeNameFromClass(Table.class, false));
     }
 }

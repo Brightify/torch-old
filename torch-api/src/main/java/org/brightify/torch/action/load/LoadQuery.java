@@ -1,8 +1,8 @@
 package org.brightify.torch.action.load;
 
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.action.load.sync.OrderLoader;
-import org.brightify.torch.filter.Column;
+import org.brightify.torch.filter.Property;
 import org.brightify.torch.filter.EntityFilter;
 
 import java.util.List;
@@ -14,13 +14,13 @@ import java.util.Set;
  */
 public interface LoadQuery<ENTITY> {
 
-    EntityMetadata<ENTITY> getEntityMetadata();
+    EntityDescription<ENTITY> getEntityDescription();
 
     Set<Class<?>> getLoadGroups();
 
     List<EntityFilter> getEntityFilters();
 
-    Map<Column<?>, OrderLoader.Direction> getOrderMap();
+    Map<Property<?>, OrderLoader.Direction> getOrderMap();
 
     Integer getLimit();
 

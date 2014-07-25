@@ -15,6 +15,16 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
         </dependency>
 		<dependency>
 			<groupId>com.google.android</groupId>
@@ -30,6 +40,10 @@
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-core</artifactId>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.brightify.torch</groupId>
+            <artifactId>torch-android</artifactId>
         </dependency>
         <dependency>
             <groupId>org.robolectric</groupId>
@@ -115,17 +129,17 @@
                 <plugins>
                     <!--<plugin>
                         <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
+                        <artifactId>getProperties-maven-plugin</artifactId>
                         <version>1.0-alpha-2</version>
                         <executions>
                             <execution>
                                 <phase>initialize</phase>
                                 <goals>
-                                    <goal>read-project-properties</goal>
+                                    <goal>read-project-getProperties</goal>
                                 </goals>
                                 <configuration>
                                     <files>
-                                        <file>project.properties</file>
+                                        <file>project.getProperties</file>
                                     </files>
                                 </configuration>
                             </execution>

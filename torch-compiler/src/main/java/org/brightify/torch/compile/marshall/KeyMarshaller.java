@@ -5,11 +5,10 @@ import com.sun.codemodel.JClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JOp;
-import com.sun.codemodel.JVar;
 import org.brightify.torch.Key;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
-import org.brightify.torch.compile.generate.EntityMetadataGenerator;
+import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.sql.TypeAffinity;
@@ -38,7 +37,7 @@ public class KeyMarshaller extends AbstractMarshaller {
     private Elements elements;
 
     public KeyMarshaller() {
-        super(Key.class);
+        super(Long.class);
     }
 
     @Override
@@ -61,19 +60,19 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityMetadataGenerator.ToContentValuesHolder holder, PropertyMirror propertyMirror) {
+    protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
         JExpression getValue = super.marshallValue(holder, propertyMirror);
         return JOp.cond(getValue.ne(JExpr._null()), getValue.invoke("getId"), JExpr._null());
     }
 
     @Override
-    protected JExpression fromCursor(EntityMetadataGenerator.CreateFromCursorHolder holder, JVar index,
+    protected JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
                                      PropertyMirror propertyMirror) {
         TypeMirror keyType = typeHelper.singleGenericParameter(propertyMirror.getType());
         return CodeModelTypes.KEY
                 .staticInvoke("create")
                 .arg(CodeModelTypes.ref(keyType.toString()).dotclass())
-                .arg(holder.cursor.invoke("getLong").arg(index));
+                .arg(holder.rawEntity.invoke("getLong").arg(JExpr.lit(propertyMirror.getSafeName())));
     }
 
     @Override
@@ -87,12 +86,12 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JClass columnClass(PropertyMirror propertyMirror) {
+    protected JClass propertyClass(PropertyMirror propertyMirror) {
         return CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG);
     }
 
     @Override
-    protected JClass columnClassImpl(PropertyMirror propertyMirror) {
+    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
         return CodeModelTypes.NUMBER_PROPERTY_IMPL.narrow(CodeModelTypes.LONG);
     }
 }

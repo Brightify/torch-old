@@ -1,33 +1,32 @@
 package org.brightify.torch;
 
+import org.brightify.torch.action.relation.RelationResolverImpl;
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.internal.SQLiteMaster;
-import org.brightify.torch.internal.SQLiteMaster$;
 import org.brightify.torch.model.Table;
 import org.brightify.torch.model.Table$;
+import org.brightify.torch.model.TableDetails;
 import org.brightify.torch.model.TableDetails$;
 import org.brightify.torch.relation.RelationResolver;
-import org.brightify.torch.sql.statement.DropTable;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.Validate;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class TorchFactoryImpl implements TorchFactory {
     private final DatabaseEngine databaseEngine;
 
-    private final SQLiteMaster$ sqLiteMasterMetadata = SQLiteMaster$.create();
     private final Table$ tableMetadata = Table$.create();
     private final TableDetails$ tableDetailsMetadata = TableDetails$.create();
     
     private final EntitiesImpl entities = new EntitiesImpl();
     
     public TorchFactoryImpl(DatabaseEngine databaseEngine) {
-        this(databaseEngine, Collections.<EntityMetadata<?>>emptySet());
+        this(databaseEngine, Collections.<EntityDescription<?>>emptySet());
     }
 
-    public TorchFactoryImpl(DatabaseEngine databaseEngine, Set<EntityMetadata<?>> metadataSet) {
+    public TorchFactoryImpl(DatabaseEngine databaseEngine, Set<EntityDescription<?>> metadataSet) {
         this(databaseEngine, metadataSet, new BasicConfiguration());
     }
 
@@ -38,13 +37,13 @@ public class TorchFactoryImpl implements TorchFactory {
      *
      * @param engine        DatabaseEngine which will be used by {@link Torch} instances created by this factory, never
      *                      null.
-     * @param metadataSet   A set of {@link org.brightify.torch.EntityMetadata} to directly register. Cannot be null,
+     * @param metadataSet   A set of {@link EntityDescription} to directly register. Cannot be null,
      *                      provide empty set if you have no metadata to register.
      * @param configuration Configuration holder to be used to configure this factory. Cannot be null.
      *
      * @throws IllegalArgumentException When any of the parameters is null.
      */
-    public TorchFactoryImpl(DatabaseEngine engine, Set<EntityMetadata<?>> metadataSet, Configuration configuration)
+    public TorchFactoryImpl(DatabaseEngine engine, Set<EntityDescription<?>> metadataSet, Configuration configuration)
             throws IllegalArgumentException {
         Validate.argumentNotNull(engine, "Database engine cannot be null!");
         Validate.argumentNotNull(metadataSet, "Set of entity metadata cannot be null!");
@@ -59,7 +58,7 @@ public class TorchFactoryImpl implements TorchFactory {
 
         registerInternalEntities();
 
-        for (EntityMetadata<?> metadata : metadataSet) {
+        for (EntityDescription<?> metadata : metadataSet) {
             register(metadata);
         }
 
@@ -67,19 +66,18 @@ public class TorchFactoryImpl implements TorchFactory {
 
     private void registerInternalEntities() {
         // We need to register our metadata
-        entities.registerMetadata(sqLiteMasterMetadata);
         entities.registerMetadata(tableMetadata);
         MigrationAssistant<Table> tableMigrationAssistant = databaseEngine.getMigrationAssistant(tableMetadata);
-        tableMigrationAssistant.createTable();
+        tableMigrationAssistant.createStore();
         entities.registerMetadata(tableDetailsMetadata);
         MigrationAssistant<TableDetails> tableDetailsMigrationAssistant =
                 databaseEngine.getMigrationAssistant(tableDetailsMetadata);
-        tableDetailsMigrationAssistant.createTable();
+        tableDetailsMigrationAssistant.createStore();
     }
 
 
 //    private boolean tableExists(EntityMetadata<?> entityMetadata) {
-//        String tableName = entityMetadata.getTableName();
+//        String tableName = entityMetadata.getSafeName();
 //
 //        return begin().load().type(SQLiteMaster.class).filter(SQLiteMaster$.tableName.equalTo(tableName)).count() > 0;
 //    }
@@ -108,7 +106,6 @@ public class TorchFactoryImpl implements TorchFactory {
         return entities;
     }
 
-    @Override
     public TorchFactory register(Class<?>... entityClasses) {
         TorchFactory returnFactory = this;
         for (Class<?> entityClass : entityClasses) {
@@ -121,44 +118,43 @@ public class TorchFactoryImpl implements TorchFactory {
     public <ENTITY> TorchFactory register(Class<ENTITY> entityClass) {
 
 
-        EntityMetadata<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
+        EntityDescription<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
         return register(metadata);
     }
 
-    @Override
-    public TorchFactory register(List<EntityMetadata<?>> metadataList) throws IllegalArgumentException {
+    public TorchFactory register(List<EntityDescription<?>> metadataList) throws IllegalArgumentException {
         if(metadataList == null) {
             throw new IllegalArgumentException("List of metadata cannot be null!");
         }
         TorchFactory returnFactory = this;
-        for (EntityMetadata<?> metadata : metadataList) {
+        for (EntityDescription<?> metadata : metadataList) {
             returnFactory = register(metadata);
         }
         return returnFactory;
     }
 
     @Override
-    public <ENTITY> TorchFactory register(EntityMetadata<ENTITY> metadata) {
+    public <ENTITY> TorchFactory register(EntityDescription<ENTITY> metadata) {
         entities.registerMetadata(metadata);
 
-        Table table = begin().load().type(Table.class).filter(Table$.tableName.equalTo(metadata.getTableName()))
+        Table table = begin().load().type(Table.class).filter(Table$.tableName.equalTo(metadata.getSafeName()))
                              .single();
         MigrationAssistant<ENTITY> migrationAssistant = databaseEngine.getMigrationAssistant(metadata);
         if (table == null) {
-            createTable(metadata);
+            migrationAssistant.createStore();
             table = new Table();
-            table.setTableName(metadata.getTableName());
+            table.setTableName(metadata.getSafeName());
             table.setVersion(metadata.getVersion());
         } else if (!table.getVersion().equals(metadata.getVersion())) {
             if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
-                dropCreateTable(metadata);
+                migrationAssistant.recreateStore();
             } else {
                 try {
                     metadata.migrate(migrationAssistant, table.getVersion(), metadata.getVersion());
                 } catch (Exception e) {
                     if (metadata.getMigrationType() == Entity.MigrationType.TRY_MIGRATE) {
                         e.printStackTrace();
-                        dropCreateTable(metadata);
+                        migrationAssistant.recreateStore();
                     } else {
                         throw new RuntimeException(e);
                     }

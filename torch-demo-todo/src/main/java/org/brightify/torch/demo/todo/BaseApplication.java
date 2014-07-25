@@ -1,7 +1,7 @@
 package org.brightify.torch.demo.todo;
 
 import com.googlecode.androidannotations.annotations.EApplication;
-import org.brightify.torch.EntityMetadata;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Settings;
 import org.brightify.torch.android.TorchApplication;
 import org.brightify.torch.demo.todo.model.Task$;
@@ -22,8 +22,8 @@ public class BaseApplication extends TorchApplication {
     }
 
     @Override
-    protected EntityMetadata<?>[] getMetadataForRegistration() {
-        return new EntityMetadata<?>[] {
+    protected EntityDescription<?>[] getMetadataForRegistration() {
+        return new EntityDescription<?>[] {
                 User$.create(),
                 Task$.create()
         };

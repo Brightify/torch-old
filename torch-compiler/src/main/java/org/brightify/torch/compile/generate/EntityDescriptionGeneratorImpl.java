@@ -7,10 +7,10 @@ import com.sun.codemodel.JConditional;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
-import org.brightify.torch.Torch;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.EntityMirror;
 import org.brightify.torch.compile.PropertyMirror;
@@ -20,19 +20,12 @@ import org.brightify.torch.compile.migration.MigrationPath;
 import org.brightify.torch.compile.migration.MigrationPathPart;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
-import org.brightify.torch.sql.ColumnDef;
-import org.brightify.torch.sql.constraint.ColumnConstraint;
-import org.brightify.torch.sql.statement.CreateTable;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.brightify.torch.util.Constants;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class EntityMetadataGeneratorImpl implements EntityMetadataGenerator {
-
-    public static final String METADATA_POSTFIX = "$";
+public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerator {
 
     @Inject
     private EntityContext entityContext;
@@ -47,8 +40,7 @@ public class EntityMetadataGeneratorImpl implements EntityMetadataGenerator {
     public void generate(EntityMirror entityMirror) throws Exception {
         JCodeModel codeModel = CodeModelTypes.CODE_MODEL;
 
-        JDefinedClass definedClass =
-                codeModel._class(entityMirror.getFullName() + EntityMetadataGeneratorImpl.METADATA_POSTFIX);
+        JDefinedClass definedClass = codeModel._class(entityMirror.getFullName() + Constants.DESCRIPTION_POSTFIX);
 
         generate(entityMirror, definedClass);
     }
@@ -64,81 +56,42 @@ public class EntityMetadataGeneratorImpl implements EntityMetadataGenerator {
         definedClass.constructor(JMod.PRIVATE);
         definedClass._implements(CodeModelTypes.ENTITY_METADATA.narrow(classHolder.entityClass));
 
+        JArray propertiesArray = JExpr.newArray(CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD));
         for (PropertyMirror propertyMirror : entityMirror.getProperties()) {
             Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
 
-            marshaller.createColumnField(classHolder, propertyMirror);
-        }
+            JFieldVar propertyField = marshaller.createPropertyField(classHolder, propertyMirror);
+            propertiesArray.add(propertyField);
 
-        generate_createTable(classHolder);
-        generate_createFromCursor(classHolder);
-        generate_toContentValues(classHolder);
+        }
+        JFieldVar propertiesField = classHolder.definedClass.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                                       CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
+                                       "properties",
+                                       propertiesArray);
+
+
+        classHolder.definedClass.method(JMod.PUBLIC,
+                                        CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
+                                        "getProperties")
+                                .body()._return(propertiesField);
+
+
+        generate_createFromRawEntity(classHolder);
+        generate_toRawEntity(classHolder);
         generate_migrate(classHolder);
         generate_utilityMethods(classHolder);
     }
 
-    private void generate_createTable(ClassHolder classHolder) {
-        JMethod createTableMethod = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "createTable");
-        createTableMethod.annotate(Override.class);
-        JVar createTableTorchParameter = createTableMethod.param(Torch.class, "torch");
-
-        StringBuilder sqlBuilder = new StringBuilder();
-
-        for (CreateTable createTable : getCreateTables(classHolder)) {
-            sqlBuilder.append(createTable.toSQLString()).append(";");
-        }
-
-        createTableMethod.body().add(
-                JExpr.invoke(createTableTorchParameter, "getDatabase")
-                     .invoke("execSQL")
-                     .arg(JExpr.lit(sqlBuilder.toString()))
-        );
-
-    }
-
-    private List<CreateTable> getCreateTables(ClassHolder holder) {
-        List<CreateTable> tablesToCreate = new ArrayList<CreateTable>();
-        CreateTable createTable = new CreateTable();
-        createTable.setTableName(holder.entityMirror.getTableName());
-        for (PropertyMirror propertyMirror : holder.entityMirror.getProperties()) {
-
-            Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
-
-            ColumnDef columnDef = marshaller.createColumn(holder, tablesToCreate, propertyMirror);
-            if(columnDef == null) {
-                continue;
-            }
-            if (propertyMirror.getId() != null) {
-                ColumnConstraint.PrimaryKey primaryKey = new ColumnConstraint.PrimaryKey();
-                primaryKey.setAutoIncrement(propertyMirror.getId().autoIncrement());
-                columnDef.addColumnConstraint(primaryKey);
-            }
-            if (propertyMirror.getNotNull() != null) {
-                ColumnConstraint.NotNull notNull = new ColumnConstraint.NotNull();
-                columnDef.addColumnConstraint(notNull);
-            }
-            if (propertyMirror.getUnique() != null) {
-                ColumnConstraint.Unique unique = new ColumnConstraint.Unique();
-                columnDef.addColumnConstraint(unique);
-            }
-            createTable.addColumnDef(columnDef);
-        }
-
-        tablesToCreate.add(createTable);
-
-        return tablesToCreate;
-    }
-
-    private void generate_createFromCursor(ClassHolder classHolder) {
-        CreateFromCursorHolder holder = new CreateFromCursorHolder();
+    private void generate_createFromRawEntity(ClassHolder classHolder) {
+        CreateFromRawEntityHolder holder = new CreateFromRawEntityHolder();
         holder.classHolder = classHolder;
-        holder.method = classHolder.definedClass.method(JMod.PUBLIC, classHolder.entityClass, "createFromCursor");
+        holder.method = classHolder.definedClass.method(JMod.PUBLIC, classHolder.entityClass, "createFromRawEntity");
         holder.method.annotate(Override.class);
 
-        holder.torch = holder.method.param(CodeModelTypes.TORCH, "torch");
-        holder.cursor = holder.method.param(CodeModelTypes.CURSOR, "cursor");
+        holder.torchFactory = holder.method.param(CodeModelTypes.TORCH_FACTORY, "torchFactory");
+        holder.rawEntity = holder.method.param(CodeModelTypes.READABLE_RAW_ENTITY, "rawEntity");
         holder.loadGroups =
-                holder.method.param(CodeModelTypes.LIST.narrow(CodeModelTypes.CLASS.narrow(
+                holder.method.param(CodeModelTypes.SET.narrow(CodeModelTypes.CLASS.narrow(
                         CodeModelTypes.OBJECT.wildcard())), "loadGroups");
 
         holder.entity = holder.method
@@ -148,32 +101,30 @@ public class EntityMetadataGeneratorImpl implements EntityMetadataGenerator {
         for (PropertyMirror propertyMirror : classHolder.entityMirror.getProperties()) {
             Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
 
-            holder.method.body().directStatement("// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
+            holder.method.body().directStatement(
+                    "// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
             holder.method.body().add(marshaller.unmarshall(holder, propertyMirror));
         }
         holder.method.body()._return(holder.entity);
     }
 
-    private void generate_toContentValues(ClassHolder classHolder) {
-        ToContentValuesHolder holder = new ToContentValuesHolder();
+    private void generate_toRawEntity(ClassHolder classHolder) {
+        ToRawEntityHolder holder = new ToRawEntityHolder();
         holder.classHolder = classHolder;
-        holder.method = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.CONTENT_VALUES, "toContentValues");
+        holder.method = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "toRawEntity");
         holder.method.annotate(Override.class);
 
-        holder.torch = holder.method.param(CodeModelTypes.TORCH, "torch");
+        holder.torchFactory = holder.method.param(CodeModelTypes.TORCH_FACTORY, "torchFactory");
         holder.entity = holder.method.param(classHolder.entityClass, "entity");
-
-        holder.contentValues = holder.method
-                .body()
-                .decl(CodeModelTypes.CONTENT_VALUES, "contentValues", JExpr._new(CodeModelTypes.CONTENT_VALUES));
+        holder.rawEntity = holder.method.param(CodeModelTypes.WRITABLE_RAW_ENTITY, "rawEntity");
 
         for (PropertyMirror propertyMirror : classHolder.entityMirror.getProperties()) {
             Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
 
-            holder.method.body().directStatement("// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
+            holder.method.body().directStatement(
+                    "// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
             holder.method.body().add(marshaller.marshall(holder, propertyMirror));
         }
-        holder.method.body()._return(holder.contentValues);
     }
 
     private void generate_migrate(ClassHolder classHolder) {
@@ -219,20 +170,16 @@ public class EntityMetadataGeneratorImpl implements EntityMetadataGenerator {
 
 
         classHolder.definedClass.method(JMod.PUBLIC,
-                                        CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG), "getIdColumn")
-                                .body()._return(JExpr.refthis(classHolder.entityMirror.getIdPropertyMirror().getName()));
+                                        CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG),
+                                        "getIdProperty")
+                                .body()
+                                ._return(JExpr.refthis(classHolder.entityMirror.getIdPropertyMirror().getName()));
 
 
-        JArray getColumns_columns = JExpr.newArray(CodeModelTypes.STRING);
-        for (PropertyMirror propertyMirror : classHolder.entityMirror.getProperties()) {
-            getColumns_columns.add(JExpr.lit(propertyMirror.getColumnName()));
-        }
-        classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING.array(), "getColumns")
-                                .body()._return(getColumns_columns);
 
 
-        classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getTableName")
-                                .body()._return(JExpr.lit(classHolder.entityMirror.getTableName()));
+        classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getSafeName")
+                                .body()._return(JExpr.lit(classHolder.entityMirror.getSafeName()));
 
 
         classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getVersion")
@@ -246,14 +193,16 @@ public class EntityMetadataGeneratorImpl implements EntityMetadataGenerator {
 
         JMethod getEntityId = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.LONG, "getEntityId");
         JVar getEntityId_Entity = getEntityId.param(classHolder.entityClass, "entity");
-        getEntityId.body()._return(classHolder.entityMirror.getIdPropertyMirror().getGetter().getValue(getEntityId_Entity));
+        getEntityId.body()._return(classHolder.entityMirror.getIdPropertyMirror().getGetter().getValue(
+                getEntityId_Entity));
 
 
         JMethod setEntityId = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "setEntityId");
         JVar setEntityId_Entity = setEntityId.param(classHolder.entityClass, "entity");
         JVar setEntityId_Id = setEntityId.param(CodeModelTypes.LONG, "id");
         setEntityId.body().add(
-                classHolder.entityMirror.getIdPropertyMirror().getSetter().setValue(setEntityId_Entity, setEntityId_Id));
+                classHolder.entityMirror.getIdPropertyMirror().getSetter().setValue(setEntityId_Entity,
+                                                                                    setEntityId_Id));
 
 
         JMethod getEntityClass = classHolder.definedClass.method(JMod.PUBLIC,

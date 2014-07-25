@@ -7,8 +7,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Debug;
 import android.test.AndroidTestCase;
 import android.util.Log;
+import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
+import org.brightify.torch.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
             long start = System.currentTimeMillis();
             long time = start;
 
-            engine = new AndroidSQLiteEngine(getContext(), Settings.DEFAULT_DATABASE_NAME, null);
+            engine = new AndroidSQLiteEngine(getContext(), Constants.DEFAULT_DATABASE_NAME, null);
 
             TorchService.with(engine).register(TestObject$.create());
 
@@ -82,9 +84,13 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
 
             Log.d(TAG, "ORM - Complete: " + (System.currentTimeMillis() - start) + "ms");
         } finally {
-            engine.wipe();
-            TorchService.forceUnload();
-            Debug.stopMethodTracing();
+            try {
+                engine.wipe();
+                TorchService.forceUnload();
+                Debug.stopMethodTracing();
+            } catch(Exception e) {
+
+            }
         }
     }
 

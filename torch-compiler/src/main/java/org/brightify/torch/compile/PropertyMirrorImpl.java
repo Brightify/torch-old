@@ -4,23 +4,36 @@ import org.brightify.torch.annotation.Id;
 import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.NotNull;
 import org.brightify.torch.annotation.Unique;
+import org.brightify.torch.util.Constants;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.type.TypeMirror;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class PropertyMirrorImpl implements PropertyMirror {
 
+    private List<? extends AnnotationMirror> annotations;
     private Id id;
     private Index index;
     private NotNull notNull;
     private Unique unique;
     private String name;
-    private String columnName;
+    private String safeName;
     private TypeMirror typeMirror;
     private Getter getter;
     private Setter setter;
+
+    @Override
+    public List<? extends AnnotationMirror> getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(List<? extends AnnotationMirror> annotations) {
+        this.annotations = annotations;
+    }
 
     @Override
     public Id getId() {
@@ -65,18 +78,18 @@ public class PropertyMirrorImpl implements PropertyMirror {
 
     public void setName(String name) {
         this.name = name;
-        if(columnName == null) {
-            columnName = COLUMN_PREFIX + name;
+        if(safeName == null) {
+            safeName = Constants.SAFETY_PREFIX + name;
         }
     }
 
     @Override
-    public String getColumnName() {
-        return columnName;
+    public String getSafeName() {
+        return safeName;
     }
 
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
+    public void setSafeName(String safeName) {
+        this.safeName = safeName;
     }
 
     @Override
