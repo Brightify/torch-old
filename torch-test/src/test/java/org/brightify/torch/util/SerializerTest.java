@@ -2,6 +2,8 @@ package org.brightify.torch.util;
 
 import org.brightify.torch.test.TestObject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 
@@ -11,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author <a href="mailto:tadeas.kriz@brainwashstudio.com">Tadeas Kriz</a>
  */
+@RunWith(RobolectricTestRunner.class)
 public class SerializerTest {
 
     @Test

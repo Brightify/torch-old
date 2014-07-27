@@ -16,9 +16,11 @@ import org.brightify.torch.action.load.LoadQuery;
 import org.brightify.torch.action.load.sync.OrderLoader;
 import org.brightify.torch.android.internal.SQLiteMaster;
 import org.brightify.torch.android.internal.SQLiteMaster$;
+import org.brightify.torch.annotation.Id;
 import org.brightify.torch.filter.EntityFilter;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.util.MigrationAssistant;
+import org.brightify.torch.util.PropertyUtil;
 import org.brightify.torch.util.Validate;
 
 import java.util.Arrays;
@@ -32,8 +34,6 @@ import java.util.Map;
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class AndroidSQLiteEngine implements DatabaseEngine {
-    public static final String SAFETY_PREFIX = "torch_";
-
     private static final String TAG = AndroidSQLiteEngine.class.getSimpleName();
     private static final int DATABASE_CREATED_VERSION = 1001;
 
@@ -46,6 +46,40 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     private TorchFactory torchFactory;
     private SQLiteDatabase database;
     private boolean initializing;
+
+    private static Map<Class<?>, String> typeAffinities = new HashMap<Class<?>, String>();
+
+    static {
+        Class<?>[] integerTypes = {
+                Boolean.class,
+                boolean.class,
+                Byte.class,
+                byte.class,
+                Short.class,
+                short.class,
+                Integer.class,
+                int.class,
+                Long.class,
+                long.class,
+        };
+        addAffinityTypes("INTEGER", integerTypes);
+
+        Class<?>[] realTypes = {
+                Float.class,
+                float.class,
+                Double.class,
+                double.class,
+        };
+        addAffinityTypes("REAL", realTypes);
+
+        Class<?>[] numericTypes = {};
+        addAffinityTypes("NUMERIC", numericTypes);
+
+        Class<?>[] textTypes = {
+                String.class,
+        };
+        addAffinityTypes("TEXT", textTypes);
+    }
 
     /**
      * @param databaseName database name, if null then database will be only in memory and deleted after closing
@@ -313,7 +347,21 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             if(i++ > 0) {
                sql.append(',');
             }
-            sql.append(property.getSafeName());
+
+            Id.IdFeature idFeature = PropertyUtil.getFeature(property, Id.IdFeature.class);
+
+            sql.append(property.getSafeName()).append(" ").append(affinityFor(property.getType()));
+
+            if(idFeature != null) {
+                sql.append(" CONSTRAINT ")
+                   .append(property.getSafeName())
+                   .append("_primary")
+                   .append(" PRIMARY KEY ASC ");
+
+                if(idFeature.isAutoIncrement()) {
+                    sql.append("AUTOINCREMENT ");
+                }
+            }
         }
         sql.append(")");
 
@@ -416,6 +464,19 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             } else {
                 Log.d(TAG, sql);
             }
+        }
+    }
+
+    private static String affinityFor(Class<?> cls) {
+        if(typeAffinities.containsKey(cls)) {
+            return typeAffinities.get(cls);
+        }
+        return "NONE";
+    }
+
+    private static void addAffinityTypes(String affinity, Class<?>... classes) {
+        for (Class<?> cls : classes) {
+            typeAffinities.put(cls, affinity);
         }
     }
 

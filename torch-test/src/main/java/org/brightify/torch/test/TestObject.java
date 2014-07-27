@@ -9,9 +9,7 @@ import org.brightify.torch.annotation.Migration;
 import org.brightify.torch.util.MigrationAssistant;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
 * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -37,7 +35,7 @@ public class TestObject implements Serializable {
     public String group; // Test for #20, should be forbidden column name, but we add torch_ to every column name
 //    public Table table;
 //    public List<Table> tables;
-    public List<String> strings = new ArrayList<String>();
+//    public List<String> strings = new ArrayList<String>();
 
     @Accessor
     public String getProtectedTest() {
@@ -91,8 +89,6 @@ public class TestObject implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        Log.d("Equals?", this + " vs " + o);
-        System.out.println("Equals? " + o);
         if (this == o) {
             Log.d("Equals with sign", "Yep");
             return true;
@@ -176,10 +172,10 @@ public class TestObject implements Serializable {
         }
         Log.d("Equal", "stringField");
 
-        if (strings != null ? !strings.equals(that.strings) : that.strings != null) {
-            Log.d("Not equal", "strings: " + Arrays.toString(strings.toArray()) + " vs " + Arrays.toString(that.strings.toArray()));
+/*        if (strings != null ? !strings.equals(that.strings) : that.strings != null) {
+            Log.d("Not equal", "strings: " + strings.toArray() + " vs " + that.strings.toArray());
             return false;
-        }
+        }*/
         Log.d("Equal", "string");
 
         return true;
@@ -199,8 +195,7 @@ public class TestObject implements Serializable {
         result = 31 * result + (protectedTest != null ? protectedTest.hashCode() : 0);
         result = 31 * result + (defaultTest != null ? defaultTest.hashCode() : 0);
         result = 31 * result + (group != null ? group.hashCode() : 0);
-        result = 31 * result + (strings != null ? strings.hashCode() : 0);
-        Log.d("HashCode", "@" + result);
+//        result = 31 * result + (strings != null ? strings.hashCode() : 0);
         return result;
     }
 }
