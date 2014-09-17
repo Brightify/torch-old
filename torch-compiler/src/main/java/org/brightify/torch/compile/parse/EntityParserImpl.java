@@ -14,6 +14,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -65,16 +66,26 @@ public class EntityParserImpl implements EntityParser {
         info.setMigrationType(entity.migration());
 
         info.setProperties(new ArrayList<PropertyMirror>(propertyParser.parseEntityElement(element).values()));
+
+        List<PropertyMirror> idPropertyMirrors = new ArrayList<PropertyMirror>();
         for (PropertyMirror propertyMirror : info.getProperties()) {
             if (propertyMirror.getId() != null) {
-                if (info.getIdPropertyMirror() != null) {
-                    throw new EntityParseException(propertyMirror.getGetter().getElement(),
-                                                   "There can be exactly one @Id property in each entity!");
-                }
-
-                info.setIdPropertyMirror(propertyMirror);
+                idPropertyMirrors.add(propertyMirror);
             }
         }
+
+        if(idPropertyMirrors.size() > 1) {
+            List<Element> idElements = new ArrayList<Element>(idPropertyMirrors.size());
+            for (PropertyMirror idPropertyMirror : idPropertyMirrors) {
+                idElements.add(idPropertyMirror.getGetter().getElement());
+            }
+            throw new EntityParseException(idElements, "There has to be exactly one @Id property in each entity!");
+        } else if(idPropertyMirrors.size() == 0) {
+            throw new EntityParseException(element, "There has to be exactly one @Id property in each entity!");
+        }
+
+        info.setIdPropertyMirror(idPropertyMirrors.get(0));
+
         // We need ID property to be the first
         info.getProperties().remove(info.getIdPropertyMirror());
         info.getProperties().add(0, info.getIdPropertyMirror());

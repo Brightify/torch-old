@@ -58,7 +58,13 @@ public class TorchAnnotationProcessor {
 
                 entityContext.registerEntityInfo(entityMirror);
             } catch (EntityParseException e) {
-                environment.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), e.getElement());
+                if(e.getElements().size() > 0) {
+                    for (Element elementInError : e.getElements()) {
+                        environment.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), elementInError);
+                    }
+                } else {
+                    environment.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+                }
             }
         }
 /*

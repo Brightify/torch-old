@@ -1,20 +1,29 @@
 package org.brightify.torch.parse;
 
 import javax.lang.model.element.Element;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class EntityParseException extends RuntimeException {
 
-    private final Element mElement;
+    private final List<Element> elements = new ArrayList<Element>();
 
     public EntityParseException(Element element, String detailMessage, Object... params) {
-        super(String.format(detailMessage, params));
-        mElement = element;
+        this(Collections.singleton(element), detailMessage, params);
     }
 
-    public Element getElement() {
-        return mElement;
+    public EntityParseException(Collection<Element> elements, String detailMessage, Object... params) {
+        super(String.format(detailMessage, params));
+
+        this.elements.addAll(elements);
+    }
+
+    public List<Element> getElements() {
+        return elements;
     }
 }
