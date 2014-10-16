@@ -3,10 +3,10 @@ package org.brightify.torch.filter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface GenericProperty<T> extends Property<T> {
+public interface GenericProperty<TYPE> extends Property<TYPE> {
 
-    EntityFilter in(T... values);
+    InFilter<?> in(TYPE... values);
 
-    EntityFilter notIn(T... values);
+    NotInFilter<?> notIn(TYPE... values);
 
 }

@@ -3,19 +3,19 @@ package org.brightify.torch.filter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface Property<T> {
+public interface Property<TYPE> {
 
     String getName();
 
     String getSafeName();
 
-    Class<T> getType();
+    Class<TYPE> getType();
 
     Feature[] getFeatures();
 
-    EntityFilter equalTo(T value);
+    EqualToFilter<?> equalTo(TYPE value);
 
-    EntityFilter notEqualTo(T value);
+    NotEqualToFilter<?> notEqualTo(TYPE value);
 
     public interface Feature { }
 

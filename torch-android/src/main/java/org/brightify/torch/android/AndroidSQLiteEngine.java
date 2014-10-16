@@ -17,16 +17,15 @@ import org.brightify.torch.action.load.sync.OrderLoader;
 import org.brightify.torch.android.internal.SQLiteMaster;
 import org.brightify.torch.android.internal.SQLiteMaster$;
 import org.brightify.torch.annotation.Id;
-import org.brightify.torch.filter.EntityFilter;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.PropertyUtil;
 import org.brightify.torch.util.Validate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -382,7 +381,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     private <ENTITY> Cursor runQuery(LoadQuery<ENTITY> query, boolean countOnly) {
         StringBuilder builder = new StringBuilder();
 
-        LinkedList<String> selectionArgsList = new LinkedList<String>();
+        List<String> selectionArgsList = new ArrayList<String>();
 
         if (countOnly) {
             builder.append("SELECT count(1)");
@@ -404,11 +403,10 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
 
         builder.append(" FROM ").append(query.getEntityDescription().getSafeName());
 
-        if (query.getEntityFilters().size() > 0) {
+        if (query.getFilter() != null) {
             builder.append(" WHERE ");
-            for (EntityFilter filter : query.getEntityFilters()) {
-                filter.toSQL(selectionArgsList, builder);
-            }
+
+            SQLiteWhereClauseBuilder.appendFilter(builder, query.getFilter(), selectionArgsList);
         }
 
         if (query.getOrderMap().size() > 0) {

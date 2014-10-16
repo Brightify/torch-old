@@ -16,6 +16,12 @@ import org.brightify.torch.filter.ListProperty;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.filter.StringProperty;
+import org.brightify.torch.impl.filter.BooleanPropertyImpl;
+import org.brightify.torch.impl.filter.GenericPropertyImpl;
+import org.brightify.torch.impl.filter.ListPropertyImpl;
+import org.brightify.torch.impl.filter.NumberPropertyImpl;
+import org.brightify.torch.impl.filter.PropertyImpl;
+import org.brightify.torch.impl.filter.StringPropertyImpl;
 import org.brightify.torch.util.LazyArrayList;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.MigrationException;
@@ -63,17 +69,17 @@ public class CodeModelTypes {
     public static final JClass WRITABLE_RAW_ENTITY = ref(WritableRawEntity.class.getCanonicalName());
     // Torch getProperties
     public static final JClass PROPERTY = ref(Property.class.getCanonicalName());
-    public static final JClass PROPERTY_IMPL = ref(PROPERTY.fullName() + "Impl");
+    public static final JClass PROPERTY_IMPL = ref(PropertyImpl.class.getCanonicalName());
     public static final JClass BOOLEAN_PROPERTY = ref(BooleanProperty.class.getCanonicalName());
-    public static final JClass BOOLEAN_PROPERTY_IMPL = ref(BOOLEAN_PROPERTY.fullName() + "Impl");
+    public static final JClass BOOLEAN_PROPERTY_IMPL = ref(BooleanPropertyImpl.class.getCanonicalName());
     public static final JClass NUMBER_PROPERTY = ref(NumberProperty.class.getCanonicalName());
-    public static final JClass NUMBER_PROPERTY_IMPL = ref(NUMBER_PROPERTY.fullName() + "Impl");
+    public static final JClass NUMBER_PROPERTY_IMPL = ref(NumberPropertyImpl.class.getCanonicalName());
     public static final JClass STRING_PROPERTY = ref(StringProperty.class.getCanonicalName());
-    public static final JClass STRING_PROPERTY_IMPL = ref(STRING_PROPERTY.fullName() + "Impl");
+    public static final JClass STRING_PROPERTY_IMPL = ref(StringPropertyImpl.class.getCanonicalName());
     public static final JClass GENERIC_PROPERTY = ref(GenericProperty.class.getCanonicalName());
-    public static final JClass GENERIC_PROPERTY_IMPL = ref(GENERIC_PROPERTY.fullName() + "Impl");
+    public static final JClass GENERIC_PROPERTY_IMPL = ref(GenericPropertyImpl.class.getCanonicalName());
     public static final JClass LIST_PROPERTY = ref(ListProperty.class.getCanonicalName());
-    public static final JClass LIST_PROPERTY_IMPL = ref(LIST_PROPERTY.fullName() + "Impl");
+    public static final JClass LIST_PROPERTY_IMPL = ref(ListPropertyImpl.class.getCanonicalName());
 
     private CodeModelTypes() { }
 

@@ -5,10 +5,10 @@ package org.brightify.torch.filter;
  */
 public interface StringProperty extends GenericProperty<String> {
 
-    EntityFilter startsWith(String value);
+    StartsWithStringFilter startsWith(String value);
 
-    EntityFilter endsWith(String value);
+    EndsWithStringFilter endsWith(String value);
 
-    EntityFilter contains(String value);
+    ContainsStringFilter contains(String value);
 
 }

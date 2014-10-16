@@ -7,10 +7,10 @@ import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.filter.NumberProperty;
-import org.brightify.torch.filter.NumberPropertyImpl;
+import org.brightify.torch.impl.filter.NumberPropertyImpl;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.filter.StringProperty;
-import org.brightify.torch.filter.StringPropertyImpl;
+import org.brightify.torch.impl.filter.StringPropertyImpl;
 import org.brightify.torch.util.MigrationAssistant;
 
 import java.util.Set;

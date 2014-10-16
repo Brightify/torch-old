@@ -2,10 +2,9 @@ package org.brightify.torch.action.load;
 
 import org.brightify.torch.EntityDescription;
 import org.brightify.torch.action.load.sync.OrderLoader;
+import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.Property;
-import org.brightify.torch.filter.EntityFilter;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +17,7 @@ public interface LoadQuery<ENTITY> {
 
     Set<Class<?>> getLoadGroups();
 
-    List<EntityFilter> getEntityFilters();
+    BaseFilter<?, ?> getFilter();
 
     Map<Property<?>, OrderLoader.Direction> getOrderMap();
 

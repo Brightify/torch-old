@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import com.sun.codemodel.JClass;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.util.CodeModelTypes;
-import org.brightify.torch.sql.TypeAffinity;
-import org.brightify.torch.sql.affinity.IntegerAffinity;
 import org.brightify.torch.compile.util.TypeHelper;
 
 /**
@@ -26,13 +24,9 @@ public abstract class NumberColumnMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected TypeAffinity getAffinity() {
-        return IntegerAffinity.getInstance();
-    }
-
-    @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
+        return CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
+                .toString()));
     }
 
     @Override

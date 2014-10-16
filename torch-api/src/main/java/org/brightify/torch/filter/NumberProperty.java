@@ -3,14 +3,14 @@ package org.brightify.torch.filter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface NumberProperty<T> extends GenericProperty<T> {
+public interface NumberProperty<TYPE extends Number> extends GenericProperty<TYPE> {
 
-    EntityFilter greaterThan(T value);
+    GreaterThanFilter<?> greaterThan(TYPE value);
 
-    EntityFilter lessThan(T value);
+    LessThanFilter<?> lessThan(TYPE value);
 
-    EntityFilter greaterThanOrEqualTo(T value);
+    GreaterThanOrEqualToFilter<?> greaterThanOrEqualTo(TYPE value);
 
-    EntityFilter lessThanOrEqualTo(T value);
+    LessThanOrEqualToFilter<?> lessThanOrEqualTo(TYPE value);
 
 }

@@ -1,12 +1,12 @@
 package org.brightify.torch.action.load.async;
 
-import org.brightify.torch.filter.EntityFilter;
+import org.brightify.torch.filter.BaseFilter;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface AsyncFilterLoader<ENTITY> {
 
-    AsyncOperatorFilterOrderLimitListLoader<ENTITY> filter(EntityFilter filter);
+    AsyncOrderLimitListLoader<ENTITY> filter(BaseFilter<?, ?> filter);
 
 }

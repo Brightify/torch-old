@@ -9,8 +9,6 @@ import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
-import org.brightify.torch.sql.TypeAffinity;
-import org.brightify.torch.sql.affinity.IntegerAffinity;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.type.TypeMirror;
@@ -71,19 +69,16 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    public TypeAffinity getAffinity() {
-        return IntegerAffinity.getInstance();
-    }
-
-    @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.LONG); // CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
-                                                                            //       .toString()));
+        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.LONG); // CodeModelTypes.ref(typeHelper
+        // .getWrappedType(propertyMirror)
+        //       .toString()));
     }
 
     @Override
     protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.LONG); //CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
-                                                           //                             .toString()));
+        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.LONG); //CodeModelTypes.ref(typeHelper
+        // .getWrappedType(propertyMirror)
+        //                             .toString()));
     }
 }

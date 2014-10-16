@@ -81,11 +81,6 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected TypeAffinity getAffinity() {
-        return null;
-    }
-
-    @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
         return CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG);
     }

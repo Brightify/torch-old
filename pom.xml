@@ -20,11 +20,11 @@
         <module>torch-compiler</module>
         <module>torch-compiler-spi</module>
         <module>torch-core</module>
-        <module>torch-test</module>
         <module>torch-bridge</module>
         <module>torch-demo-todo</module>
         <module>torch-android</module>
         <module>torch-marshall</module>
+        <module>torch-tests</module>
     </modules>
 
     <licenses>
@@ -131,12 +131,25 @@
             </dependency>
             <dependency>
                 <groupId>org.brightify.torch</groupId>
+                <artifactId>torch-core</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-marshall</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-android</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.brightify.torch</groupId>
+                <artifactId>torch-testing-utils</artifactId>
+                <scope>test</scope>
                 <version>${project.version}</version>
             </dependency>
     	</dependencies>
@@ -242,6 +255,9 @@
                             </goals>
                         </execution>
     				</executions>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
     			</plugin>
     			<plugin>
     				<groupId>org.codehaus.mojo</groupId>

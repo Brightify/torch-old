@@ -5,37 +5,37 @@ package org.brightify.torch;
  */
 public interface WritableRawEntity {
 
-    void put(String properyName, String value);
+    void put(String propertyName, String value);
 
-    void put(String properyName, Byte value);
+    void put(String propertyName, Byte value);
 
-    void put(String properyName, byte value);
+    void put(String propertyName, byte value);
 
-    void put(String properyName, Short value);
+    void put(String propertyName, Short value);
 
-    void put(String properyName, short value);
+    void put(String propertyName, short value);
 
-    void put(String properyName, Integer value);
+    void put(String propertyName, Integer value);
 
-    void put(String properyName, int value);
+    void put(String propertyName, int value);
 
-    void put(String properyName, Long value);
+    void put(String propertyName, Long value);
 
-    void put(String properyName, long value);
+    void put(String propertyName, long value);
 
-    void put(String properyName, Float value);
+    void put(String propertyName, Float value);
 
-    void put(String properyName, float value);
+    void put(String propertyName, float value);
 
-    void put(String properyName, Double value);
+    void put(String propertyName, Double value);
 
-    void put(String properyName, double value);
+    void put(String propertyName, double value);
 
-    void put(String properyName, Boolean value);
+    void put(String propertyName, Boolean value);
 
-    void put(String properyName, boolean value);
+    void put(String propertyName, boolean value);
 
-    void put(String properyName, byte[] value);
+    void put(String propertyName, byte[] value);
 
     void putNull(String propertyName);
 }

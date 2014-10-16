@@ -6,8 +6,6 @@ import com.sun.codemodel.JExpression;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
-import org.brightify.torch.sql.TypeAffinity;
-import org.brightify.torch.sql.affinity.NoneAffinity;
 
 import java.io.Serializable;
 
@@ -27,7 +25,8 @@ public class SerializableMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
+    protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder,
+                                        PropertyMirror propertyMirror) {
         JExpression getValue = super.marshallValue(holder, propertyMirror);
 
         return CodeModelTypes.SERIALIZER.staticInvoke("serialize").arg(getValue);
@@ -35,7 +34,7 @@ public class SerializableMarshaller extends AbstractMarshaller {
 
     @Override
     protected JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
-                                     PropertyMirror propertyMirror) {
+                                        PropertyMirror propertyMirror) {
         JExpression getBlob = holder.rawEntity.invoke("getBlob").arg(JExpr.lit(propertyMirror.getSafeName()));
         JExpression propertyTypeClass = CodeModelTypes.ref(propertyMirror).dotclass();
 
@@ -45,11 +44,6 @@ public class SerializableMarshaller extends AbstractMarshaller {
     @Override
     protected boolean nullable(PropertyMirror propertyMirror) {
         return true;
-    }
-
-    @Override
-    public TypeAffinity getAffinity() {
-        return NoneAffinity.getInstance();
     }
 
     @Override

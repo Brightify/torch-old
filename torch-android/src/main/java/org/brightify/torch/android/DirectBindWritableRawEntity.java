@@ -19,110 +19,110 @@ public class DirectBindWritableRawEntity implements WritableRawEntity {
     }
 
     @Override
-    public void put(String properyName, String value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, String value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        statement.bindString(getIndex(properyName), value);
+        statement.bindString(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Byte value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Byte value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.byteValue());
+        put(propertyName, value.byteValue());
     }
 
     @Override
-    public void put(String properyName, byte value) {
-        statement.bindLong(getIndex(properyName), value);
+    public void put(String propertyName, byte value) {
+        statement.bindLong(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Short value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Short value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.shortValue());
+        put(propertyName, value.shortValue());
     }
 
     @Override
-    public void put(String properyName, short value) {
-        statement.bindLong(getIndex(properyName), value);
+    public void put(String propertyName, short value) {
+        statement.bindLong(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Integer value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Integer value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.intValue());
+        put(propertyName, value.intValue());
     }
 
     @Override
-    public void put(String properyName, int value) {
-        statement.bindLong(getIndex(properyName), value);
+    public void put(String propertyName, int value) {
+        statement.bindLong(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Long value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Long value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.longValue());
+        put(propertyName, value.longValue());
     }
 
     @Override
-    public void put(String properyName, long value) {
-        statement.bindLong(getIndex(properyName), value);
+    public void put(String propertyName, long value) {
+        statement.bindLong(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Float value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Float value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.floatValue());
+        put(propertyName, value.floatValue());
     }
 
     @Override
-    public void put(String properyName, float value) {
-        statement.bindDouble(getIndex(properyName), value);
+    public void put(String propertyName, float value) {
+        statement.bindDouble(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Double value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Double value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.doubleValue());
+        put(propertyName, value.doubleValue());
     }
 
     @Override
-    public void put(String properyName, double value) {
-        statement.bindDouble(getIndex(properyName), value);
+    public void put(String propertyName, double value) {
+        statement.bindDouble(getIndex(propertyName), value);
     }
 
     @Override
-    public void put(String properyName, Boolean value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, Boolean value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        put(properyName, value.booleanValue());
+        put(propertyName, value.booleanValue());
     }
 
     @Override
-    public void put(String properyName, boolean value) {
-        statement.bindLong(getIndex(properyName), value ? 1 : 0);
+    public void put(String propertyName, boolean value) {
+        statement.bindLong(getIndex(propertyName), value ? 1 : 0);
     }
 
     @Override
-    public void put(String properyName, byte[] value) {
-        if(bindNull(properyName, value)) {
+    public void put(String propertyName, byte[] value) {
+        if(bindNull(propertyName, value)) {
             return;
         }
-        statement.bindBlob(getIndex(properyName), value);
+        statement.bindBlob(getIndex(propertyName), value);
     }
 
     @Override
