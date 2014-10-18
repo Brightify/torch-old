@@ -15,9 +15,9 @@ public interface DatabaseEngine {
 
     <ENTITY> int count(LoadQuery<ENTITY> loadQuery);
 
-    <ENTITY> Map<Key<ENTITY>, ENTITY> save(Iterable<ENTITY> entities);
+    <ENTITY> Map<ENTITY, Long> save(Iterable<ENTITY> entities);
 
-    <ENTITY> Map<Key<ENTITY>, Boolean> delete(Iterable<Key<ENTITY>> keys);
+    <ENTITY> Map<ENTITY, Boolean> delete(Iterable<ENTITY> entities);
 
     <ENTITY> MigrationAssistant<ENTITY> getMigrationAssistant(EntityDescription<ENTITY> metadata);
 

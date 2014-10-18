@@ -8,8 +8,6 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
-import org.brightify.torch.Key;
-import org.brightify.torch.KeyFactory;
 import org.brightify.torch.Settings;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.action.load.LoadQuery;
@@ -202,8 +200,8 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     @Override
-    public <ENTITY> Map<Key<ENTITY>, ENTITY> save(Iterable<ENTITY> entities) {
-        Map<Key<ENTITY>, ENTITY> results = new HashMap<Key<ENTITY>, ENTITY>();
+    public <ENTITY> Map<ENTITY, Long> save(Iterable<ENTITY> entities) {
+        Map<ENTITY, Long> results = new HashMap<ENTITY, Long>();
         Iterator<ENTITY> iterator = entities.iterator();
         if (!iterator.hasNext()) {
             return results;
@@ -231,9 +229,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
 
                 description.setEntityId(entity, entityId);
 
-                Key<ENTITY> key = KeyFactory.create(entityClass, entityId);
-
-                results.put(key, entity);
+                results.put(entity, entityId);
             }
 
             db.setTransactionSuccessful();
@@ -252,25 +248,27 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     @Override
-    public <ENTITY> Map<Key<ENTITY>, Boolean> delete(Iterable<Key<ENTITY>> keys) {
+    public <ENTITY> Map<ENTITY, Boolean> delete(Iterable<ENTITY> entities) {
         SQLiteDatabase db = getDatabase();
 
         db.beginTransaction();
         try {
-            Map<Key<ENTITY>, Boolean> results = new HashMap<Key<ENTITY>, Boolean>();
+            Map<ENTITY, Boolean> results = new HashMap<ENTITY, Boolean>();
             EntityDescription<ENTITY> metadata = null;
-            for (Key<ENTITY> key : keys) {
+            for (ENTITY entity : entities) {
                 if (metadata == null) {
-                    metadata = torchFactory.getEntities().getDescription(key.getType());
+                    @SuppressWarnings("unchecked")
+                    Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
+                    metadata = torchFactory.getEntities().getDescription(entityClass);
                 }
 
                 int affected = db.delete(metadata.getSafeName(), metadata.getIdProperty().getSafeName() + " = ?",
-                                         new String[] { String.valueOf(key.getId()) });
+                                         new String[] { String.valueOf(metadata.getEntityId(entity)) });
                 if (affected > 1) {
                     throw new IllegalStateException("Delete command affected more than one row at once!");
                 }
 
-                results.put(key, affected == 1);
+                results.put(entity, affected == 1);
             }
 
             db.setTransactionSuccessful();

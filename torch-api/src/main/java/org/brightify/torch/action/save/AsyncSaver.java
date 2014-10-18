@@ -1,6 +1,5 @@
 package org.brightify.torch.action.save;
 
-import org.brightify.torch.Key;
 import org.brightify.torch.util.async.Callback;
 
 import java.util.Map;
@@ -20,7 +19,7 @@ public interface AsyncSaver {
      * @param entity   Entity to be saved.
      * @param <ENTITY> Type of the saved entity.
      */
-    <ENTITY> void entity(Callback<Key<ENTITY>> callback, ENTITY entity);
+    <ENTITY> void entity(Callback<Long> callback, ENTITY entity);
 
     /**
      * Asynchronously save multiple entities entered as varargs. It will also set ID for entities that had null ID
@@ -30,7 +29,7 @@ public interface AsyncSaver {
      * @param entities Entities to be saved.
      * @param <ENTITY> Type of saved entities.
      */
-    <ENTITY> void entities(Callback<Map<Key<ENTITY>, ENTITY>> callback, ENTITY... entities);
+    <ENTITY> void entities(Callback<Map<ENTITY, Long>> callback, ENTITY... entities);
 
     /**
      * Asynchronously save multiple entities entered as any iterable. It will also set ID for entities tha had null ID
@@ -40,6 +39,6 @@ public interface AsyncSaver {
      * @param entities Entities to be saved.
      * @param <ENTITY> Type of saved entities.
      */
-    <ENTITY> void entities(Callback<Map<Key<ENTITY>, ENTITY>> callback, Iterable<ENTITY> entities);
+    <ENTITY> void entities(Callback<Map<ENTITY, Long>> callback, Iterable<ENTITY> entities);
 
 }

@@ -1,6 +1,5 @@
 package org.brightify.torch.action.save;
 
-import org.brightify.torch.Key;
 import org.brightify.torch.action.AsyncSelector;
 
 import java.util.Map;
@@ -21,7 +20,7 @@ public interface Saver extends AsyncSelector<AsyncSaver> {
      *
      * @return Key of the saved entity.
      */
-    <ENTITY> Key<ENTITY> entity(ENTITY entity);
+    <ENTITY> Long entity(ENTITY entity);
 
     /**
      * Save multiple entities entered as varargs. It will also set ID for entities that had null ID before save.
@@ -31,7 +30,7 @@ public interface Saver extends AsyncSelector<AsyncSaver> {
      *
      * @return Map of keys and entities.
      */
-    <ENTITY> Map<Key<ENTITY>, ENTITY> entities(ENTITY... entities);
+    <ENTITY> Map<ENTITY, Long> entities(ENTITY... entities);
 
     /**
      * Save multiple entities entered as any iterable. It will also set ID for entities that had null ID before save.
@@ -39,7 +38,7 @@ public interface Saver extends AsyncSelector<AsyncSaver> {
      * @param <ENTITY> Type of saved entities.
      * @return Map of keys and entities.
      */
-    <ENTITY> Map<Key<ENTITY>, ENTITY> entities(Iterable<ENTITY> entities);
+    <ENTITY> Map<ENTITY, Long> entities(Iterable<ENTITY> entities);
 
 
 }

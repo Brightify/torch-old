@@ -2,7 +2,6 @@ package org.brightify.torch.test;
 
 import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
-import org.brightify.torch.Key;
 import org.brightify.torch.ReadableRawEntity;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
@@ -38,13 +37,14 @@ public class MockDatabaseEngine implements DatabaseEngine {
     }
 
     @Override
-    public <ENTITY> Map<Key<ENTITY>, ENTITY> save(Iterable<ENTITY> entities) {
-        Map<Key<ENTITY>, ENTITY> results = new HashMap<Key<ENTITY>, ENTITY>();
+    public <ENTITY> Map<ENTITY, Long> save(Iterable<ENTITY> entities) {
+        Map<ENTITY, Long> results = new HashMap<ENTITY, Long>();
         Iterator<ENTITY> iterator = entities.iterator();
         if (!iterator.hasNext()) {
             return results;
         }
 
+        @SuppressWarnings("unchecked")
         Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
         EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
         Long counter = idCounter.get(entityClass);
@@ -56,7 +56,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
             try {
                 description.setEntityId(entity, counter);
                 description.toRawEntity(torchFactory, entity, rawEntity);
-                results.put(description.createKey(entity), entity);
+                results.put(entity, counter);
                 transaction.put(counter, rawEntity);
                 counter++;
             } catch (Exception e) {
@@ -69,18 +69,23 @@ public class MockDatabaseEngine implements DatabaseEngine {
     }
 
     @Override
-    public <ENTITY> Map<Key<ENTITY>, Boolean> delete(Iterable<Key<ENTITY>> keys) {
-        Map<Key<ENTITY>, Boolean> result = new HashMap<Key<ENTITY>, Boolean>();
-        Iterator<Key<ENTITY>> iterator = keys.iterator();
+    public <ENTITY> Map<ENTITY, Boolean> delete(Iterable<ENTITY> entities) {
+        Map<ENTITY, Boolean> result = new HashMap<ENTITY, Boolean>();
+        Iterator<ENTITY> iterator = entities.iterator();
         if (!iterator.hasNext()) {
             return result;
         }
 
-        Map<Long, RawEntity> entityDatabase = database.get(iterator.next().getType());
+        @SuppressWarnings("unchecked")
+        Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
+        EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
 
-        for (Key<ENTITY> key : keys) {
-            RawEntity rawEntity = entityDatabase.remove(key.getId());
-            result.put(key, rawEntity != null);
+        Map<Long, RawEntity> entityDatabase = database.get(iterator.next().getClass());
+
+        for (ENTITY entity : entities) {
+            Long id = description.getEntityId(entity);
+            RawEntity rawEntity = entityDatabase.remove(id);
+            result.put(entity, rawEntity != null);
         }
 
         return result;

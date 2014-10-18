@@ -1,6 +1,5 @@
 package org.brightify.torch.action.delete;
 
-import org.brightify.torch.Key;
 import org.brightify.torch.action.AsyncSelector;
 
 import java.util.Map;
@@ -31,7 +30,7 @@ public interface Deleter extends AsyncSelector<AsyncDeleter> {
      *
      * @return Map of keys for each entity with value set to true if delete was successful for the entity.
      */
-    <ENTITY> Map<Key<ENTITY>, Boolean> entities(ENTITY... entities);
+    <ENTITY> Map<ENTITY, Boolean> entities(ENTITY... entities);
 
     /**
      * Delete multiple entities entered as any iterable.
@@ -41,37 +40,6 @@ public interface Deleter extends AsyncSelector<AsyncDeleter> {
      *
      * @return Map of keys for each entity with value set to true if delete was successful for the entity.
      */
-    <ENTITY> Map<Key<ENTITY>, Boolean> entities(Iterable<ENTITY> entities);
-
-    /**
-     * Delete entity by its key. This might be useful when you have only the ID of the entity and you don't want to
-     * waste time by loading the entity.
-     *
-     * @param key      Key of an entity to be deleted.
-     * @param <ENTITY> Type of the deleted entity.
-     *
-     * @return True if the delete was successful.
-     */
-    <ENTITY> Boolean key(Key<ENTITY> key);
-
-    /**
-     * Delete multiple entities by their keys, entered as varargs.
-     *
-     * @param keys     Keys of entities to be deleted.
-     * @param <ENTITY> Type of deleted entities.
-     *
-     * @return Map of keys for each entity with value set to true if delete was successful for the key.
-     */
-    <ENTITY> Map<Key<ENTITY>, Boolean> keys(Key<ENTITY>... keys);
-
-    /**
-     * Delete multiple entities by their keys, entered as any iterable.
-     *
-     * @param keys     Keys of entities to be deleted.
-     * @param <ENTITY> Type of deleted entities.
-     *
-     * @return Map of keys for each entity with value set to true if delete was successful for the key.
-     */
-    <ENTITY> Map<Key<ENTITY>, Boolean> keys(Iterable<Key<ENTITY>> keys);
+    <ENTITY> Map<ENTITY, Boolean> entities(Iterable<ENTITY> entities);
 
 }

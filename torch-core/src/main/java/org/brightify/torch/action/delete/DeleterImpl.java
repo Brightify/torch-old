@@ -34,47 +34,17 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
     }
 
     @Override
-    public <ENTITY> Map<Key<ENTITY>, Boolean> entities(ENTITY... entities) {
+    public <ENTITY> Map<ENTITY, Boolean> entities(ENTITY... entities) {
         return entities(Arrays.asList(entities));
     }
 
     @Override
-    public <ENTITY> Map<Key<ENTITY>, Boolean> entities(Iterable<ENTITY> entities) {
+    public <ENTITY> Map<ENTITY, Boolean> entities(Iterable<ENTITY> entities) {
         if (entities == null) {
             throw new IllegalArgumentException("Entities cannot be null!");
         }
 
-        EntityDescription<ENTITY> metadata = null;
-        LinkedList<Key<ENTITY>> keys = new LinkedList<Key<ENTITY>>();
-        for (ENTITY entity : entities) {
-            if (metadata == null) {
-                @SuppressWarnings("unchecked")
-                Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
-                metadata = torch.getFactory().getEntities().getDescription(entityClass);
-            }
-            keys.addLast(metadata.createKey(entity));
-        }
-
-        return keys(keys);
-    }
-
-    @Override
-    public <ENTITY> Boolean key(Key<ENTITY> key) {
-        return keys(Collections.singleton(key)).values().iterator().next();
-    }
-
-    @Override
-    public <ENTITY> Map<Key<ENTITY>, Boolean> keys(Key<ENTITY>... keys) {
-        return keys(Arrays.asList(keys));
-    }
-
-    @Override
-    public <ENTITY> Map<Key<ENTITY>, Boolean> keys(Iterable<Key<ENTITY>> keys) {
-        if (keys == null) {
-            throw new IllegalArgumentException("Keys cannot be null!");
-        }
-
-        return torch.getFactory().getDatabaseEngine().delete(keys);
+        return torch.getFactory().getDatabaseEngine().delete(entities);
     }
 
     @Override
@@ -88,52 +58,23 @@ public class DeleterImpl implements Deleter, AsyncDeleter {
     }
 
     @Override
-    public <ENTITY> void entities(Callback<Map<Key<ENTITY>, Boolean>> callback, final ENTITY... entities) {
-        AsyncRunner.submit(callback, new Callable<Map<Key<ENTITY>, Boolean>>() {
+    public <ENTITY> void entities(Callback<Map<ENTITY, Boolean>> callback, final ENTITY... entities) {
+        AsyncRunner.submit(callback, new Callable<Map<ENTITY, Boolean>>() {
             @Override
-            public Map<Key<ENTITY>, Boolean> call() throws Exception {
+            public Map<ENTITY, Boolean> call() throws Exception {
                 return entities(entities);
             }
         });
     }
 
     @Override
-    public <ENTITY> void entities(Callback<Map<Key<ENTITY>, Boolean>> callback, final Iterable<ENTITY> entities) {
-        AsyncRunner.submit(callback, new Callable<Map<Key<ENTITY>, Boolean>>() {
+    public <ENTITY> void entities(Callback<Map<ENTITY, Boolean>> callback, final Iterable<ENTITY> entities) {
+        AsyncRunner.submit(callback, new Callable<Map<ENTITY, Boolean>>() {
             @Override
-            public Map<Key<ENTITY>, Boolean> call() throws Exception {
+            public Map<ENTITY, Boolean> call() throws Exception {
                 return entities(entities);
             }
         });
     }
 
-    @Override
-    public <ENTITY> void key(Callback<Boolean> callback, final Key<ENTITY> key) {
-        AsyncRunner.submit(callback, new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return key(key);
-            }
-        });
-    }
-
-    @Override
-    public <ENTITY> void keys(Callback<Map<Key<ENTITY>, Boolean>> callback, final Key<ENTITY>... keys) {
-        AsyncRunner.submit(callback, new Callable<Map<Key<ENTITY>, Boolean>>() {
-            @Override
-            public Map<Key<ENTITY>, Boolean> call() throws Exception {
-                return keys(keys);
-            }
-        });
-    }
-
-    @Override
-    public <ENTITY> void keys(Callback<Map<Key<ENTITY>, Boolean>> callback, final Iterable<Key<ENTITY>> keys) {
-        AsyncRunner.submit(callback, new Callable<Map<Key<ENTITY>, Boolean>>() {
-            @Override
-            public Map<Key<ENTITY>, Boolean> call() throws Exception {
-                return keys(keys);
-            }
-        });
-    }
 }

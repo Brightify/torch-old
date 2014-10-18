@@ -2,14 +2,13 @@ package org.brightify.torch.android.action.load;
 
 import android.test.suitebuilder.annotation.MediumTest;
 import org.brightify.torch.BaseActivityInstrumentationTestCase2;
-import org.brightify.torch.Key;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
-import org.brightify.torch.util.async.Callback;
 import org.brightify.torch.util.Constants;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,7 +66,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
         savedData = new TestObject[] { testObject, testObject1, testObject2, testObject3 };
 
-        Map<Key<TestObject>, TestObject> savedDataMap = torch().save().entities(savedData);
+        Map<TestObject, Long> savedDataMap = torch().save().entities(savedData);
         assertEquals(4, savedDataMap.size());
     }
 

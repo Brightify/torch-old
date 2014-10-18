@@ -49,8 +49,7 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
         return holder.torchFactory
                 .invoke("begin")
                 .invoke("save")
-                .invoke("entity").arg(getValue)
-                .invoke("getId");
+                .invoke("entity").arg(getValue);
     }
 
     @Override

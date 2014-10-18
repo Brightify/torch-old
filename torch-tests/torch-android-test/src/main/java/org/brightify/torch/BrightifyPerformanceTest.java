@@ -47,7 +47,7 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
         Settings.disableQueryLogging();
     }
 
-    public void testOrmPerformance() {
+    public void testOrmPerformance() throws Exception {
         AndroidSQLiteEngine engine = null;
         try {
             Debug.startMethodTracing("testOrmPerformance");
@@ -69,12 +69,12 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
             Log.d(TAG, "ORM - Create objects: " + (System.currentTimeMillis() - time) + "ms");
             time = System.currentTimeMillis();
 
-            Set<Key<TestObject>> keys = torch().save().entities(testObjects).keySet();
+            Set<TestObject> entities = torch().save().entities(testObjects).keySet();
 
             Log.d(TAG, "ORM - Save: " + (System.currentTimeMillis() - time) + "ms");
             time = System.currentTimeMillis();
 
-            assertEquals(testObjects.size(), keys.size());
+            assertEquals(testObjects.size(), entities.size());
 
             List<TestObject> testObjects1 = torch().load().type(TestObject.class).list();
 
@@ -84,13 +84,9 @@ public class BrightifyPerformanceTest extends AndroidTestCase {
 
             Log.d(TAG, "ORM - Complete: " + (System.currentTimeMillis() - start) + "ms");
         } finally {
-            try {
-                engine.wipe();
-                TorchService.forceUnload();
-                Debug.stopMethodTracing();
-            } catch(Exception e) {
-
-            }
+            engine.wipe();
+            TorchService.forceUnload();
+            Debug.stopMethodTracing();
         }
     }
 

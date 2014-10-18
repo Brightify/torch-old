@@ -1,7 +1,6 @@
 package org.brightify.torch.test;
 
 import org.brightify.torch.DatabaseEngine;
-import org.brightify.torch.Key;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.filter.BaseFilter;
 import org.junit.After;
@@ -56,7 +55,7 @@ public abstract class AbstractFilterTest {
 
         savedData = new TestObject[] { testObject, testObject1, testObject2, testObject3 };
 
-        Map<Key<TestObject>, TestObject> savedDataMap = torch().save().entities(savedData);
+        Map<TestObject, Long> savedDataMap = torch().save().entities(savedData);
         assertThat(savedDataMap.size(), is(4));
     }
 
