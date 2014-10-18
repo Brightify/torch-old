@@ -9,7 +9,7 @@ import static org.truth0.Truth.ASSERT;
 
 public class SimpleEntityTest {
 
-    // FIXME unignore when we have property implementations on classpath
+    // FIXME unignore when Keys are removed
     @Ignore
     @Test
     public void testSimpleEntity() {
