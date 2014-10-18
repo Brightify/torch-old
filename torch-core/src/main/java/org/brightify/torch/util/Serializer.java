@@ -1,7 +1,5 @@
 package org.brightify.torch.util;
 
-import android.database.Cursor;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -11,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -47,7 +44,8 @@ public class Serializer {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T[] deserializeArray(T[] arrayType, Class<T> objectType, byte[] blob) throws IOException, ClassNotFoundException {
+    public static <T> T[] deserializeArray(T[] arrayType, Class<T> objectType, byte[] blob)
+            throws IOException, ClassNotFoundException {
         List<T> list = deserializeArrayList(objectType, blob);
 
         return list.toArray(arrayType);
@@ -60,7 +58,7 @@ public class Serializer {
         int count = list.size();
         stream.writeInt(count);
 
-        for(T object : list) {
+        for (T object : list) {
             byte[] data = serialize(object);
 
             stream.writeInt(data.length);
@@ -74,7 +72,8 @@ public class Serializer {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> ArrayList<T> deserializeArrayList(Class<T> propertyClass, byte[] blob) throws IOException, ClassNotFoundException {
+    public static <T> ArrayList<T> deserializeArrayList(Class<T> propertyClass, byte[] blob)
+            throws IOException, ClassNotFoundException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(blob);
         DataInputStream stream = new DataInputStream(byteArrayInputStream);
 
@@ -82,14 +81,14 @@ public class Serializer {
 
         ArrayList<T> collection = new ArrayList<T>();
 
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             int length = stream.readInt();
             int read = 0;
             byte[] data = new byte[length];
 
             do {
                 read += stream.read(data, read, length - read);
-            } while(read < length);
+            } while (read < length);
 
             T object = (T) deserialize(data);
 

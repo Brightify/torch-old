@@ -1,7 +1,7 @@
 package org.brightify.torch.action.save;
 
 import org.brightify.torch.Key;
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.Map;
 

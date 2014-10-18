@@ -1,10 +1,11 @@
 package org.brightify.torch;
 
-import org.brightify.torch.util.AsyncRunner;
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.AsyncRunner;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -48,9 +49,9 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     public void submit() {
         submitted = true;
 
-        AsyncRunner.submit(callback, new AsyncRunner.Task<TorchFactory>() {
+        AsyncRunner.submit(callback, new Callable<TorchFactory>() {
             @Override
-            public TorchFactory doWork() throws Exception {
+            public TorchFactory call() throws Exception {
                 return new TorchFactoryImpl(databaseEngine, metadatas);
             }
         });

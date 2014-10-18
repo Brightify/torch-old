@@ -35,17 +35,6 @@ import java.util.Map;
 public class AndroidSQLiteEngine implements DatabaseEngine {
     private static final String TAG = AndroidSQLiteEngine.class.getSimpleName();
     private static final int DATABASE_CREATED_VERSION = 1001;
-
-    private final Object lock = new Object();
-    private final Context context;
-    private final String databaseName;
-    private final SQLiteDatabase.CursorFactory cursorFactory;
-    private final Map<Class<?>, CompiledStatement> compiledStatements = new HashMap<Class<?>, CompiledStatement>();
-    private final SQLiteMaster$ sqLiteMasterMetadata = SQLiteMaster$.create();
-    private TorchFactory torchFactory;
-    private SQLiteDatabase database;
-    private boolean initializing;
-
     private static Map<Class<?>, String> typeAffinities = new HashMap<Class<?>, String>();
 
     static {
@@ -71,7 +60,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         };
         addAffinityTypes("REAL", realTypes);
 
-        Class<?>[] numericTypes = {};
+        Class<?>[] numericTypes = { };
         addAffinityTypes("NUMERIC", numericTypes);
 
         Class<?>[] textTypes = {
@@ -80,13 +69,36 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         addAffinityTypes("TEXT", textTypes);
     }
 
+    private final Object lock = new Object();
+    private final Context context;
+    private final String databaseName;
+    private final SQLiteDatabase.CursorFactory cursorFactory;
+    private final Map<Class<?>, CompiledStatement> compiledStatements = new HashMap<Class<?>, CompiledStatement>();
+    private final SQLiteMaster$ sqLiteMasterMetadata = SQLiteMaster$.create();
+    private TorchFactory torchFactory;
+    private SQLiteDatabase database;
+    private boolean initializing;
+
     /**
      * @param databaseName database name, if null then database will be only in memory and deleted after closing
      */
     public AndroidSQLiteEngine(Context context, String databaseName, SQLiteDatabase.CursorFactory cursorFactory) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.databaseName = databaseName;
         this.cursorFactory = cursorFactory;
+    }
+
+    private static String affinityFor(Class<?> cls) {
+        if (typeAffinities.containsKey(cls)) {
+            return typeAffinities.get(cls);
+        }
+        return "NONE";
+    }
+
+    private static void addAffinityTypes(String affinity, Class<?>... classes) {
+        for (Class<?> cls : classes) {
+            typeAffinities.put(cls, affinity);
+        }
     }
 
     public String getDatabaseName() {
@@ -193,7 +205,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     public <ENTITY> Map<Key<ENTITY>, ENTITY> save(Iterable<ENTITY> entities) {
         Map<Key<ENTITY>, ENTITY> results = new HashMap<Key<ENTITY>, ENTITY>();
         Iterator<ENTITY> iterator = entities.iterator();
-        if(!iterator.hasNext()) {
+        if (!iterator.hasNext()) {
             return results;
         }
         SQLiteDatabase db = getDatabase();
@@ -229,13 +241,12 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             return results;
         } catch (Exception e) {
             // FIXME handle the exception better
-            if(e instanceof RuntimeException) {
+            if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             } else {
                 throw new RuntimeException(e);
             }
-        }
-        finally {
+        } finally {
             db.endTransaction();
         }
     }
@@ -282,7 +293,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     @Override
     public void setTorchFactory(TorchFactory factory) {
         torchFactory = factory;
-        if(factory != null) {
+        if (factory != null) {
             factory.getEntities().registerMetadata(SQLiteMaster$.create());
         }
     }
@@ -343,21 +354,21 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         Property<?>[] properties = description.getProperties();
         int i = 0;
         for (Property<?> property : properties) {
-            if(i++ > 0) {
-               sql.append(',');
+            if (i++ > 0) {
+                sql.append(',');
             }
 
             Id.IdFeature idFeature = PropertyUtil.getFeature(property, Id.IdFeature.class);
 
             sql.append(property.getSafeName()).append(" ").append(affinityFor(property.getType()));
 
-            if(idFeature != null) {
+            if (idFeature != null) {
                 sql.append(" CONSTRAINT ")
                    .append(property.getSafeName())
                    .append("_primary")
                    .append(" PRIMARY KEY ASC ");
 
-                if(idFeature.isAutoIncrement()) {
+                if (idFeature.isAutoIncrement()) {
                     sql.append("AUTOINCREMENT ");
                 }
             }
@@ -368,7 +379,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     protected <ENTITY> void dropTableIfExists(EntityDescription<ENTITY> description) {
-        execSql("DROP TABLE IF EXISTS ?", new String[] { description.getSafeName() } );
+        execSql("DROP TABLE IF EXISTS ?", new String[] { description.getSafeName() });
     }
 
     protected <ENTITY> boolean tableExists(EntityDescription<ENTITY> description) {
@@ -413,7 +424,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             builder.append(" ORDER BY ");
             int i = 0;
             for (Map.Entry<Property<?>, OrderLoader.Direction> entry : query.getOrderMap().entrySet()) {
-                if(i++ > 0) {
+                if (i++ > 0) {
                     builder.append(',');
                 }
                 builder.append(entry.getKey().getSafeName()).append(" ")
@@ -462,19 +473,6 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             } else {
                 Log.d(TAG, sql);
             }
-        }
-    }
-
-    private static String affinityFor(Class<?> cls) {
-        if(typeAffinities.containsKey(cls)) {
-            return typeAffinities.get(cls);
-        }
-        return "NONE";
-    }
-
-    private static void addAffinityTypes(String affinity, Class<?>... classes) {
-        for (Class<?> cls : classes) {
-            typeAffinities.put(cls, affinity);
         }
     }
 

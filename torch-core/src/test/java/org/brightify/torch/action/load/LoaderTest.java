@@ -5,7 +5,7 @@ import org.brightify.torch.test.MockDatabaseEngine;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.Callback;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

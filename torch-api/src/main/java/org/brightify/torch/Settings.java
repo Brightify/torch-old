@@ -3,6 +3,7 @@ package org.brightify.torch;
 import org.brightify.torch.annotation.Index;
 import org.brightify.torch.util.SerialExecutor;
 import org.brightify.torch.util.Validate;
+import org.brightify.torch.util.async.AsyncRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +148,7 @@ public class Settings {
     }
 
     /**
-     * Returns currently set executor for the {@link org.brightify.torch.util.AsyncRunner}.
+     * Returns currently set executor for the {@link AsyncRunner}.
      * <p/>
      * Default is {@link SerialExecutor#INSTANCE}.
      */
@@ -156,7 +157,7 @@ public class Settings {
     }
 
     /**
-     * Sets a custom executor for the {@link org.brightify.torch.util.AsyncRunner}.
+     * Sets a custom executor for the {@link AsyncRunner}.
      *
      * @see Settings#getAsyncExecutor()
      */

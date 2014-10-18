@@ -12,7 +12,7 @@ import org.brightify.torch.demo.todo.model.Task;
 import org.brightify.torch.demo.todo.model.Task$;
 import org.brightify.torch.demo.todo.view.TaskItemView;
 import org.brightify.torch.demo.todo.view.TaskItemView_;
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.List;
 

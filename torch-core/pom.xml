@@ -11,11 +11,6 @@
     <artifactId>torch-core</artifactId>
 
     <dependencies>
-        <!-- FIXME remove this dependency as soon as possible! -->
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-api</artifactId>

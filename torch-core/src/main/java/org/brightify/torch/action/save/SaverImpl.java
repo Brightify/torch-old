@@ -2,12 +2,13 @@ package org.brightify.torch.action.save;
 
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
-import org.brightify.torch.util.AsyncRunner;
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.AsyncRunner;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 public class SaverImpl implements Saver, AsyncSaver {
 
@@ -40,9 +41,9 @@ public class SaverImpl implements Saver, AsyncSaver {
 
     @Override
     public <ENTITY> void entity(Callback<Key<ENTITY>> callback, final ENTITY entity) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<Key<ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<Key<ENTITY>>() {
             @Override
-            public Key<ENTITY> doWork() throws Exception {
+            public Key<ENTITY> call() throws Exception {
                 return entity(entity);
             }
         });
@@ -50,9 +51,9 @@ public class SaverImpl implements Saver, AsyncSaver {
 
     @Override
     public <ENTITY> void entities(Callback<Map<Key<ENTITY>, ENTITY>> callback, final ENTITY... entities) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<Map<Key<ENTITY>, ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<Map<Key<ENTITY>,ENTITY>>() {
             @Override
-            public Map<Key<ENTITY>, ENTITY> doWork() throws Exception {
+            public Map<Key<ENTITY>, ENTITY> call() throws Exception {
                 return entities(entities);
             }
         });
@@ -60,9 +61,9 @@ public class SaverImpl implements Saver, AsyncSaver {
 
     @Override
     public <ENTITY> void entities(Callback<Map<Key<ENTITY>, ENTITY>> callback, final Iterable<ENTITY> entities) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<Map<Key<ENTITY>, ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<Map<Key<ENTITY>, ENTITY>>() {
             @Override
-            public Map<Key<ENTITY>, ENTITY> doWork() throws Exception {
+            public Map<Key<ENTITY>, ENTITY> call() throws Exception {
                 return entities(entities);
             }
         });

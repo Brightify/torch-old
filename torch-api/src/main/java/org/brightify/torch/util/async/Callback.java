@@ -1,4 +1,4 @@
-package org.brightify.torch.util;
+package org.brightify.torch.util.async;
 
 public interface Callback<T> {
 

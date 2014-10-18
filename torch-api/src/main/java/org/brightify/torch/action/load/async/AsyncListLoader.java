@@ -1,6 +1,6 @@
 package org.brightify.torch.action.load.async;
 
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.List;
 

@@ -8,7 +8,7 @@ import org.brightify.torch.android.AndroidSQLiteEngine;
 import org.brightify.torch.test.MainTestActivity;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
-import org.brightify.torch.util.Callback;
+import org.brightify.torch.util.async.Callback;
 import org.brightify.torch.util.Constants;
 
 import java.util.Arrays;

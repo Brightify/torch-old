@@ -1,30 +1,30 @@
 package org.brightify.torch;
 
-import android.util.Log;
-import org.brightify.torch.util.Callback;
 import org.brightify.torch.util.Validate;
+import org.brightify.torch.util.async.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 
 
 public class TorchService {
-    private static final String TAG = TorchService.class.getSimpleName();
-
-    private static TorchFactory factoryInstance;
-    private static AsyncFactoryBuilder activeFactoryBuilder;
-
+    private static final Logger logger = LoggerFactory.getLogger(TorchService.class);
     private static final ThreadLocal<LinkedList<Torch>> STACK = new ThreadLocal<LinkedList<Torch>>() {
         @Override
         protected LinkedList<Torch> initialValue() {
             return new LinkedList<Torch>();
         }
     };
+    private static TorchFactory factoryInstance;
+    private static AsyncFactoryBuilder activeFactoryBuilder;
 
     /**
-     * Using this method the database will get opened (or created if it doesn't yet exist) in background.
-     * In order to get all async callbacks delivered on UI Thread, you have to call this on UI Thread.
+     * Using this method the database will get opened (or created if it doesn't yet exist) in background. In order to
+     * get all async callbacks delivered on UI Thread, you have to call this on UI Thread.
      *
      * @param callback will be called when database is opened or on failure, on UI thread
+     *
      * @return Asynchronous initializer.
      */
     public static AsyncInitializer asyncInit(final Callback<Void> callback) {
@@ -37,7 +37,7 @@ public class TorchService {
 
             @Override
             public void onFailure(Exception e) {
-                Log.e(TAG, "Could not initialize database in background!", e);
+                logger.error("Could not initialize database in background!", e);
                 callback.onFailure(e);
             }
         });
@@ -46,10 +46,11 @@ public class TorchService {
     }
 
     /**
-     * Loads the TorchFactory with passed context. In order to get all async callbacks delivered on UI Thread,
-     * you have to call this on UI Thread
+     * Loads the TorchFactory with passed context. In order to get all async callbacks delivered on UI Thread, you have
+     * to call this on UI Thread
      *
      * @param engine A database engine to be used in the factory.
+     *
      * @return EntityRegistrar for {@link org.brightify.torch.annotation.Entity} registration
      */
     public static TorchFactory with(DatabaseEngine engine) {
@@ -77,11 +78,9 @@ public class TorchService {
      * This is the main method that will initialize the Torch.
      * <p/>
      * We recommend to static import this method, so that you can only call torch() to begin.
-     *
-     * @return
      */
     public static Torch torch() {
-        if(!isLoaded()) {
+        if (!isLoaded()) {
             throw new IllegalStateException("Factory is not loaded!");
         }
 

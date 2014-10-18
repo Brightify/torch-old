@@ -32,9 +32,9 @@ import org.brightify.torch.action.load.sync.TypedLoader;
 import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
-import org.brightify.torch.util.AsyncRunner;
-import org.brightify.torch.util.Callback;
 import org.brightify.torch.util.Validate;
+import org.brightify.torch.util.async.AsyncRunner;
+import org.brightify.torch.util.async.Callback;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -235,9 +236,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public void count(Callback<Integer> callback) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<Integer>() {
+        AsyncRunner.submit(callback, new Callable<Integer>() {
             @Override
-            public Integer doWork() throws Exception {
+            public Integer call() throws Exception {
                 return count();
             }
         });
@@ -245,9 +246,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public void id(Callback<ENTITY> callback, final long id) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<ENTITY>() {
+        AsyncRunner.submit(callback, new Callable<ENTITY>() {
             @Override
-            public ENTITY doWork() throws Exception {
+            public ENTITY call() throws Exception {
                 return id(id);
             }
         });
@@ -255,9 +256,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public void ids(Callback<List<ENTITY>> callback, final Long... ids) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<List<ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<List<ENTITY>>() {
             @Override
-            public List<ENTITY> doWork() throws Exception {
+            public List<ENTITY> call() throws Exception {
                 return ids(ids);
             }
         });
@@ -265,9 +266,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public void ids(Callback<List<ENTITY>> callback, final Iterable<Long> ids) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<List<ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<List<ENTITY>>() {
             @Override
-            public List<ENTITY> doWork() throws Exception {
+            public List<ENTITY> call() throws Exception {
                 return ids(ids);
             }
         });
@@ -275,9 +276,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public void list(Callback<List<ENTITY>> callback) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<List<ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<List<ENTITY>>() {
             @Override
-            public List<ENTITY> doWork() throws Exception {
+            public List<ENTITY> call() throws Exception {
                 return list();
             }
         });
@@ -285,9 +286,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public void single(Callback<ENTITY> callback) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<ENTITY>() {
+        AsyncRunner.submit(callback, new Callable<ENTITY>() {
             @Override
-            public ENTITY doWork() throws Exception {
+            public ENTITY call() throws Exception {
                 return single();
             }
         });
@@ -295,9 +296,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public <LOCAL_ENTITY> void key(Callback<LOCAL_ENTITY> callback, final Key<LOCAL_ENTITY> key) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<LOCAL_ENTITY>() {
+        AsyncRunner.submit(callback, new Callable<LOCAL_ENTITY>() {
             @Override
-            public LOCAL_ENTITY doWork() throws Exception {
+            public LOCAL_ENTITY call() throws Exception {
                 return key(key);
             }
         });
@@ -305,9 +306,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public <LOCAL_ENTITY> void keys(Callback<List<LOCAL_ENTITY>> callback, final Key<LOCAL_ENTITY>... keys) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<List<LOCAL_ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<List<LOCAL_ENTITY>>() {
             @Override
-            public List<LOCAL_ENTITY> doWork() throws Exception {
+            public List<LOCAL_ENTITY> call() throws Exception {
                 return keys(keys);
             }
         });
@@ -315,9 +316,9 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public <LOCAL_ENTITY> void keys(Callback<List<LOCAL_ENTITY>> callback, final Iterable<Key<LOCAL_ENTITY>> keys) {
-        AsyncRunner.submit(callback, new AsyncRunner.Task<List<LOCAL_ENTITY>>() {
+        AsyncRunner.submit(callback, new Callable<List<LOCAL_ENTITY>>() {
             @Override
-            public List<LOCAL_ENTITY> doWork() throws Exception {
+            public List<LOCAL_ENTITY> call() throws Exception {
                 return keys(keys);
             }
         });
