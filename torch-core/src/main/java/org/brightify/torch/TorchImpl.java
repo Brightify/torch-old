@@ -1,11 +1,11 @@
 package org.brightify.torch;
 
 import org.brightify.torch.action.delete.Deleter;
-import org.brightify.torch.android.action.delete.DeleterImpl;
+import org.brightify.torch.action.delete.DeleterImpl;
 import org.brightify.torch.action.load.sync.Loader;
-import org.brightify.torch.android.action.load.LoaderImpl;
+import org.brightify.torch.action.load.LoaderImpl;
 import org.brightify.torch.action.save.Saver;
-import org.brightify.torch.android.action.save.SaverImpl;
+import org.brightify.torch.action.save.SaverImpl;
 
 public class TorchImpl implements Torch {
 

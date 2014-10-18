@@ -1,6 +1,6 @@
 package org.brightify.torch;
 
-import org.brightify.torch.android.action.relation.RelationResolverImpl;
+import org.brightify.torch.action.relation.RelationResolverImpl;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.model.Table;
 import org.brightify.torch.model.Table$;
