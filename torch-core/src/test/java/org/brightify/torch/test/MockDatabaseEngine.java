@@ -27,8 +27,8 @@ public class MockDatabaseEngine implements DatabaseEngine {
     private Map<Class<?>, Long> idCounter = new HashMap<Class<?>, Long>();
 
     @Override
-    public <ENTITY> Iterator<ENTITY> load(LoadQuery<ENTITY> loadQuery) {
-        return loadList(loadQuery).iterator();
+    public <ENTITY> List<ENTITY> load(LoadQuery<ENTITY> loadQuery) {
+        return loadList(loadQuery);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
         return true;
     }
 
-    private <ENTITY> ArrayList<ENTITY> loadList(final LoadQuery<ENTITY> loadQuery) {
+    private <ENTITY> List<ENTITY> loadList(final LoadQuery<ENTITY> loadQuery) {
         EntityDescription<ENTITY> description = loadQuery.getEntityDescription();
         Map<Long, RawEntity> entityDatabase = database.get(description.getEntityClass());
 
@@ -150,7 +150,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
             }
         }
 
-        ArrayList<ENTITY> result = new ArrayList<ENTITY>();
+        List<ENTITY> result = new ArrayList<ENTITY>();
         for (RawEntity rawEntity : rawEntities) {
             ENTITY entity;
             try {

@@ -50,7 +50,7 @@ public class LoaderImpl<ENTITY> implements
         this.loaderType = loaderType;
     }
 
-    public LoaderImpl<?> getPreviousLoader() {
+    protected LoaderImpl<?> getPreviousLoader() {
         return previousLoader;
     }
 
@@ -69,13 +69,7 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public List<ENTITY> list() {
-        LinkedList<ENTITY> list = new LinkedList<ENTITY>();
-
-        for (ENTITY entity : this) {
-            list.addLast(entity);
-        }
-
-        return list;
+        return torch.getFactory().getDatabaseEngine().load(new LoadQueryImpl());
     }
 
     @Override
@@ -90,7 +84,7 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public Iterator<ENTITY> iterator() {
-        return torch.getFactory().getDatabaseEngine().load(new LoadQueryImpl());
+        return list().iterator();
     }
 
     @Override

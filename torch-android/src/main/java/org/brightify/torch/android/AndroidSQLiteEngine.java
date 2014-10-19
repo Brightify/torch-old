@@ -186,8 +186,16 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     @Override
-    public <ENTITY> Iterator<ENTITY> load(LoadQuery<ENTITY> query) {
-        return new CursorIterator<ENTITY>(torchFactory, query, runQuery(query, false));
+    public <ENTITY> List<ENTITY> load(LoadQuery<ENTITY> query) {
+        CursorIterator<ENTITY> iterator = new CursorIterator<ENTITY>(torchFactory, query, runQuery(query, false));
+
+        List<ENTITY> result = new ArrayList<ENTITY>();
+
+        while(iterator.hasNext()) {
+            result.add(iterator.next());
+        }
+
+        return result;
     }
 
     @Override

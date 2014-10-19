@@ -3,7 +3,7 @@ package org.brightify.torch;
 import org.brightify.torch.action.load.LoadQuery;
 import org.brightify.torch.util.MigrationAssistant;
 
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface DatabaseEngine {
 
-    <ENTITY> Iterator<ENTITY> load(LoadQuery<ENTITY> loadQuery);
+    <ENTITY> List<ENTITY> load(LoadQuery<ENTITY> loadQuery);
 
     <ENTITY> int count(LoadQuery<ENTITY> loadQuery);
 
