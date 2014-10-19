@@ -3,32 +3,10 @@ package org.brightify.torch.action.load;
 import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
-import org.brightify.torch.action.load.async.AsyncCountable;
-import org.brightify.torch.action.load.async.AsyncDirectionLoader;
-import org.brightify.torch.action.load.async.AsyncFilterLoader;
-import org.brightify.torch.action.load.async.AsyncLimitLoader;
-import org.brightify.torch.action.load.async.AsyncListLoader;
-import org.brightify.torch.action.load.async.AsyncLoader;
-import org.brightify.torch.action.load.async.AsyncOffsetListLoader;
-import org.brightify.torch.action.load.async.AsyncOffsetLoader;
-import org.brightify.torch.action.load.async.AsyncOrderDirectionLimitListLoader;
-import org.brightify.torch.action.load.async.AsyncOrderLimitListLoader;
-import org.brightify.torch.action.load.async.AsyncOrderLoader;
-import org.brightify.torch.action.load.async.AsyncTypedFilterOrderLimitListLoader;
-import org.brightify.torch.action.load.async.AsyncTypedLoader;
-import org.brightify.torch.action.load.sync.Countable;
-import org.brightify.torch.action.load.sync.DirectionLoader;
-import org.brightify.torch.action.load.sync.FilterLoader;
-import org.brightify.torch.action.load.sync.LimitLoader;
-import org.brightify.torch.action.load.sync.ListLoader;
-import org.brightify.torch.action.load.sync.Loader;
-import org.brightify.torch.action.load.sync.OffsetListLoader;
-import org.brightify.torch.action.load.sync.OffsetLoader;
-import org.brightify.torch.action.load.sync.OrderDirectionLimitListLoader;
-import org.brightify.torch.action.load.sync.OrderLimitListLoader;
-import org.brightify.torch.action.load.sync.OrderLoader;
-import org.brightify.torch.action.load.sync.TypedFilterOrderLimitListLoader;
-import org.brightify.torch.action.load.sync.TypedLoader;
+import org.brightify.torch.action.load.combined.OffsetListLoader;
+import org.brightify.torch.action.load.combined.OrderDirectionLimitListLoader;
+import org.brightify.torch.action.load.combined.OrderLimitListLoader;
+import org.brightify.torch.action.load.combined.TypedFilterOrderLimitListLoader;
 import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
@@ -56,14 +34,7 @@ public class LoaderImpl<ENTITY> implements
         ListLoader<ENTITY>, Countable,
 
         TypedFilterOrderLimitListLoader<ENTITY>,
-        OrderLimitListLoader<ENTITY>, OrderDirectionLimitListLoader<ENTITY>, OffsetListLoader<ENTITY>,
-
-        AsyncLoader, AsyncTypedLoader<ENTITY>, AsyncFilterLoader<ENTITY>,
-        AsyncOrderLoader<ENTITY>, AsyncDirectionLoader<ENTITY>, AsyncLimitLoader<ENTITY>, AsyncOffsetLoader<ENTITY>,
-        AsyncListLoader<ENTITY>, AsyncCountable,
-
-        AsyncTypedFilterOrderLimitListLoader<ENTITY>,
-        AsyncOrderLimitListLoader<ENTITY>, AsyncOrderDirectionLimitListLoader<ENTITY>, AsyncOffsetListLoader<ENTITY> {
+        OrderLimitListLoader<ENTITY>, OrderDirectionLimitListLoader<ENTITY>, OffsetListLoader<ENTITY> {
 
     protected final Torch torch;
     protected final LoaderImpl<?> previousLoader;
@@ -89,11 +60,6 @@ public class LoaderImpl<ENTITY> implements
 
     public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
         loaderType.prepareQuery(query);
-    }
-
-    @Override
-    public AsyncLoader async() {
-        return this;
     }
 
     @Override

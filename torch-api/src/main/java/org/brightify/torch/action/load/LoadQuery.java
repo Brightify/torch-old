@@ -1,7 +1,6 @@
 package org.brightify.torch.action.load;
 
 import org.brightify.torch.EntityDescription;
-import org.brightify.torch.action.load.sync.OrderLoader;
 import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.Property;
 

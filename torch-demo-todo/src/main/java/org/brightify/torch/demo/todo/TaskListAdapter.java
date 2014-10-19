@@ -43,7 +43,7 @@ public class TaskListAdapter extends BaseAdapter {
     }
 
     private void loadData() {
-        torch().load().async().type(Task.class).filter(Task$.ownerId.equalTo(authManager.getLoggedUser().getId())).list(
+        torch().load().type(Task.class).filter(Task$.ownerId.equalTo(authManager.getLoggedUser().getId())).list(
                 new Callback<List<Task>>() {
                     @Override
                     public void onSuccess(List<Task> data) {

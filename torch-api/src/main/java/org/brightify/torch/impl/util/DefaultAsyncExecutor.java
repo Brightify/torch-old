@@ -22,26 +22,37 @@ public class DefaultAsyncExecutor implements AsyncExecutor {
 
     @Override
     public <RESULT> Future<AsyncResult<RESULT>> submit(Callback<RESULT> callback, Callable<RESULT> callable) {
-        CallableWrapper<RESULT> wrapper = new CallableWrapper<RESULT>(callable);
+        CallableWrapper<RESULT> wrapper = new CallableWrapper<RESULT>(callback, callable);
         return executorService.submit(wrapper);
     }
 
     public static class CallableWrapper<RESULT> implements Callable<AsyncResult<RESULT>> {
 
-        private final Callable<RESULT> wrapped;
+        private final Callback<RESULT> callback;
+        private final Callable<RESULT> task;
 
-        public CallableWrapper(Callable<RESULT> wrapped) {
-            this.wrapped = wrapped;
+        public CallableWrapper(Callback<RESULT> callback, Callable<RESULT> task) {
+            this.callback = callback;
+            this.task = task;
         }
 
         @Override
         public AsyncResult<RESULT> call() throws Exception {
             AsyncResult<RESULT> result;
             try {
-                RESULT value = wrapped.call();
+                RESULT value = task.call();
                 result = new AsyncResult<RESULT>(value);
             } catch (Exception e) {
                 result = new AsyncResult<RESULT>(e);
+            }
+
+            if(callback != null) {
+                Exception exception = result.getException();
+                if(exception != null) {
+                    callback.onFailure(exception);
+                } else {
+                    callback.onSuccess(result.getData());
+                }
             }
 
             return result;

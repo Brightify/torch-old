@@ -113,7 +113,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadAllEntitiesAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        torch().load().async().type(TestObject.class).list(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertThat(data, contains(testObject, testObject1, testObject2, testObject3));
@@ -157,7 +157,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     @MediumTest
     public void testLoadFilteredEntitiesAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
-        torch().load().async().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).list(
+        torch().load().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -173,7 +173,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
         assertTrue(firstLatch.await(5, TimeUnit.SECONDS));
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
-        torch().load().async().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).list(
+        torch().load().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -201,7 +201,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     public void testLoadOrderedDescendingAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).orderBy(TestObject$.intField).desc().list(
+        torch().load().type(TestObject.class).orderBy(TestObject$.intField).desc().list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -237,7 +237,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
     public void testLoadLimitedAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).limit(2).list(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).limit(2).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertThat(data, contains(testObject, testObject1));
@@ -255,7 +255,7 @@ public class LoaderTest extends BaseActivityInstrumentationTestCase2<MainTestAct
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).limit(2).offset(1).list(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).limit(2).offset(1).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertThat(data, contains(testObject1, testObject2));

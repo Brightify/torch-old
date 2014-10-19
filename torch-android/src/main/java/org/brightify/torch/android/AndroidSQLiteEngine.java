@@ -11,7 +11,7 @@ import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Settings;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.action.load.LoadQuery;
-import org.brightify.torch.action.load.sync.OrderLoader;
+import org.brightify.torch.action.load.OrderLoader;
 import org.brightify.torch.android.internal.SQLiteMaster;
 import org.brightify.torch.android.internal.SQLiteMaster$;
 import org.brightify.torch.annotation.Id;

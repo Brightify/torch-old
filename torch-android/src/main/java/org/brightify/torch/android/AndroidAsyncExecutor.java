@@ -64,16 +64,16 @@ public class AndroidAsyncExecutor implements AsyncExecutor {
         }
 
         @Override
-        protected void onPostExecute(AsyncResult<RESULT> resultResult) {
+        protected void onPostExecute(AsyncResult<RESULT> result) {
             done.set(true);
             if (callback == null) {
                 return;
             }
-            Exception exception = resultResult.getException();
+            Exception exception = result.getException();
             if (exception != null) {
                 callback.onFailure(exception);
             } else {
-                callback.onSuccess(resultResult.getData());
+                callback.onSuccess(result.getData());
             }
         }
 

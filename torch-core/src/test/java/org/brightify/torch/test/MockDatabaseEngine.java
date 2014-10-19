@@ -6,7 +6,7 @@ import org.brightify.torch.ReadableRawEntity;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.action.load.LoadQuery;
-import org.brightify.torch.action.load.sync.OrderLoader;
+import org.brightify.torch.action.load.OrderLoader;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.util.MigrationAssistant;
 

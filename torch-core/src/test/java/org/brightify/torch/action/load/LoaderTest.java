@@ -7,7 +7,6 @@ import org.brightify.torch.test.TestObject$;
 import org.brightify.torch.util.async.Callback;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -95,11 +94,10 @@ public class LoaderTest {
         assertThat(objects, contains(testObject, testObject1, testObject2, testObject3));
     }
 
-    @Ignore
     @Test
     public void testLoadAllEntitiesAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        torch().load().async().type(TestObject.class).list(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertThat(data, contains(testObject, testObject1, testObject2, testObject3));
@@ -140,11 +138,10 @@ public class LoaderTest {
         assertThat(objectsFiltered4.size(), is(1));
     }
 
-    @Ignore
     @Test
     public void testLoadFilteredEntitiesAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
-        torch().load().async().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).list(
+        torch().load().type(TestObject.class).filter(TestObject$.intField.greaterThan(10)).list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -160,7 +157,7 @@ public class LoaderTest {
         assertThat(firstLatch.await(5, TimeUnit.SECONDS), is(true));
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
-        torch().load().async().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).list(
+        torch().load().type(TestObject.class).filter(TestObject$.intField.notIn(10, 100)).list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -184,12 +181,11 @@ public class LoaderTest {
         assertThat(objectsOrdered, contains(testObject3, testObject2, testObject1, testObject));
     }
 
-    @Ignore
     @Test
     public void testLoadOrderedDescendingAsync() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).orderBy(TestObject$.intField).desc().list(
+        torch().load().type(TestObject.class).orderBy(TestObject$.intField).desc().list(
                 new Callback<List<TestObject>>() {
                     @Override
                     public void onSuccess(List<TestObject> data) {
@@ -221,12 +217,11 @@ public class LoaderTest {
         assertThat(objectsLimitedWithOffset, contains(testObject1, testObject2));
     }
 
-    @Ignore
     @Test
     public void testLoadLimitedAsync() throws Exception {
         final CountDownLatch firstLatch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).limit(2).list(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).limit(2).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertThat(data, contains(testObject, testObject1));
@@ -244,7 +239,7 @@ public class LoaderTest {
 
         final CountDownLatch secondLatch = new CountDownLatch(1);
 
-        torch().load().async().type(TestObject.class).limit(2).offset(1).list(new Callback<List<TestObject>>() {
+        torch().load().type(TestObject.class).limit(2).offset(1).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
                 assertThat(data, contains(testObject1, testObject2));

@@ -1,5 +1,6 @@
-package org.brightify.torch.action.load.sync;
+package org.brightify.torch.action.load;
 
+import org.brightify.torch.action.load.combined.OrderDirectionLimitListLoader;
 import org.brightify.torch.filter.Property;
 
 /**
