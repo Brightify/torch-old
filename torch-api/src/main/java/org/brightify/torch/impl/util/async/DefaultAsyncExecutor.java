@@ -1,4 +1,4 @@
-package org.brightify.torch.impl.util;
+package org.brightify.torch.impl.util.async;
 
 import org.brightify.torch.util.async.AsyncExecutor;
 import org.brightify.torch.util.async.AsyncResult;

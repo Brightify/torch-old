@@ -1,6 +1,6 @@
 package org.brightify.torch.util.async;
 
-import org.brightify.torch.impl.util.DefaultAsyncExecutor;
+import org.brightify.torch.impl.util.async.DefaultAsyncExecutor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
