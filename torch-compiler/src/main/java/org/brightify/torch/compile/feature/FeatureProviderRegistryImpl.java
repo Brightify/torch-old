@@ -8,6 +8,7 @@ import org.reflections.Reflections;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
  */
 public class FeatureProviderRegistryImpl implements FeatureProviderRegistry {
 
-    private final List<FeatureProvider> featureProviders = new LinkedList<FeatureProvider>();
+    private final List<FeatureProvider> featureProviders = new ArrayList<FeatureProvider>();
 
     @Inject
     private Reflections reflections;

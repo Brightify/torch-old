@@ -8,6 +8,7 @@ import org.reflections.Reflections;
 import javax.annotation.PostConstruct;
 import javax.lang.model.type.TypeMirror;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -19,7 +20,7 @@ import java.util.Set;
  */
 public class MarshallerRegistryImpl implements MarshallerRegistry {
 
-    private final List<Marshaller> marshallers = new LinkedList<Marshaller>();
+    private final List<Marshaller> marshallers = new ArrayList<Marshaller>();
 
     @Inject
     private Reflections reflections;

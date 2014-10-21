@@ -1,14 +1,11 @@
 package org.brightify.torch.action.delete;
 
-import org.brightify.torch.EntityDescription;
-import org.brightify.torch.Key;
 import org.brightify.torch.Torch;
 import org.brightify.torch.util.async.AsyncRunner;
 import org.brightify.torch.util.async.Callback;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Callable;
 

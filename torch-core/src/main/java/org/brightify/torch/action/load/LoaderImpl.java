@@ -14,6 +14,7 @@ import org.brightify.torch.util.Validate;
 import org.brightify.torch.util.async.AsyncRunner;
 import org.brightify.torch.util.async.Callback;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -127,13 +128,13 @@ public class LoaderImpl<ENTITY> implements
         }
 
         Class<LOCAL_ENTITY> type = keys.iterator().next().getType();
-        LinkedList<Long> ids = new LinkedList<Long>();
+        List<Long> ids = new ArrayList<Long>();
         for (Key<LOCAL_ENTITY> key : keys) {
             if (key.getType() != type) {
                 throw new IllegalArgumentException("The key types doesn't match!");
             }
 
-            ids.addLast(key.getId());
+            ids.add(key.getId());
         }
 
         return type(type).ids(ids);
@@ -370,10 +371,6 @@ public class LoaderImpl<ENTITY> implements
 
             orderMap.put(lastOrderColumn, orderDirection);
         }
-
-
-
-
     }
 
 }

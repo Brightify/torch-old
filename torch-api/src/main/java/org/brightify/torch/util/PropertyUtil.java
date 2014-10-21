@@ -2,6 +2,7 @@ package org.brightify.torch.util;
 
 import org.brightify.torch.filter.Property;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public final class PropertyUtil {
     }
 
     public static <T extends Property.Feature> List<T> getFeatures(Property<?> property, Class<T> featureClass) {
-        List<T> filteredFeatures = new LinkedList<T>();
+        List<T> filteredFeatures = new ArrayList<T>();
         Property.Feature[] features = property.getFeatures();
 
         for (Property.Feature feature : features) {
