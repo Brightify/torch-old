@@ -12,4 +12,4 @@ Support this project using flattr: [![Flattr this git repo](http://api.flattr.co
 
 ### [**Documentation**](https://github.com/brightify/torch/wiki/Home)
 
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/059a85814c820bbe1e5a6c2a577a23a1 "githalytics.com")](http://githalytics.com/brightify/torch)
+[![githalytics.com alpha](https://cruel-carlota.gopagoda.com/059a85814c820bbe1e5a6c2a577a23a1 "githalytics.com")](http://githalytics.com/brightify/torch)
