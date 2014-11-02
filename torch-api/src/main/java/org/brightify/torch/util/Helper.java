@@ -2,6 +2,7 @@ package org.brightify.torch.util;
 
 import org.brightify.torch.filter.ListProperty;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,6 +22,20 @@ public class Helper {
         return camelCase.toLowerCase();
     }
 
+    public static String stringsToString(String[] strings, int offset, String delimiter) {
+        return stringsToString(strings, offset, strings.length - offset, delimiter);
+    }
+
+    public static String stringsToString(String[] strings, int offset, int length, String delimiter) {
+        String[] subArray = new String[length];
+        System.arraycopy(strings, offset, subArray, 0, length);
+        return stringsToString(subArray, delimiter);
+    }
+
+    public static String stringsToString(String[] strings, String delimiter) {
+        return stringsToString(Arrays.asList(strings), delimiter);
+    }
+
     public static String stringsToString(List<String> strings, String delimiter) {
         StringBuilder builder = new StringBuilder();
         appendStrings(strings, builder, delimiter);
@@ -28,13 +43,12 @@ public class Helper {
     }
 
     public static void appendStrings(Iterable<String> strings, StringBuilder builder, String delimiter) {
-        int i = 0;
+        String localDelimiter = "";
         for (String string : strings) {
-            if(i>0){
-                builder.append(delimiter);
+            builder.append(localDelimiter).append(string);
+            if(localDelimiter.equals("")) {
+                localDelimiter = delimiter;
             }
-            builder.append(string);
-            i++;
         }
     }
 

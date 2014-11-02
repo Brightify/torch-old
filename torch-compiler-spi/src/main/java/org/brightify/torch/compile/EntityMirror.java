@@ -1,7 +1,6 @@
 package org.brightify.torch.compile;
 
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.compile.migration.MigrationMethod;
 import org.brightify.torch.compile.migration.MigrationPath;
 
 import javax.lang.model.element.Element;
@@ -29,8 +28,6 @@ public interface EntityMirror {
     String getVersion();
 
     Entity.MigrationType getMigrationType();
-
-    List<MigrationMethod> getMigrationMethods();
 
     List<MigrationPath> getMigrationPaths();
 

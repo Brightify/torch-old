@@ -39,12 +39,13 @@ public interface EntityDescription<ENTITY> {
 
     Class<ENTITY> getEntityClass();
 
-    Key<ENTITY> createKey(ENTITY entity);
+    void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, ENTITY entity,
+                            Set<Class<?>> loadGroups) throws Exception;
 
-    ENTITY createFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, Set<Class<?>> loadGroups)
-            throws Exception;
+    ENTITY createEmpty();
 
     void toRawEntity(TorchFactory torchFactory, ENTITY entity, WritableRawEntity rawEntity) throws Exception;
 
     void migrate(MigrationAssistant<ENTITY> assistant, String sourceVersion, String targetVersion) throws Exception;
+
 }

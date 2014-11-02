@@ -67,7 +67,9 @@ public class TorchService {
      * This will NOT delete the database. It will only unload the factory and unregister all the Entities.
      */
     public static void forceUnload() {
-        factoryInstance.unload();
+        if(factoryInstance != null) {
+            factoryInstance.unload();
+        }
 
         STACK.get().clear();
 

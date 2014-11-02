@@ -1,7 +1,6 @@
 package org.brightify.torch.compile;
 
 import org.brightify.torch.annotation.Entity;
-import org.brightify.torch.compile.migration.MigrationMethod;
 import org.brightify.torch.compile.migration.MigrationPath;
 
 import javax.lang.model.element.Element;
@@ -24,7 +23,6 @@ public class EntityMirrorImpl implements EntityMirror {
 
     private String version;
     private Entity.MigrationType migrationType;
-    private List<MigrationMethod> migrationMethods = new ArrayList<MigrationMethod>();
     private List<MigrationPath> migrationPaths = new ArrayList<MigrationPath>();
 
     private List<PropertyMirror> properties = new ArrayList<PropertyMirror>();
@@ -109,15 +107,6 @@ public class EntityMirrorImpl implements EntityMirror {
 
     public void setMigrationType(Entity.MigrationType migrationType) {
         this.migrationType = migrationType;
-    }
-
-    @Override
-    public List<MigrationMethod> getMigrationMethods() {
-        return migrationMethods;
-    }
-
-    public void setMigrationMethods(List<MigrationMethod> migrationMethods) {
-        this.migrationMethods = migrationMethods;
     }
 
     @Override

@@ -46,6 +46,8 @@ public class SaverTest {
 
         assertThat(loadObject, is(object));
 
+        TorchService.forceUnload();
+
     }
 
 }

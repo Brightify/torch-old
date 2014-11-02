@@ -85,7 +85,6 @@ public abstract class AbstractMarshaller implements Marshaller {
     }
 
     protected JInvocation propertyClassInvocation(PropertyMirror propertyMirror) {
-
         JInvocation propertyInvocation = JExpr._new(propertyClassImpl(propertyMirror))
                 .arg(propertyMirror.getName())
                 .arg(propertyMirror.getSafeName())

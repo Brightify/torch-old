@@ -57,12 +57,16 @@
             <artifactId>torch-compiler</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.brightify.torch</groupId>
+            <artifactId>torch-testing-utils</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <groupId>com.simpligility.maven.plugins</groupId>
                 <artifactId>android-maven-plugin</artifactId>
             </plugin>
 

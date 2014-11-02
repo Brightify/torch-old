@@ -9,8 +9,16 @@ import java.util.List;
  */
 public interface ListLoader<ENTITY> extends Iterable<ENTITY> {
 
+    ProcessingLoader<ENTITY> process();
+
+    /**
+     * Loads and returns a list of all entities matched by this loader.
+     */
     List<ENTITY> list();
 
+    /**
+     * Loads and returns first entity from a list of all entities matched by this filter or null if the list is empty.
+     */
     ENTITY single();
 
     void list(Callback<List<ENTITY>> callback);

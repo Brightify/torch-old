@@ -1,5 +1,6 @@
 package org.brightify.torch.demo.todo;
 
+import org.brightify.torch.KeyFactory;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Key;
@@ -25,6 +26,6 @@ public class AuthManager {
 
     public void setLoggedUser(User user) {
         EntityDescription<User> metadata = TorchService.factory().getEntities().getDescription(User.class);
-        loggedUser = metadata.createKey(user);
+        loggedUser = KeyFactory.create(metadata, user);
     }
 }

@@ -3,12 +3,14 @@ package org.brightify.torch.test;
 import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
 import org.brightify.torch.ReadableRawEntity;
+import org.brightify.torch.Torch;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.action.load.LoadQuery;
 import org.brightify.torch.action.load.OrderLoader;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.util.MigrationAssistant;
+import org.brightify.torch.util.functional.EditFunction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,12 +25,33 @@ import java.util.Map;
  */
 public class MockDatabaseEngine implements DatabaseEngine {
     private TorchFactory torchFactory;
-    private Map<Class<?>, Map<Long, RawEntity>> database = new HashMap<Class<?>, Map<Long, RawEntity>>();
-    private Map<Class<?>, Long> idCounter = new HashMap<Class<?>, Long>();
+    private Map<String, Map<Long, RawEntity>> database = new HashMap<String, Map<Long, RawEntity>>();
+    private Map<String, Long> idCounter = new HashMap<String, Long>();
+
+    @Override
+    public <ENTITY> void each(LoadQuery<ENTITY> loadQuery, EditFunction<ENTITY> function) {
+        List<ENTITY> entities = load(loadQuery);
+        List<ENTITY> saveEntities = new ArrayList<ENTITY>();
+        for (ENTITY entity : entities) {
+            if(function.apply(entity)) {
+                saveEntities.add(entity);
+            }
+        }
+        save(saveEntities);
+    }
 
     @Override
     public <ENTITY> List<ENTITY> load(LoadQuery<ENTITY> loadQuery) {
         return loadList(loadQuery);
+    }
+
+    @Override
+    public <ENTITY> ENTITY first(LoadQuery<ENTITY> loadQuery) {
+        Iterator<ENTITY> iterator = load(loadQuery).iterator();
+        if(iterator.hasNext()) {
+            return iterator.next();
+        }
+        return null;
     }
 
     @Override
@@ -47,7 +70,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
         @SuppressWarnings("unchecked")
         Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
         EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
-        Long counter = idCounter.get(entityClass);
+        Long counter = idCounter.get(description.getSafeName());
         Map<Long, RawEntity> transaction = new HashMap<Long, RawEntity>();
 
         for (ENTITY entity : entities) {
@@ -63,7 +86,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
                 throw new RuntimeException(e);
             }
         }
-        database.get(entityClass).putAll(transaction);
+        database.get(description.getSafeName()).putAll(transaction);
 
         return results;
     }
@@ -80,7 +103,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
         Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
         EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
 
-        Map<Long, RawEntity> entityDatabase = database.get(iterator.next().getClass());
+        Map<Long, RawEntity> entityDatabase = database.get(description.getSafeName());
 
         for (ENTITY entity : entities) {
             Long id = description.getEntityId(entity);
@@ -108,14 +131,14 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
     @Override
     public boolean wipe() {
-        database = new HashMap<Class<?>, Map<Long, RawEntity>>();
-        idCounter = new HashMap<Class<?>, Long>();
+        database = new HashMap<String, Map<Long, RawEntity>>();
+        idCounter = new HashMap<String, Long>();
         return true;
     }
 
     private <ENTITY> List<ENTITY> loadList(final LoadQuery<ENTITY> loadQuery) {
         EntityDescription<ENTITY> description = loadQuery.getEntityDescription();
-        Map<Long, RawEntity> entityDatabase = database.get(description.getEntityClass());
+        Map<Long, RawEntity> entityDatabase = database.get(description.getSafeName());
 
         List<RawEntity> rawEntities = new ArrayList<RawEntity>();
         for (RawEntity rawEntity : entityDatabase.values()) {
@@ -134,7 +157,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
                     Comparable<Object> c2 = rawEntity2.getValue(orderEntry.getKey().getSafeName());
 
                     return orderEntry.getValue() == OrderLoader.Direction.ASCENDING ?
-                            c1.compareTo(c2) : c2.compareTo(c1);
+                           c1.compareTo(c2) : c2.compareTo(c1);
                 }
             });
         }
@@ -152,9 +175,9 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         List<ENTITY> result = new ArrayList<ENTITY>();
         for (RawEntity rawEntity : rawEntities) {
-            ENTITY entity;
+            ENTITY entity = description.createEmpty();
             try {
-                entity = description.createFromRawEntity(torchFactory, rawEntity, loadQuery.getLoadGroups());
+                description.setFromRawEntity(torchFactory, rawEntity, entity, loadQuery.getLoadGroups());
             } catch (Exception e) {
                 // FIXME handle the exception better
                 throw new RuntimeException(e);
@@ -181,13 +204,8 @@ public class MockDatabaseEngine implements DatabaseEngine {
         }
 
         @Override
-        public void changePropertyType(Property<?> property, Class<?> from, Class<?> to) {
-
-        }
-
-        @Override
         public void renameProperty(String from, String to) {
-            Map<Long, RawEntity> entityDatabase = database.get(entityClass);
+            Map<Long, RawEntity> entityDatabase = database.get(entityDescription.getSafeName());
             for (RawEntity rawEntity : entityDatabase.values()) {
                 Object value = rawEntity.getValue(from);
                 rawEntity.storeValue(from, null);
@@ -197,7 +215,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public void removeProperty(String name) {
-            Map<Long, RawEntity> entityDatabase = database.get(entityClass);
+            Map<Long, RawEntity> entityDatabase = database.get(entityDescription.getSafeName());
             for (RawEntity rawEntity : entityDatabase.values()) {
                 rawEntity.storeValue(name, null);
             }
@@ -205,14 +223,16 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public void createStore() {
-            database.put(entityClass, new HashMap<Long, RawEntity>());
-            idCounter.put(entityClass, 0L);
+            if(!storeExists()) {
+                database.put(entityDescription.getSafeName(), new HashMap<Long, RawEntity>());
+                idCounter.put(entityDescription.getSafeName(), 0L);
+            }
         }
 
         @Override
         public void deleteStore() {
-            database.remove(entityClass);
-            idCounter.remove(entityClass);
+            database.remove(entityDescription.getSafeName());
+            idCounter.remove(entityDescription.getSafeName());
         }
 
         @Override
@@ -223,7 +243,13 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public boolean storeExists() {
-            return database.containsKey(entityClass) && idCounter.containsKey(entityClass);
+            return database.containsKey(entityDescription.getSafeName()) &&
+                   idCounter.containsKey(entityDescription.getSafeName());
+        }
+
+        @Override
+        public Torch torch() {
+            return getTorchFactory().begin();
         }
     }
 

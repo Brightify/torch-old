@@ -7,10 +7,10 @@ import org.brightify.torch.test.MockDatabaseEngine;
  * Test for the MockDatabaseEngine. It is needed to ensure it works as expected, so it won't hide any potential bugs
  * in Torch itself.
  */
-public class MockDatabaseFilterTest extends AbstractFilterTest {
+public class MockDatabaseFilterTest extends AbstractFilterTest<MockDatabaseEngine> {
 
     @Override
-    protected DatabaseEngine prepareDatabaseEngine() {
+    protected MockDatabaseEngine prepareDatabaseEngine() {
         return new MockDatabaseEngine();
     }
 

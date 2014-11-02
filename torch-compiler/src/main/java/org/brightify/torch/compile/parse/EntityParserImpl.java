@@ -33,6 +33,9 @@ public class EntityParserImpl implements EntityParser {
     @Inject
     private PropertyParser propertyParser;
 
+    @Inject
+    private MigrationParser migrationParser;
+
     @Override
     public EntityMirror parseEntityElement(Element element) {
         Entity entity = element.getAnnotation(Entity.class);
@@ -46,7 +49,7 @@ public class EntityParserImpl implements EntityParser {
         }
 
         EntityMirrorImpl info = new EntityMirrorImpl();
-
+        info.setElement(element);
         info.setName(element.getSimpleName().toString());
         info.setFullName(element.toString());
         info.setPackageName(typeHelper.packageOf(element));
@@ -65,7 +68,8 @@ public class EntityParserImpl implements EntityParser {
         info.setVersion(entity.version());
         info.setMigrationType(entity.migration());
 
-        info.setProperties(new ArrayList<PropertyMirror>(propertyParser.parseEntityElement(element).values()));
+        info.setProperties(propertyParser.parseEntityElement(element));
+        info.setMigrationPaths(migrationParser.parseEntityElement(element, info));
 
         List<PropertyMirror> idPropertyMirrors = new ArrayList<PropertyMirror>();
         for (PropertyMirror propertyMirror : info.getProperties()) {

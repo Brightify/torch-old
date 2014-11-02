@@ -7,8 +7,8 @@ public interface MigrationPathPart {
 
     MigrationMethod getMigrationMethod();
 
-    MigrationPathPart getNext();
-
     MigrationPathPart getPrevious();
+
+    MigrationPathPart getNext();
 
 }

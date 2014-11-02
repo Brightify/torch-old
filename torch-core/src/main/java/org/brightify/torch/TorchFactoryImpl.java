@@ -145,6 +145,8 @@ public class TorchFactoryImpl implements TorchFactory {
             table = new Table();
             table.setTableName(metadata.getSafeName());
             table.setVersion(metadata.getVersion());
+
+            begin().save().entity(table);
         } else if (!table.getVersion().equals(metadata.getVersion())) {
             if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
                 migrationAssistant.recreateStore();

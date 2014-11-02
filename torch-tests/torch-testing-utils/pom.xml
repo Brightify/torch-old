@@ -21,6 +21,15 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.brightify.torch</groupId>
+            <artifactId>torch-compiler</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.brightify.torch</groupId>
+            <artifactId>torch-api</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

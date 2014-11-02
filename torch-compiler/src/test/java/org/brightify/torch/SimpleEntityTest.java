@@ -1,7 +1,6 @@
 package org.brightify.torch;
 
 import com.google.testing.compile.JavaFileObjects;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
@@ -9,8 +8,6 @@ import static org.truth0.Truth.ASSERT;
 
 public class SimpleEntityTest {
 
-    // FIXME unignore when Keys are removed
-    @Ignore
     @Test
     public void testSimpleEntity() {
         ASSERT.about(javaSource())

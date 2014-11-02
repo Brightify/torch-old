@@ -27,6 +27,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -53,18 +54,18 @@ public class PropertyParserImpl implements PropertyParser {
     private EntityContext entityContext;
 
     @Override
-    public Map<String, PropertyMirror> parseEntityElement(Element element) {
+    public List<PropertyMirror> parseEntityElement(Element element) {
         Map<String, GetSetPair> getSetPairMap = new HashMap<String, GetSetPair>();
         for (Element property : element.getEnclosedElements()) {
             parseGetSetPairs(getSetPairMap, property);
         }
 
 
-        Map<String, PropertyMirror> propertyMap = new HashMap<String, PropertyMirror>();
+        List<PropertyMirror> propertyMirrors = new ArrayList<PropertyMirror>();
         for (GetSetPair pair : getSetPairMap.values()) {
-            parsePropertyElement(propertyMap, pair);
+            parsePropertyElement(propertyMirrors, pair);
         }
-        return propertyMap;
+        return propertyMirrors;
     }
 
     private void parseGetSetPairs(Map<String, GetSetPair> map, Element element) {
@@ -252,7 +253,7 @@ public class PropertyParserImpl implements PropertyParser {
                element.getParameters().size() == 1;
     }
 
-    private void parsePropertyElement(Map<String, PropertyMirror> propertyMap, GetSetPair pair) {
+    private void parsePropertyElement(List<PropertyMirror> propertyMirrors, GetSetPair pair) {
         // We take all annotations only from getter
         Element element = pair.getter().getElement();
         Set<Modifier> modifiers = element.getModifiers();
@@ -277,7 +278,7 @@ public class PropertyParserImpl implements PropertyParser {
         property.setGetter(pair.getter());
         property.setSetter(pair.setter());
 
-        propertyMap.put(name, property);
+        propertyMirrors.add(property);
 
         if (element.getKind() == ElementKind.FIELD) {
 
@@ -290,6 +291,9 @@ public class PropertyParserImpl implements PropertyParser {
     private boolean shouldIgnore(Element element) {
         String name = element.getSimpleName().toString();
         Set<Modifier> modifiers = element.getModifiers();
+        if (ignoredMethods.contains(name)) {
+            return true;
+        }
         if (modifiers.contains(Modifier.PRIVATE)) {
             messager.printMessage(Diagnostic.Kind.NOTE, "Element " + name +
                                                         " ignored because it is private. Torch do not support private" +
@@ -413,7 +417,7 @@ public class PropertyParserImpl implements PropertyParser {
         private final Element element;
         private String name;
 
-        public AccessorSetter(Element element){
+        public AccessorSetter(Element element) {
             this.element = element;
         }
 

@@ -27,4 +27,9 @@ public class VersionComparator implements Comparator<String> {
         return 0;
     }
 
+    public static int compareVersions(String v1, String v2) {
+        VersionComparator versionComparator = new VersionComparator();
+
+        return versionComparator.compare(v1, v2);
+    }
 }

@@ -40,9 +40,9 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
             throw new NoSuchElementException("The cursor is closed!");
         }
 
-        ENTITY entity;
+        ENTITY entity = query.getEntityDescription().createEmpty();
         try {
-            entity = query.getEntityDescription().createFromRawEntity(torchFactory, cursorRawEntity, query.getLoadGroups());
+            query.getEntityDescription().setFromRawEntity(torchFactory, cursorRawEntity, entity, query.getLoadGroups());
         } catch (Exception e) {
             // FIXME handle the exception better
             throw new RuntimeException(e);

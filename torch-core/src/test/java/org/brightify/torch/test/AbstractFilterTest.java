@@ -20,9 +20,9 @@ import static org.junit.Assert.assertThat;
  * This is for testing the DatabaseEngine's filtering. Subclass it and implement {@link #prepareDatabaseEngine()} to
  * return an instance of the tested database engine.
  */
-public abstract class AbstractFilterTest {
+public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
 
-    private DatabaseEngine databaseEngine;
+    private ENGINE databaseEngine;
 
     private TestObject[] savedData;
 
@@ -30,6 +30,8 @@ public abstract class AbstractFilterTest {
     private TestObject testObject1;
     private TestObject testObject2;
     private TestObject testObject3;
+
+    static int i = 0;
 
     @Before
     public void setUp() throws Exception {
@@ -145,6 +147,10 @@ public abstract class AbstractFilterTest {
         return loadedObjects;
     }
 
-    protected abstract DatabaseEngine prepareDatabaseEngine();
+    public ENGINE getDatabaseEngine() {
+        return databaseEngine;
+    }
+
+    protected abstract ENGINE prepareDatabaseEngine();
 
 }

@@ -11,7 +11,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +50,10 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
             @Override
             public int compare(Marshaller o1, Marshaller o2) {
                 // We're sorting from highest priority to lowest
-                int result = Integer.compare(o2.getPriority(), o1.getPriority());
+
+                int lhs = o2.getPriority();
+                int rhs = o1.getPriority();
+                int result = lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
                 if(result == 0) {
                     // And if the priorities are the same, then from A to Z
                     result = o1.getClass().getCanonicalName().compareTo(o2.getClass().getCanonicalName());

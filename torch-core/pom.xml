@@ -20,11 +20,6 @@
             <artifactId>torch-marshall</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.brightify.torch</groupId>
-            <artifactId>torch-compiler</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -38,6 +33,11 @@
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-testing-utils</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.brightify.torch</groupId>
+            <artifactId>torch-compiler</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

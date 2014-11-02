@@ -16,9 +16,11 @@ import org.brightify.torch.android.internal.SQLiteMaster;
 import org.brightify.torch.android.internal.SQLiteMaster$;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.util.Helper;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.PropertyUtil;
 import org.brightify.torch.util.Validate;
+import org.brightify.torch.util.functional.EditFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -186,16 +190,64 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     @Override
+    public <ENTITY> void each(LoadQuery<ENTITY> query, EditFunction<ENTITY> function) {
+        CursorIterator<ENTITY> iterator = new CursorIterator<ENTITY>(torchFactory, query, runQuery(query, false));
+
+        if (!iterator.hasNext()) {
+            return;
+        }
+        SQLiteDatabase db = getDatabase();
+        db.beginTransaction();
+        try {
+            EntityDescription<ENTITY> description = query.getEntityDescription();
+            Validate.notNull(description, "Entity not registered! Be sure to register it into the factory!");
+
+            CompiledStatement statement = precompileInsertStatement(description);
+            DirectBindWritableRawEntity rawEntity = new DirectBindWritableRawEntity(statement);
+
+            while (iterator.hasNext()) {
+                ENTITY entity = iterator.next();
+                boolean applies = function.apply(entity);
+                if (applies) {
+                    description.toRawEntity(torchFactory, entity, rawEntity);
+
+                    statement.getSQLiteStatement().executeInsert();
+                }
+            }
+
+            db.setTransactionSuccessful();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            // FIXME handle the exception better
+            throw new RuntimeException(e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    @Override
     public <ENTITY> List<ENTITY> load(LoadQuery<ENTITY> query) {
         CursorIterator<ENTITY> iterator = new CursorIterator<ENTITY>(torchFactory, query, runQuery(query, false));
 
         List<ENTITY> result = new ArrayList<ENTITY>();
 
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             result.add(iterator.next());
         }
 
         return result;
+    }
+
+    @Override
+    public <ENTITY> ENTITY first(LoadQuery<ENTITY> query) {
+        CursorIterator<ENTITY> iterator = new CursorIterator<ENTITY>(torchFactory, query, runQuery(query, false));
+
+        if (!iterator.hasNext()) {
+            return null;
+        }
+
+        return iterator.next();
     }
 
     @Override
@@ -364,24 +416,12 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
                 sql.append(',');
             }
 
-            Id.IdFeature idFeature = PropertyUtil.getFeature(property, Id.IdFeature.class);
+            appendColumnDefinition(sql, property);
 
-            sql.append(property.getSafeName()).append(" ").append(affinityFor(property.getType()));
-
-            if (idFeature != null) {
-                sql.append(" CONSTRAINT ")
-                   .append(property.getSafeName())
-                   .append("_primary")
-                   .append(" PRIMARY KEY ASC ");
-
-                if (idFeature.isAutoIncrement()) {
-                    sql.append("AUTOINCREMENT ");
-                }
-            }
         }
         sql.append(")");
 
-        execSql(sql.toString(), new String[0]);
+        execSql(sql.toString());
     }
 
     protected <ENTITY> void dropTableIfExists(EntityDescription<ENTITY> description) {
@@ -393,6 +433,199 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
                            .load()
                            .type(SQLiteMaster.class)
                            .filter(SQLiteMaster$.tableName.equalTo(description.getSafeName())).count() > 0;
+    }
+
+    protected <ENTITY> void addColumn(EntityDescription<ENTITY> description, Property<?> property) {
+        String tableName = description.getSafeName();
+        StringBuilder builder = new StringBuilder();
+        builder.append("ALTER TABLE ").append(tableName).append(" ADD COLUMN ");
+        appendColumnDefinition(builder, property);
+        execSql(builder.toString());
+    }
+
+    protected <ENTITY> void renameColumn(EntityDescription<ENTITY> description, String from, String to) {
+
+        SQLiteDatabase db = getDatabase();
+        db.beginTransaction();
+        try {
+            String tableName = description.getSafeName();
+            String tempTableName = "temp_" + tableName;
+
+            SQLiteMaster sqLiteMaster = torchFactory
+                    .begin()
+                    .load()
+                    .type(SQLiteMaster.class)
+                    .filter(
+                            SQLiteMaster$.tableName.equalTo(tableName)
+                                                   .and(SQLiteMaster$.type.equalTo("table")))
+                    .single();
+
+            execSql("ALTER TABLE " + tableName + " RENAME TO " + tempTableName);
+
+            String newSql = sqLiteMaster.getSql().replaceAll("\\b" + Pattern.quote(from) + "\\b", to);
+            execSql(newSql);
+
+            String oldSql = sqLiteMaster.getSql();
+
+            Pattern pattern = Pattern.compile("[\\(,](?:(.*?) (?:.*?))");
+
+            Matcher oldSqlMatcher = pattern.matcher(oldSql);
+            List<String> oldColumns = new ArrayList<String>();
+            while (oldSqlMatcher.find()) {
+                oldColumns.add(oldSqlMatcher.group(1));
+            }
+
+            Matcher newSqlMatcher = pattern.matcher(newSql);
+            List<String> newColumns = new ArrayList<String>();
+            while (newSqlMatcher.find()) {
+                newColumns.add(newSqlMatcher.group(1));
+            }
+
+            if (newColumns.size() != oldColumns.size()) {
+                throw new IllegalStateException("Old and new columns not equal!");
+            }
+
+            StringBuilder copyDataSql = new StringBuilder("INSERT INTO ");
+            copyDataSql.append(tableName).append("(");
+
+            Helper.appendStrings(newColumns, copyDataSql, ",");
+
+            copyDataSql.append(") SELECT ");
+
+            Helper.appendStrings(oldColumns, copyDataSql, ",");
+
+            copyDataSql.append(" FROM ").append(tempTableName);
+
+            execSql(copyDataSql.toString());
+
+            execSql("DROP TABLE " + tempTableName);
+
+            db.setTransactionSuccessful();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            // FIXME handle the exception better
+            throw new RuntimeException(e);
+        } finally {
+            db.endTransaction();
+        }
+
+        /*
+
+        Say you have a table and need to rename "colb" to "col_b":
+
+        First you rename the old table:
+
+        ALTER TABLE orig_table_name RENAME TO tmp_table_name;
+        Then create the new table, based on the old table but with the updated column name:
+
+        CREATE TABLE orig_table_name (
+          col_a INT
+        , col_b INT
+        );
+        Then copy the contents across from the original table.
+
+        INSERT INTO orig_table_name(col_a, col_b)
+        SELECT col_a, colb
+        FROM tmp_table_name;
+        Lastly, drop the old table.
+
+        DROP TABLE tmp_table_name;
+        Wrapping all this in a BEGIN TRANSACTION; and COMMIT; is also probably a good idea.
+
+         */
+    }
+
+    protected <ENTITY> void removeColumn(EntityDescription<ENTITY> description, String column) {
+        String safeColumn = Pattern.quote(column);
+        String removePattern = "(," + safeColumn +" ([^,\\)]*)(?=[\\),]))|((?<=\\()" + safeColumn + " ([^,\\)]*),)";
+
+        SQLiteDatabase db = getDatabase();
+        db.beginTransaction();
+        try {
+            String tableName = description.getSafeName();
+            String tempTableName = "temp_" + tableName;
+
+            SQLiteMaster sqLiteMaster = torchFactory
+                    .begin()
+                    .load()
+                    .type(SQLiteMaster.class)
+                    .filter(
+                            SQLiteMaster$.tableName.equalTo(tableName)
+                                                   .and(SQLiteMaster$.type.equalTo("table")))
+                    .single();
+
+            execSql("ALTER TABLE " + tableName + " RENAME TO " + tempTableName);
+
+            String newSql = sqLiteMaster.getSql().replaceAll(removePattern, "");
+            execSql(newSql);
+
+            String oldSql = sqLiteMaster.getSql();
+
+            Pattern pattern = Pattern.compile("[\\(,](?:(.*?) (?:.*?))");
+
+            Matcher oldSqlMatcher = pattern.matcher(oldSql);
+            List<String> oldColumns = new ArrayList<String>();
+            while (oldSqlMatcher.find()) {
+                String oldColumn = oldSqlMatcher.group(1);
+                if(oldColumn.equals(column)) {
+                    continue;
+                }
+                oldColumns.add(oldColumn);
+            }
+
+            Matcher newSqlMatcher = pattern.matcher(newSql);
+            List<String> newColumns = new ArrayList<String>();
+            while (newSqlMatcher.find()) {
+                newColumns.add(newSqlMatcher.group(1));
+            }
+
+            if (newColumns.size() != oldColumns.size()) {
+                throw new IllegalStateException("Old and new columns not equal!");
+            }
+
+            StringBuilder copyDataSql = new StringBuilder("INSERT INTO ");
+            copyDataSql.append(tableName).append("(");
+
+            Helper.appendStrings(newColumns, copyDataSql, ",");
+
+            copyDataSql.append(") SELECT ");
+
+            Helper.appendStrings(oldColumns, copyDataSql, ",");
+
+            copyDataSql.append(" FROM ").append(tempTableName);
+
+            execSql(copyDataSql.toString());
+
+            execSql("DROP TABLE " + tempTableName);
+
+            db.setTransactionSuccessful();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            // FIXME handle the exception better
+            throw new RuntimeException(e);
+        } finally {
+            db.endTransaction();
+        }
+
+    }
+
+    private void appendColumnDefinition(StringBuilder builder, Property<?> property) {
+        Id.IdFeature idFeature = PropertyUtil.getFeature(property, Id.IdFeature.class);
+
+        builder.append(property.getSafeName()).append(" ").append(affinityFor(property.getType()));
+
+        if (idFeature != null) {
+            builder.append(" CONSTRAINT ")
+               .append(property.getSafeName())
+               .append("_primary")
+               .append(" PRIMARY KEY ASC ");
+
+            if (idFeature.isAutoIncrement()) {
+                builder.append("AUTOINCREMENT ");
+            }
+        }
     }
 
     private <ENTITY> Cursor runQuery(LoadQuery<ENTITY> query, boolean countOnly) {
@@ -450,7 +683,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         return runSql(builder.toString(), selectionArgsList);
     }
 
-    private void execSql(String sql, Object[] bindArgs) {
+    private void execSql(String sql, Object... bindArgs) {
         logSql(sql, bindArgs);
 
         getDatabase().execSQL(sql, bindArgs);
@@ -464,7 +697,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         return getDatabase().rawQuery(sql, selectionArgs);
     }
 
-    private void logSql(String sql, Object[] selectionArgs) {
+    private void logSql(String sql, Object... selectionArgs) {
         if (Settings.isQueryLoggingEnabled()) {
             if (Settings.isQueryArgumentsLoggingEnabled()) {
                 sql = sql + " with arguments: " + Arrays.deepToString(selectionArgs);
@@ -500,4 +733,5 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             return bindArgIndexes;
         }
     }
+
 }

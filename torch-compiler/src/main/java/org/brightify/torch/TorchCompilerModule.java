@@ -10,16 +10,18 @@ import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.generate.EntityDescriptionGeneratorImpl;
 import org.brightify.torch.compile.generate.EntityGenerator;
 import org.brightify.torch.compile.generate.EntityGeneratorImpl;
-import org.brightify.torch.compile.parse.EntityParser;
-import org.brightify.torch.compile.parse.EntityParserImpl;
-import org.brightify.torch.compile.parse.PropertyParser;
-import org.brightify.torch.compile.parse.PropertyParserImpl;
-import org.brightify.torch.compile.verify.EntityVerifier;
-import org.brightify.torch.compile.verify.EntityVerifierImpl;
 import org.brightify.torch.compile.marshall.MarshallerRegistry;
 import org.brightify.torch.compile.marshall.MarshallerRegistryImpl;
+import org.brightify.torch.compile.parse.EntityParser;
+import org.brightify.torch.compile.parse.EntityParserImpl;
+import org.brightify.torch.compile.parse.MigrationParser;
+import org.brightify.torch.compile.parse.MigrationParserImpl;
+import org.brightify.torch.compile.parse.PropertyParser;
+import org.brightify.torch.compile.parse.PropertyParserImpl;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.compile.util.TypeHelperImpl;
+import org.brightify.torch.compile.verify.EntityVerifier;
+import org.brightify.torch.compile.verify.EntityVerifierImpl;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -69,6 +71,7 @@ public class TorchCompilerModule extends AbstractModule {
 
         bind(EntityParser.class).to(EntityParserImpl.class);
         bind(PropertyParser.class).to(PropertyParserImpl.class);
+        bind(MigrationParser.class).to(MigrationParserImpl.class);
 
         bind(EntityContext.class).to(EntityContextImpl.class).in(Singleton.class);
         bind(EntityVerifier.class).to(EntityVerifierImpl.class);

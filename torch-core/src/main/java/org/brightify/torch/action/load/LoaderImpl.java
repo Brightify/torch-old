@@ -13,6 +13,9 @@ import org.brightify.torch.filter.Property;
 import org.brightify.torch.util.Validate;
 import org.brightify.torch.util.async.AsyncRunner;
 import org.brightify.torch.util.async.Callback;
+import org.brightify.torch.util.functional.EditFunction;
+import org.brightify.torch.util.functional.FoldingFunction;
+import org.brightify.torch.util.functional.MappingFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +35,7 @@ import java.util.concurrent.Callable;
 public class LoaderImpl<ENTITY> implements
         Loader, TypedLoader<ENTITY>, FilterLoader<ENTITY>,
         OrderLoader<ENTITY>, DirectionLoader<ENTITY>, LimitLoader<ENTITY>, OffsetLoader<ENTITY>,
-        ListLoader<ENTITY>, Countable,
+        ListLoader<ENTITY>, Countable, ProcessingLoader<ENTITY>,
 
         TypedFilterOrderLimitListLoader<ENTITY>,
         OrderLimitListLoader<ENTITY>, OrderDirectionLimitListLoader<ENTITY>, OffsetListLoader<ENTITY> {
@@ -69,18 +72,38 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
+    public ProcessingLoader<ENTITY> process() {
+        return this;
+    }
+
+    @Override
     public List<ENTITY> list() {
         return torch.getFactory().getDatabaseEngine().load(new LoadQueryImpl());
     }
 
     @Override
     public ENTITY single() {
-        Iterator<ENTITY> iterator = iterator();
-        if (!iterator.hasNext()) {
-            return null;
-        }
+        return torch.getFactory().getDatabaseEngine().first(new LoadQueryImpl());
+    }
 
-        return iterator.next();
+    @Override
+    public void list(Callback<List<ENTITY>> callback) {
+        AsyncRunner.submit(callback, new Callable<List<ENTITY>>() {
+            @Override
+            public List<ENTITY> call() throws Exception {
+                return list();
+            }
+        });
+    }
+
+    @Override
+    public void single(Callback<ENTITY> callback) {
+        AsyncRunner.submit(callback, new Callable<ENTITY>() {
+            @Override
+            public ENTITY call() throws Exception {
+                return single();
+            }
+        });
     }
 
     @Override
@@ -141,6 +164,36 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
+    public <LOCAL_ENTITY> void key(Callback<LOCAL_ENTITY> callback, final Key<LOCAL_ENTITY> key) {
+        AsyncRunner.submit(callback, new Callable<LOCAL_ENTITY>() {
+            @Override
+            public LOCAL_ENTITY call() throws Exception {
+                return key(key);
+            }
+        });
+    }
+
+    @Override
+    public <LOCAL_ENTITY> void keys(Callback<List<LOCAL_ENTITY>> callback, final Key<LOCAL_ENTITY>... keys) {
+        AsyncRunner.submit(callback, new Callable<List<LOCAL_ENTITY>>() {
+            @Override
+            public List<LOCAL_ENTITY> call() throws Exception {
+                return keys(keys);
+            }
+        });
+    }
+
+    @Override
+    public <LOCAL_ENTITY> void keys(Callback<List<LOCAL_ENTITY>> callback, final Iterable<Key<LOCAL_ENTITY>> keys) {
+        AsyncRunner.submit(callback, new Callable<List<LOCAL_ENTITY>>() {
+            @Override
+            public List<LOCAL_ENTITY> call() throws Exception {
+                return keys(keys);
+            }
+        });
+    }
+
+    @Override
     public LoaderImpl<ENTITY> offset(int offset) {
         return nextLoader(new LoaderType.OffsetLoaderType(offset));
     }
@@ -181,31 +234,6 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
-    public int count() {
-        return torch.getFactory().getDatabaseEngine().count(new LoadQueryImpl());
-    }
-
-    @Override
-    public LoaderImpl<ENTITY> filter(BaseFilter<?,?> filter) {
-        return nextLoader(new LoaderType.FilterLoaderType(filter));
-    }
-
-    @Override
-    public LoaderImpl<ENTITY> orderBy(Property<?> column) {
-        return nextLoader(new LoaderType.OrderLoaderType(column));
-    }
-
-    @Override
-    public void count(Callback<Integer> callback) {
-        AsyncRunner.submit(callback, new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return count();
-            }
-        });
-    }
-
-    @Override
     public void id(Callback<ENTITY> callback, final long id) {
         AsyncRunner.submit(callback, new Callable<ENTITY>() {
             @Override
@@ -236,53 +264,124 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
-    public void list(Callback<List<ENTITY>> callback) {
-        AsyncRunner.submit(callback, new Callable<List<ENTITY>>() {
+    public int count() {
+        return torch.getFactory().getDatabaseEngine().count(new LoadQueryImpl());
+    }
+
+    @Override
+    public void count(Callback<Integer> callback) {
+        AsyncRunner.submit(callback, new Callable<Integer>() {
             @Override
-            public List<ENTITY> call() throws Exception {
-                return list();
+            public Integer call() throws Exception {
+                return count();
             }
         });
     }
 
     @Override
-    public void single(Callback<ENTITY> callback) {
-        AsyncRunner.submit(callback, new Callable<ENTITY>() {
+    public LoaderImpl<ENTITY> filter(BaseFilter<?, ?> filter) {
+        return nextLoader(new LoaderType.FilterLoaderType(filter));
+    }
+
+    @Override
+    public LoaderImpl<ENTITY> orderBy(Property<?> column) {
+        return nextLoader(new LoaderType.OrderLoaderType(column));
+    }
+
+    @Override
+    public <RESULT> List<RESULT> map(MappingFunction<ENTITY, RESULT> function) {
+        MappingFunctionWrapper<ENTITY, RESULT> wrapper = new MappingFunctionWrapper<ENTITY, RESULT>(function);
+        each(wrapper);
+        return wrapper.results;
+    }
+
+    @Override
+    public <RESULT> RESULT fold(FoldingFunction<RESULT, ENTITY> function) {
+        return fold(null, function);
+    }
+
+    @Override
+    public <RESULT> RESULT fold(RESULT initialValue, FoldingFunction<RESULT, ENTITY> function) {
+        FoldingFunctionWrapper<RESULT, ENTITY> wrapper =
+                new FoldingFunctionWrapper<RESULT, ENTITY>(initialValue, function);
+        each(wrapper);
+        return wrapper.accumulator;
+    }
+
+    @Override
+    public void each(EditFunction<ENTITY> function) {
+        torch.getFactory().getDatabaseEngine().each(new LoadQueryImpl(), function);
+    }
+
+    @Override
+    public <RESULT> void map(final MappingFunction<ENTITY, RESULT> function, Callback<List<RESULT>> callback) {
+        AsyncRunner.submit(callback, new Callable<List<RESULT>>() {
             @Override
-            public ENTITY call() throws Exception {
-                return single();
+            public List<RESULT> call() throws Exception {
+                return map(function);
             }
         });
     }
 
     @Override
-    public <LOCAL_ENTITY> void key(Callback<LOCAL_ENTITY> callback, final Key<LOCAL_ENTITY> key) {
-        AsyncRunner.submit(callback, new Callable<LOCAL_ENTITY>() {
+    public <RESULT> void fold(FoldingFunction<RESULT, ENTITY> function, Callback<RESULT> callback) {
+        fold(null, function, callback);
+    }
+
+    @Override
+    public <RESULT> void fold(final RESULT initialValue, final FoldingFunction<RESULT, ENTITY> function,
+                              Callback<RESULT> callback) {
+        AsyncRunner.submit(callback, new Callable<RESULT>() {
             @Override
-            public LOCAL_ENTITY call() throws Exception {
-                return key(key);
+            public RESULT call() throws Exception {
+                return fold(initialValue, function);
             }
         });
     }
 
     @Override
-    public <LOCAL_ENTITY> void keys(Callback<List<LOCAL_ENTITY>> callback, final Key<LOCAL_ENTITY>... keys) {
-        AsyncRunner.submit(callback, new Callable<List<LOCAL_ENTITY>>() {
+    public void each(final EditFunction<ENTITY> function, Callback<Void> callback) {
+        AsyncRunner.submit(callback, new Callable<Void>() {
             @Override
-            public List<LOCAL_ENTITY> call() throws Exception {
-                return keys(keys);
+            public Void call() throws Exception {
+                each(function);
+                return null;
             }
         });
     }
 
-    @Override
-    public <LOCAL_ENTITY> void keys(Callback<List<LOCAL_ENTITY>> callback, final Iterable<Key<LOCAL_ENTITY>> keys) {
-        AsyncRunner.submit(callback, new Callable<List<LOCAL_ENTITY>>() {
-            @Override
-            public List<LOCAL_ENTITY> call() throws Exception {
-                return keys(keys);
-            }
-        });
+    private static class MappingFunctionWrapper<ENTITY, RESULT> implements EditFunction<ENTITY> {
+
+        public final List<RESULT> results = new ArrayList<RESULT>();
+        private final MappingFunction<ENTITY, RESULT> wrappedFunction;
+
+        public MappingFunctionWrapper(MappingFunction<ENTITY, RESULT> wrappedFunction) {
+            this.wrappedFunction = wrappedFunction;
+        }
+
+        @Override
+        public boolean apply(ENTITY entity) {
+            RESULT result = wrappedFunction.apply(entity);
+            results.add(result);
+            return false;
+        }
+    }
+
+    private static class FoldingFunctionWrapper<ACCUMULATOR, ENTITY> implements EditFunction<ENTITY> {
+
+        private final FoldingFunction<ACCUMULATOR, ENTITY> wrappedFunction;
+        public ACCUMULATOR accumulator;
+
+        public FoldingFunctionWrapper(ACCUMULATOR accumulator, FoldingFunction<ACCUMULATOR, ENTITY> function) {
+            this.accumulator = accumulator;
+            this.wrappedFunction = function;
+        }
+
+        @Override
+        public boolean apply(ENTITY entity) {
+            accumulator = wrappedFunction.apply(accumulator, entity);
+            return false;
+        }
     }
 
     public class LoadQueryImpl implements LoadQuery<ENTITY> {
@@ -312,30 +411,14 @@ public class LoaderImpl<ENTITY> implements
             return entityDescription;
         }
 
-        public void setEntityClass(Class<ENTITY> entityClass) {
-            entityDescription = torch.getFactory().getEntities().getDescription(entityClass);
-        }
-
         @Override
         public Set<Class<?>> getLoadGroups() {
             return loadGroups;
         }
 
-        public void addLoadGroup(Class<?> group) {
-            loadGroups.add(group);
-        }
-
-        public void addLoadGroups(Class<?>... groups) {
-            Collections.addAll(loadGroups, groups);
-        }
-
         @Override
         public BaseFilter<?, ?> getFilter() {
             return entityFilter;
-        }
-
-        public void setEntityFilter(BaseFilter<?, ?> entityFilter) {
-            this.entityFilter = entityFilter;
         }
 
         @Override
@@ -361,6 +444,22 @@ public class LoaderImpl<ENTITY> implements
             this.offset = offset;
         }
 
+        public void setEntityClass(Class<ENTITY> entityClass) {
+            entityDescription = torch.getFactory().getEntities().getDescription(entityClass);
+        }
+
+        public void addLoadGroup(Class<?> group) {
+            loadGroups.add(group);
+        }
+
+        public void addLoadGroups(Class<?>... groups) {
+            Collections.addAll(loadGroups, groups);
+        }
+
+        public void setEntityFilter(BaseFilter<?, ?> entityFilter) {
+            this.entityFilter = entityFilter;
+        }
+
         public void addOrdering(Property<?> orderColumn, Direction orderDirection) {
             orderMap.put(orderColumn, orderDirection);
             lastOrderColumn = orderColumn;
@@ -372,5 +471,4 @@ public class LoaderImpl<ENTITY> implements
             orderMap.put(lastOrderColumn, orderDirection);
         }
     }
-
 }

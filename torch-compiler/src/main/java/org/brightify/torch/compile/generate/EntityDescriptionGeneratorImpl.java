@@ -2,6 +2,7 @@ package org.brightify.torch.compile.generate;
 
 import com.google.inject.Inject;
 import com.sun.codemodel.JArray;
+import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JConditional;
 import com.sun.codemodel.JDefinedClass;
@@ -21,6 +22,8 @@ import org.brightify.torch.compile.migration.MigrationPathPart;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.util.Constants;
+
+import java.lang.reflect.Field;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -76,27 +79,24 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
                                 .body()._return(propertiesField);
 
 
-        generate_createFromRawEntity(classHolder);
+        generate_setFromRawEntity(classHolder);
         generate_toRawEntity(classHolder);
         generate_migrate(classHolder);
         generate_utilityMethods(classHolder);
     }
 
-    private void generate_createFromRawEntity(ClassHolder classHolder) {
+    private void generate_setFromRawEntity(ClassHolder classHolder) {
         CreateFromRawEntityHolder holder = new CreateFromRawEntityHolder();
         holder.classHolder = classHolder;
-        holder.method = classHolder.definedClass.method(JMod.PUBLIC, classHolder.entityClass, "createFromRawEntity");
+        holder.method = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "setFromRawEntity");
         holder.method.annotate(Override.class);
 
         holder.torchFactory = holder.method.param(CodeModelTypes.TORCH_FACTORY, "torchFactory");
         holder.rawEntity = holder.method.param(CodeModelTypes.READABLE_RAW_ENTITY, "rawEntity");
+        holder.entity = holder.method.param(classHolder.entityClass, "entity");
         holder.loadGroups =
                 holder.method.param(CodeModelTypes.SET.narrow(CodeModelTypes.CLASS.narrow(
                         CodeModelTypes.OBJECT.wildcard())), "loadGroups");
-
-        holder.entity = holder.method
-                .body()
-                .decl(classHolder.entityClass, "entity", JExpr._new(classHolder.entityClass));
 
         for (PropertyMirror propertyMirror : classHolder.entityMirror.getProperties()) {
             Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
@@ -105,7 +105,6 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
                     "// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
             holder.method.body().add(marshaller.unmarshall(holder, propertyMirror));
         }
-        holder.method.body()._return(holder.entity);
     }
 
     private void generate_toRawEntity(ClassHolder classHolder) {
@@ -143,7 +142,18 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
             if (conditional == null) {
                 conditional = method.body()._if(ifExpression);
             } else {
-                conditional = conditional._elseif(ifExpression);
+                try {
+                    JBlock elseBlock = conditional._else();
+                    Field bracesRequired = JBlock.class.getDeclaredField("bracesRequired");
+                    Field indentRequired = JBlock.class.getDeclaredField("indentRequired");
+                    bracesRequired.setAccessible(true);
+                    bracesRequired.setBoolean(elseBlock, false);
+                    indentRequired.setAccessible(true);
+                    indentRequired.setBoolean(elseBlock, false);
+                    conditional = elseBlock._if(ifExpression);
+                } catch (Exception e) {
+                    conditional = conditional._elseif(ifExpression);
+                }
             }
             for (MigrationPathPart part = migrationPath.getStart(); part != null; part = part.getNext()) {
                 String migrationMethodName = part.getMigrationMethod().getExecutable().getSimpleName().toString();
@@ -160,39 +170,38 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         );
 
         if (conditional != null) {
-            conditional._then()._throw(exception);
+            conditional._else()._throw(exception);
         } else {
             method.body()._throw(exception);
         }
     }
 
     private void generate_utilityMethods(ClassHolder classHolder) {
+        JMethod getIdProperty = classHolder.definedClass.method(JMod.PUBLIC,
+                                        CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG), "getIdProperty");
+        getIdProperty.annotate(Override.class);
+        getIdProperty.body()._return(JExpr.refthis(classHolder.entityMirror.getIdPropertyMirror().getName()));
+
+        JMethod getSafeName = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getSafeName");
+        getSafeName.annotate(Override.class);
+        getSafeName.body()._return(JExpr.lit(classHolder.entityMirror.getSafeName()));
 
 
-        classHolder.definedClass.method(JMod.PUBLIC,
-                                        CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG),
-                                        "getIdProperty")
-                                .body()
-                                ._return(JExpr.refthis(classHolder.entityMirror.getIdPropertyMirror().getName()));
+        JMethod getVersion = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getVersion");
+        getVersion.annotate(Override.class);
+        getVersion.body()._return(JExpr.lit(classHolder.entityMirror.getVersion()));
 
 
-
-
-        classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getSafeName")
-                                .body()._return(JExpr.lit(classHolder.entityMirror.getSafeName()));
-
-
-        classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getVersion")
-                                .body()._return(JExpr.lit(classHolder.entityMirror.getVersion()));
-
-
-        classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.ENTITY_MIGRATION_TYPE, "getMigrationType")
-                                .body()._return(
+        JMethod getMigrationType =
+                classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.ENTITY_MIGRATION_TYPE, "getMigrationType");
+        getMigrationType.annotate(Override.class);
+        getMigrationType.body()._return(
                 CodeModelTypes.ENTITY_MIGRATION_TYPE.staticRef(classHolder.entityMirror.getMigrationType().toString()));
 
 
         JMethod getEntityId = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.LONG, "getEntityId");
         JVar getEntityId_Entity = getEntityId.param(classHolder.entityClass, "entity");
+        getEntityId.annotate(Override.class);
         getEntityId.body()._return(classHolder.entityMirror.getIdPropertyMirror().getGetter().getValue(
                 getEntityId_Entity));
 
@@ -200,6 +209,7 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         JMethod setEntityId = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "setEntityId");
         JVar setEntityId_Entity = setEntityId.param(classHolder.entityClass, "entity");
         JVar setEntityId_Id = setEntityId.param(CodeModelTypes.LONG, "id");
+        setEntityId.annotate(Override.class);
         setEntityId.body().add(
                 classHolder.entityMirror.getIdPropertyMirror().getSetter().setValue(setEntityId_Entity,
                                                                                     setEntityId_Id));
@@ -208,19 +218,14 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         JMethod getEntityClass = classHolder.definedClass.method(JMod.PUBLIC,
                                                                  CodeModelTypes.CLASS.narrow(classHolder.entityClass),
                                                                  "getEntityClass");
+        getEntityClass.annotate(Override.class);
         getEntityClass.body()._return(classHolder.entityClass.dotclass());
 
-
-        JMethod createKey = classHolder.definedClass.method(JMod.PUBLIC,
-                                                            CodeModelTypes.KEY.narrow(classHolder.entityClass),
-                                                            "createKey");
-        JVar createKey_Entity = createKey.param(classHolder.entityClass, "entity");
-        createKey.body()._return(
-                CodeModelTypes.KEY_FACTORY
-                        .staticInvoke("create")
-                        .arg(JExpr.invoke(getEntityClass))
-                        .arg(JExpr.invoke(getEntityId).arg(createKey_Entity))
-        );
+        JMethod createEmpty = classHolder.definedClass.method(JMod.PUBLIC,
+                                                              classHolder.entityClass,
+                                                              "createEmpty");
+        createEmpty.annotate(Override.class);
+        createEmpty.body()._return(JExpr._new(classHolder.entityClass));
 
 
         classHolder.definedClass.method(JMod.PUBLIC | JMod.STATIC, classHolder.definedClass, "create")

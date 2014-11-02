@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JOp;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
@@ -46,20 +47,27 @@ public class EntityReferenceMarshaller extends AbstractMarshaller {
     protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder,
                                         PropertyMirror propertyMirror) {
         JExpression getValue = super.marshallValue(holder, propertyMirror);
-        return holder.torchFactory
+
+        JExpression saveEntity = holder.torchFactory
                 .invoke("begin")
                 .invoke("save")
                 .invoke("entity").arg(getValue);
+
+        return JOp.cond(JOp.ne(getValue, JExpr._null()), saveEntity, JExpr._null());
     }
 
     @Override
     protected JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
                                         PropertyMirror propertyMirror) {
-        return holder.torchFactory
+        JExpression getEntityId = holder.rawEntity.invoke("getLong").arg(JExpr.lit(propertyMirror.getSafeName()));
+
+        JExpression loadEntity = holder.torchFactory
                 .invoke("begin")
                 .invoke("load")
                 .invoke("type").arg(CodeModelTypes.ref(propertyMirror).dotclass())
-                .invoke("id").arg(holder.rawEntity.invoke("getLong").arg(JExpr.lit(propertyMirror.getSafeName())));
+                .invoke("id").arg(getEntityId);
+
+        return JOp.cond(JOp.ne(getEntityId, JExpr._null()), loadEntity, JExpr._null());
     }
 
     @Override

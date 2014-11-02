@@ -19,12 +19,15 @@ public class KeyFactory {
         return new Key<ENTITY>(entityClass, id);
     }
 
+    public static <ENTITY> Key<ENTITY> create(EntityDescription<ENTITY> description, ENTITY entity) {
+        return create(description.getEntityClass(), description.getEntityId(entity));
+    }
+
     @SuppressWarnings("unchecked")
     public static <ENTITY> Key<ENTITY> create(ENTITY entity) {
         Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
         EntityDescription<ENTITY> metadata = TorchService.factory().getEntities().getDescription(entityClass);
-
-        return metadata.createKey(entity);
+        return create(metadata, entity);
     }
 
 }
