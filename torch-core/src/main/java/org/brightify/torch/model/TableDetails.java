@@ -4,8 +4,6 @@ import org.brightify.torch.Key;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 
-import java.util.List;
-
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */

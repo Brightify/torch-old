@@ -1,7 +1,6 @@
 package org.brightify.torch.relation;
 
 import org.brightify.torch.Key;
-import org.brightify.torch.filter.RelationColumn;
 import org.brightify.torch.util.LazyArrayList;
 
 /**

@@ -1,7 +1,5 @@
 package org.brightify.torch.filter;
 
-import org.brightify.torch.util.KeyValueEntity;
-
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */

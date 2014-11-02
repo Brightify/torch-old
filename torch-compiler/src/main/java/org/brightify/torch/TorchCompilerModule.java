@@ -47,8 +47,11 @@ public class TorchCompilerModule extends AbstractModule {
         this.entrypoint = entrypoint;
         this.roundEnvironment = roundEnvironment;
 
-        reflections = new Reflections(
-                new ConfigurationBuilder().setUrls(ClasspathHelper.forClassLoader()));
+
+        ConfigurationBuilder configurationBuilder =  new ConfigurationBuilder();
+        configurationBuilder.setUrls(ClasspathHelper.forClassLoader());
+        configurationBuilder.addUrls(TorchCompilerModule.class.getProtectionDomain().getCodeSource().getLocation());
+        reflections = new Reflections(configurationBuilder);
     }
 
     @Override
@@ -79,4 +82,5 @@ public class TorchCompilerModule extends AbstractModule {
         bind(EntityGenerator.class).to(EntityGeneratorImpl.class);
         bind(EntityDescriptionGenerator.class).to(EntityDescriptionGeneratorImpl.class);
     }
+
 }

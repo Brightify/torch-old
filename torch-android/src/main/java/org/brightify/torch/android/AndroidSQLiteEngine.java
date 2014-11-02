@@ -393,7 +393,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
 
         String builtSql = sql.toString();
 
-        logSql(builtSql, new String[0]);
+        logSql(builtSql);
 
         CompiledStatement compiledStatement =
                 new CompiledStatement(getDatabase().compileStatement(builtSql), bindArgIndexes);
@@ -425,7 +425,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     protected <ENTITY> void dropTableIfExists(EntityDescription<ENTITY> description) {
-        execSql("DROP TABLE IF EXISTS ?", new String[] { description.getSafeName() });
+        execSql("DROP TABLE IF EXISTS ?", description.getSafeName());
     }
 
     protected <ENTITY> boolean tableExists(EntityDescription<ENTITY> description) {

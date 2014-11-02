@@ -11,7 +11,6 @@ import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.util.CodeModelTypes;
 import org.brightify.torch.compile.util.TypeHelper;
-import org.brightify.torch.sql.TypeAffinity;
 
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
@@ -60,14 +59,15 @@ public class KeyMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
+    protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder,
+                                        PropertyMirror propertyMirror) {
         JExpression getValue = super.marshallValue(holder, propertyMirror);
         return JOp.cond(getValue.ne(JExpr._null()), getValue.invoke("getId"), JExpr._null());
     }
 
     @Override
     protected JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
-                                     PropertyMirror propertyMirror) {
+                                        PropertyMirror propertyMirror) {
         TypeMirror keyType = typeHelper.singleGenericParameter(propertyMirror.getType());
         return CodeModelTypes.KEY
                 .staticInvoke("create")

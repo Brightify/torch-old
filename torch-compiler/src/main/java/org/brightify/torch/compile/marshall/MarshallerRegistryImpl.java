@@ -6,7 +6,9 @@ import org.brightify.torch.compile.PropertyMirror;
 import org.reflections.Reflections;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.processing.Messager;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +29,9 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
     @Inject
     private Injector injector;
 
+    @Inject
+    private Messager messager;
+
     @PostConstruct
     private void init() {
         Set<Class<? extends Marshaller>> marshallerClasses = reflections.getSubTypesOf(Marshaller.class);
@@ -41,8 +46,9 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
                 marshallers.add(marshaller);
             } catch (Exception e) {
                 // FIXME we shouldn't throw an exception because of Guice!
-                throw new RuntimeException(
-                        "Couldn't instantiate cursor marshaller provider " + marshallerClass.getSimpleName() + "!", e);
+                messager.printMessage(Diagnostic.Kind.ERROR,
+                                      "Couldn't instantiate cursor marshaller provider " + marshallerClass.getSimpleName() + "!");
+                e.printStackTrace();
             }
         }
 
@@ -78,7 +84,11 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
     public Marshaller getMarshallerOrThrow(TypeMirror type) {
         Marshaller marshaller = getMarshaller(type);
         if(marshaller == null) { // FIXME change to GenerationException
-            throw new IllegalStateException("Unsupported type: " + type);
+            StringBuilder builder = new StringBuilder("Supported marshallers: ");
+            for (Marshaller marshaller1 : marshallers) {
+                builder.append(marshaller1.getClass().getSimpleName()).append("\n");
+            }
+            throw new IllegalStateException(LongMarshaller.class.getCanonicalName() + " Unsupported type: " + type + ". " + builder.toString());
         }
         return marshaller;
     }

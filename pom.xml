@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -8,11 +9,11 @@
         <version>7</version>
     </parent>
 
-	<groupId>org.brightify.torch</groupId>
-	<artifactId>torch-parent</artifactId>
-	<version>1.0-alpha-02-SNAPSHOT</version>
-	<name>Torch - Android ORM framework</name>
-	<packaging>pom</packaging>
+    <groupId>org.brightify.torch</groupId>
+    <artifactId>torch-parent</artifactId>
+    <version>1.0-alpha-02-SNAPSHOT</version>
+    <name>Torch - Android ORM framework</name>
+    <packaging>pom</packaging>
     <url>http://github.com/brightify/torch</url>
 
     <modules>
@@ -20,10 +21,8 @@
         <module>torch-compiler</module>
         <module>torch-compiler-spi</module>
         <module>torch-core</module>
-        <module>torch-bridge</module>
         <module>torch-demo-todo</module>
         <module>torch-android</module>
-        <module>torch-marshall</module>
         <module>torch-tests</module>
     </modules>
 
@@ -60,27 +59,27 @@
         <url>https://github.com/brightify/torch/issues</url>
     </issueManagement>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <app.version.code>1</app.version.code>
         <app.version.name>${project.version}</app.version.name>
 
-		<java.source.version>1.6</java.source.version>
-		<java.target.version>1.6</java.target.version>
+        <java.source.version>1.6</java.source.version>
+        <java.target.version>1.6</java.target.version>
 
-		<android.version>4.1.1.4</android.version>
+        <android.version>4.1.1.4</android.version>
         <android-test.version>4.1.1.4</android-test.version>
-		<android.platform>21</android.platform>
-		<android-maven.version>4.0.0-rc.3</android-maven.version>
-	
+        <android.platform>21</android.platform>
+        <android-maven.version>4.0.0-rc.3</android-maven.version>
+
         <junit.version>4.11</junit.version>
         <hamcrest-core.version>1.3</hamcrest-core.version>
     </properties>
-	
+
     <dependencyManagement>
-    	<dependencies>
+        <dependencies>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -92,12 +91,12 @@
                 <artifactId>hamcrest-all</artifactId>
                 <version>${hamcrest-core.version}</version>
             </dependency>
-    		<dependency>
-    			<groupId>com.google.android</groupId>
-    			<artifactId>android</artifactId>
-    			<version>${android.version}</version>
-    			<scope>provided</scope>
-    		</dependency>
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android</artifactId>
+                <version>${android.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>com.google.android</groupId>
                 <artifactId>android-test</artifactId>
@@ -107,11 +106,6 @@
             <dependency>
                 <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.brightify.torch</groupId>
-                <artifactId>torch-bridge</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -138,11 +132,6 @@
             </dependency>
             <dependency>
                 <groupId>org.brightify.torch</groupId>
-                <artifactId>torch-marshall</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.brightify.torch</groupId>
                 <artifactId>torch-android</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -152,10 +141,10 @@
                 <scope>test</scope>
                 <version>${project.version}</version>
             </dependency>
-    	</dependencies>
+        </dependencies>
     </dependencyManagement>
 
-	<build>
+    <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/java</testSourceDirectory>
 
@@ -170,20 +159,20 @@
             </testResource>
         </testResources>
         <pluginManagement>
-    		<plugins>
-    			<plugin>
-    				<groupId>com.simpligility.maven.plugins</groupId>
-    				<artifactId>android-maven-plugin</artifactId>
+            <plugins>
+                <plugin>
+                    <groupId>com.simpligility.maven.plugins</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
                     <version>${android-maven.version}</version>
-    				<extensions>true</extensions>
-    				<configuration>
-    					<sdk>
-    						<platform>${android.platform}</platform>
-    					</sdk>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <sdk>
+                            <platform>${android.platform}</platform>
+                        </sdk>
                         <androidManifestFile>src/main/AndroidManifest.xml</androidManifestFile>
                         <resourceDirectory>src/main/res</resourceDirectory>
                         <failOnNonStandardStructure>false</failOnNonStandardStructure>
-    				</configuration>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>update-manifest</id>
@@ -198,9 +187,9 @@
                             </configuration>
                         </execution>
                     </executions>
-    			</plugin>
+                </plugin>
 
-    	        <plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>2.3.2</version>
@@ -228,8 +217,21 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>2.9.1</version>
                     <configuration>
-                    	<failsOnError>true</failsOnError>
+                        <failsOnError>true</failsOnError>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <configLocation>checkstyle-rules.xml</configLocation>
+                        <logViolationsToConsole>true</logViolationsToConsole>
+                        <violationSeverity>error</violationSeverity>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>checkstyle-report</id>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -244,44 +246,44 @@
                         </execution>
                     </executions>
                 </plugin>
-    			<plugin>
-    				<groupId>org.apache.maven.plugins</groupId>
-    				<artifactId>maven-javadoc-plugin</artifactId>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.9</version>
-    				<executions>
+                    <executions>
                         <execution>
                             <id>attach-javadocs</id>
                             <goals>
                                 <goal>jar</goal>
                             </goals>
                         </execution>
-    				</executions>
+                    </executions>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
-    			</plugin>
-    			<plugin>
-    				<groupId>org.codehaus.mojo</groupId>
-    				<artifactId>build-helper-maven-plugin</artifactId>
-    				<version>1.7</version>
-    				<executions>
-    					<execution>
-    						<phase>package</phase>
-    						<goals>
-    							<goal>attach-artifact</goal>
-    						</goals>
-    						<configuration>
-    							<artifacts>
-    								<artifact>
-    									<type>jar</type>
-    									<file>${project.build.directory}/${project.build.finalName}.jar</file>
-    								</artifact>
-    							</artifacts>
-    						</configuration>
-    					</execution>
-    				</executions>
-    			</plugin>
-    		</plugins>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.7</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>attach-artifact</goal>
+                            </goals>
+                            <configuration>
+                                <artifacts>
+                                    <artifact>
+                                        <type>jar</type>
+                                        <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                                    </artifact>
+                                </artifacts>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
         </pluginManagement>
-	</build>
+    </build>
 </project>

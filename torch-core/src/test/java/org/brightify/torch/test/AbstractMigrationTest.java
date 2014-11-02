@@ -225,7 +225,6 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         @Override
         public void migrate(MigrationAssistant<User_1_0_0> assistant, String sourceVersion,
                             String targetVersion) throws Exception {
-            String migration = ((sourceVersion + "->") + targetVersion);
             throw new MigrationException(
                     (((("Unable to migrate entity! Could not find migration path from '" + sourceVersion) + "' to '") +
                       targetVersion) + "'!"));

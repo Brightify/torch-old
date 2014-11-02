@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+
+    <module name="TreeWalker">
+        <property name="cacheFile" value="${checkstyle.cache.file}" />
+
+        <module name="UnusedImports">
+            <!-- allow imports to consumed by Javadoc -->
+            <property name="processJavadoc" value="true" />
+        </module>
+    </module>
+</module>

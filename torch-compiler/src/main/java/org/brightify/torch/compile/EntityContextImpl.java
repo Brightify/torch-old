@@ -6,6 +6,7 @@ import org.brightify.torch.compile.util.TypeHelper;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
+import org.reflections.scanners.SubTypesScanner;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.processing.Messager;
@@ -42,7 +43,7 @@ public class EntityContextImpl implements EntityContext {
 
     @PostConstruct
     private void init() {
-        Set<String> metadataClassNames = reflections.getStore().getSubTypesOf(EntityDescription.class.getCanonicalName());
+        Iterable<String> metadataClassNames = reflections.getStore().get(SubTypesScanner.class.getSimpleName(), EntityDescription.class.getCanonicalName());
 
         for (String metadataClassName : metadataClassNames) {
             Class<?> actualMetadataClass;

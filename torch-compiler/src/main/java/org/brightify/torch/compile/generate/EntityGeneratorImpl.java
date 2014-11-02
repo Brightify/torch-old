@@ -46,6 +46,7 @@ public class EntityGeneratorImpl implements EntityGenerator {
     public void generate(EntityMirror entityMirror, JDefinedClass definedClass, boolean annotations) throws Exception {
         if(annotations) {
             JAnnotationUse annotationUse = definedClass.annotate(Entity.class);
+
         }
 
         for (PropertyMirror propertyMirror : entityMirror.getProperties()) {
