@@ -144,15 +144,15 @@ public class TorchFactoryImpl implements TorchFactory {
             migrationAssistant.createStore();
             table = new Table();
             table.setTableName(metadata.getSafeName());
-            table.setVersion(metadata.getVersion());
+            table.setRevision(metadata.getRevision());
 
             begin().save().entity(table);
-        } else if (!table.getVersion().equals(metadata.getVersion())) {
+        } else if (!table.getRevision().equals(metadata.getRevision())) {
             if (metadata.getMigrationType() == Entity.MigrationType.DROP_CREATE) {
                 migrationAssistant.recreateStore();
             } else {
                 try {
-                    metadata.migrate(migrationAssistant, table.getVersion(), metadata.getVersion());
+                    metadata.migrate(migrationAssistant, table.getRevision(), metadata.getRevision());
                 } catch (Exception e) {
                     if (metadata.getMigrationType() == Entity.MigrationType.TRY_MIGRATE) {
                         e.printStackTrace();
@@ -162,7 +162,7 @@ public class TorchFactoryImpl implements TorchFactory {
                     }
                 }
             }
-            table.setVersion(metadata.getVersion());
+            table.setRevision(metadata.getRevision());
 
             begin().save().entity(table);
         }

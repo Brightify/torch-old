@@ -8,18 +8,21 @@ public @interface Migration {
 
     /**
      * Source version of the Entity.
-     * @return
+     *
+     * @return the source revision of the entity.
      */
-    String source();
+    long source();
 
     /**
      * Target version of the Entity.
-     * @return
+     *
+     * @return the target revision of the entity.
      */
-    String target();
+    long target();
 
     /**
      * In case of equal migration path costs, path with more preferred migration methods will be selected.
+     *
      * @return
      */
     boolean preferred() default false;

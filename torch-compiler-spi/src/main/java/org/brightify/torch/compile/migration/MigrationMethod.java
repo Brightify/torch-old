@@ -11,8 +11,8 @@ public interface MigrationMethod {
 
     boolean isPreferred();
 
-    String fromVersion();
+    long sourceRevision();
 
-    String toVersion();
+    long targetRevision();
 
 }

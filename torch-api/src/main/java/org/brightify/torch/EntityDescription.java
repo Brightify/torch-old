@@ -29,7 +29,7 @@ public interface EntityDescription<ENTITY> {
      */
     String getSafeName();
 
-    String getVersion();
+    long getRevision();
 
     Entity.MigrationType getMigrationType();
 
@@ -46,6 +46,6 @@ public interface EntityDescription<ENTITY> {
 
     void toRawEntity(TorchFactory torchFactory, ENTITY entity, WritableRawEntity rawEntity) throws Exception;
 
-    void migrate(MigrationAssistant<ENTITY> assistant, String sourceVersion, String targetVersion) throws Exception;
+    void migrate(MigrationAssistant<ENTITY> assistant, long sourceRevision, long targetRevision) throws Exception;
 
 }

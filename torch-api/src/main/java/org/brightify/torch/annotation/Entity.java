@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.TYPE })
 public @interface Entity {
-    public static final String LOWEST_VERSION = "1.0.0";
+    public static final long DEFAULT_REVISION = 1L;
 
     /**
      * Overrides the default table name.
@@ -45,7 +45,7 @@ public @interface Entity {
      *
      * @return
      */
-    String version() default LOWEST_VERSION;
+    long revision() default DEFAULT_REVISION;
 
     /**
      * Type of migration. Please refer to {@link Entity.MigrationType} for more details.

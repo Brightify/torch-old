@@ -21,7 +21,7 @@ public class EntityMirrorImpl implements EntityMirror {
     private boolean delete;
     private boolean ignored;
 
-    private String version;
+    private long revision;
     private Entity.MigrationType migrationType;
     private List<MigrationPath> migrationPaths = new ArrayList<MigrationPath>();
 
@@ -92,12 +92,12 @@ public class EntityMirrorImpl implements EntityMirror {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public long getRevision() {
+        return revision;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setRevision(long revision) {
+        this.revision = revision;
     }
 
     @Override

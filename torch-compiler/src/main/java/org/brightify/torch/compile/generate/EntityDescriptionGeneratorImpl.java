@@ -68,15 +68,15 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
 
         }
         JFieldVar propertiesField = classHolder.definedClass.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
-                                       CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
-                                       "properties",
-                                       propertiesArray);
+                CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
+                "properties",
+                propertiesArray);
 
 
         classHolder.definedClass.method(JMod.PUBLIC,
-                                        CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
-                                        "getProperties")
-                                .body()._return(propertiesField);
+                CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
+                "getProperties")
+                .body()._return(propertiesField);
 
 
         generate_setFromRawEntity(classHolder);
@@ -131,17 +131,19 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         method.annotate(Override.class);
 
         JVar assistant = method.param(CodeModelTypes.MIGRATION_ASSISTANT.narrow(classHolder.entityClass), "assistant");
-        JVar sourceVersion = method.param(CodeModelTypes.STRING, "sourceVersion");
-        JVar targetVersion = method.param(CodeModelTypes.STRING, "targetVersion");
+        JVar sourceRevision = method.param(CodeModelTypes.LONG_PRIMITIVE, "sourceRevision");
+        JVar targetRevision = method.param(CodeModelTypes.LONG_PRIMITIVE, "targetRevision");
 
         JVar migration = method.body().decl(CodeModelTypes.STRING, "migration",
-                                            sourceVersion.plus(JExpr.lit("->")).plus(targetVersion));
+                sourceRevision.plus(JExpr.lit("->")).plus(targetRevision));
         JConditional conditional = null;
         for (MigrationPath migrationPath : classHolder.entityMirror.getMigrationPaths()) {
             JExpression ifExpression = migration.invoke("equals").arg(JExpr.lit(migrationPath.getDescription()));
             if (conditional == null) {
                 conditional = method.body()._if(ifExpression);
             } else {
+                // We don't want the unnecessary indentation and braces. If it does not work though, we fallback to
+                // default JCodeModel behavior.
                 try {
                     JBlock elseBlock = conditional._else();
                     Field bracesRequired = JBlock.class.getDeclaredField("bracesRequired");
@@ -163,10 +165,10 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
 
         JExpression exception = JExpr._new(CodeModelTypes.MIGRATION_EXCEPTION).arg(
                 JExpr.lit("Unable to migrate entity! Could not find migration path from '")
-                     .plus(sourceVersion)
-                     .plus(JExpr.lit("' to '"))
-                     .plus(targetVersion)
-                     .plus(JExpr.lit("'!"))
+                        .plus(sourceRevision)
+                        .plus(JExpr.lit("' to '"))
+                        .plus(targetRevision)
+                        .plus(JExpr.lit("'!"))
         );
 
         if (conditional != null) {
@@ -178,7 +180,7 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
 
     private void generate_utilityMethods(ClassHolder classHolder) {
         JMethod getIdProperty = classHolder.definedClass.method(JMod.PUBLIC,
-                                        CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG), "getIdProperty");
+                CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG), "getIdProperty");
         getIdProperty.annotate(Override.class);
         getIdProperty.body()._return(JExpr.refthis(classHolder.entityMirror.getIdPropertyMirror().getName()));
 
@@ -187,9 +189,9 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         getSafeName.body()._return(JExpr.lit(classHolder.entityMirror.getSafeName()));
 
 
-        JMethod getVersion = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.STRING, "getVersion");
+        JMethod getVersion = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.LONG_PRIMITIVE, "getRevision");
         getVersion.annotate(Override.class);
-        getVersion.body()._return(JExpr.lit(classHolder.entityMirror.getVersion()));
+        getVersion.body()._return(JExpr.lit(classHolder.entityMirror.getRevision()));
 
 
         JMethod getMigrationType =
@@ -212,24 +214,24 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         setEntityId.annotate(Override.class);
         setEntityId.body().add(
                 classHolder.entityMirror.getIdPropertyMirror().getSetter().setValue(setEntityId_Entity,
-                                                                                    setEntityId_Id));
+                        setEntityId_Id));
 
 
         JMethod getEntityClass = classHolder.definedClass.method(JMod.PUBLIC,
-                                                                 CodeModelTypes.CLASS.narrow(classHolder.entityClass),
-                                                                 "getEntityClass");
+                CodeModelTypes.CLASS.narrow(classHolder.entityClass),
+                "getEntityClass");
         getEntityClass.annotate(Override.class);
         getEntityClass.body()._return(classHolder.entityClass.dotclass());
 
         JMethod createEmpty = classHolder.definedClass.method(JMod.PUBLIC,
-                                                              classHolder.entityClass,
-                                                              "createEmpty");
+                classHolder.entityClass,
+                "createEmpty");
         createEmpty.annotate(Override.class);
         createEmpty.body()._return(JExpr._new(classHolder.entityClass));
 
 
         classHolder.definedClass.method(JMod.PUBLIC | JMod.STATIC, classHolder.definedClass, "create")
-                                .body()._return(JExpr._new(classHolder.definedClass));
+                .body()._return(JExpr._new(classHolder.definedClass));
     }
 
 

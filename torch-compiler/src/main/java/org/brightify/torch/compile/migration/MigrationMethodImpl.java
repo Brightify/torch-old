@@ -5,12 +5,12 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class MigrationMethodImpl implements MigrationMethod{
+public class MigrationMethodImpl implements MigrationMethod {
 
     private ExecutableElement executable;
     private boolean preferred;
-    private String fromVersion;
-    private String toVersion;
+    private long sourceRevision;
+    private long targetRevision;
 
     @Override
     public ExecutableElement getExecutable() {
@@ -31,20 +31,20 @@ public class MigrationMethodImpl implements MigrationMethod{
     }
 
     @Override
-    public String fromVersion() {
-        return fromVersion;
+    public long sourceRevision() {
+        return sourceRevision;
     }
 
-    public void setFromVersion(String fromVersion) {
-        this.fromVersion = fromVersion;
+    public void setSourceRevision(long sourceRevision) {
+        this.sourceRevision = sourceRevision;
     }
 
     @Override
-    public String toVersion() {
-        return toVersion;
+    public long targetRevision() {
+        return targetRevision;
     }
 
-    public void setToVersion(String toVersion) {
-        this.toVersion = toVersion;
+    public void setTargetRevision(long targetRevision) {
+        this.targetRevision = targetRevision;
     }
 }

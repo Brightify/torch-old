@@ -25,7 +25,7 @@ public interface EntityMirror {
 
     boolean isIgnored();
 
-    String getVersion();
+    long getRevision();
 
     Entity.MigrationType getMigrationType();
 

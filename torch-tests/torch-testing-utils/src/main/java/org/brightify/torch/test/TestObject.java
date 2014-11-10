@@ -15,7 +15,7 @@ import java.util.Arrays;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-@Entity(version = "3.5.2")
+@Entity(revision = 4)
 @Index
 public class TestObject implements Serializable {
     public static final int SHOULD_BE_IGNORED = 10000;
@@ -38,22 +38,22 @@ public class TestObject implements Serializable {
 //    public List<Table> tables;
 //    public List<String> strings = new ArrayList<String>();
 
-    @Migration(source = "1.0.0", target = "2.0.0")
+    @Migration(source = 1, target = 2)
     public static void migrate100200(MigrationAssistant<TestObject> assistant) {
 
     }
 
-    @Migration(source = "2.0.0", target = "3.0.0")
+    @Migration(source = 2, target = 3)
     public static void migrate200300(MigrationAssistant<TestObject> assistant) {
 
     }
 
-    @Migration(source = "3.0.0", target = "3.5.2")
+    @Migration(source = 3, target = 4)
     public static void migrate300352(MigrationAssistant<TestObject> assistant) {
 
     }
 
-    @Migration(source = "1.0.0", target = "3.5.2")
+    @Migration(source = 1, target = 4)
     public static void migrate100352(MigrationAssistant<TestObject> assistant) {
 
     }

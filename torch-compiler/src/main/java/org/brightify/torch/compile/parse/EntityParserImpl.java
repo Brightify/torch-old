@@ -65,7 +65,7 @@ public class EntityParserImpl implements EntityParser {
 
         info.setTableName(Helper.safeNameFromClassName(tableName));
         info.setDelete(entity.delete());
-        info.setVersion(entity.version());
+        info.setRevision(entity.revision());
         info.setMigrationType(entity.migration());
 
         info.setProperties(propertyParser.parseEntityElement(element));

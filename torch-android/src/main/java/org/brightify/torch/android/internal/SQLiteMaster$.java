@@ -54,8 +54,8 @@ public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
     }
 
     @Override
-    public String getVersion() {
-        return "1.0.0";
+    public long getRevision() {
+        return 1;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
     }
 
     @Override
-    public void migrate(MigrationAssistant<SQLiteMaster> assistant, String sourceVersion, String targetVersion)
+    public void migrate(MigrationAssistant<SQLiteMaster> assistant, long sourceRevision, long targetRevision)
             throws Exception {
     }
 

@@ -52,9 +52,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     @Test
     public void renameProperty() {
-        with(databaseEngine).register(new User_1_0_0_Description());
+        with(databaseEngine).register(new User_r1_Description());
 
-        User_1_0_0 entity1 = new User_1_0_0();
+        User_r1 entity1 = new User_r1();
         entity1.username = "john1";
         entity1.name = "John Doe";
         entity1.email = "john@doe.com";
@@ -65,9 +65,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         forceUnload();
 
-        with(databaseEngine).register(new User_1_1_0_Description());
+        with(databaseEngine).register(new User_r2_Description());
 
-        User_1_1_0 entity2 = torch().load().type(User_1_1_0.class).single();
+        User_r2 entity2 = torch().load().type(User_r2.class).single();
 
         assertThat(entity2.id, is(entity1.id));
         assertThat(entity2.username, is(entity1.username));
@@ -77,9 +77,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     @Test
     public void addPropertyAndMigrateData() {
-        with(databaseEngine).register(new User_1_1_0_Description());
+        with(databaseEngine).register(new User_r2_Description());
 
-        User_1_1_0 entity1 = new User_1_1_0();
+        User_r2 entity1 = new User_r2();
         entity1.username = "john1";
         entity1.fullName = "John Doe";
         entity1.email = "john@doe.com";
@@ -90,9 +90,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         forceUnload();
 
-        with(databaseEngine).register(new User_1_2_0_Description());
+        with(databaseEngine).register(new User_r3_Description());
 
-        User_1_2_0 entity2 = torch().load().type(User_1_2_0.class).single();
+        User_r3 entity2 = torch().load().type(User_r3.class).single();
 
         assertThat(entity2.id, is(entity1.id));
         assertThat(entity2.username, is(entity1.username));
@@ -102,9 +102,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     @Test
     public void removeProperty() {
-        with(databaseEngine).register(new User_1_2_0_Description());
+        with(databaseEngine).register(new User_r3_Description());
 
-        User_1_2_0 entity1 = new User_1_2_0();
+        User_r3 entity1 = new User_r3();
         entity1.username = "john1";
         entity1.firstName = "John";
         entity1.lastName = "Doe";
@@ -116,9 +116,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         forceUnload();
 
-        with(databaseEngine).register(new User_1_3_0_Description());
+        with(databaseEngine).register(new User_r4_Description());
 
-        User_1_3_0 entity2 = torch().load().type(User_1_3_0.class).single();
+        User_r4 entity2 = torch().load().type(User_r4.class).single();
 
         assertThat(entity2.id, is(entity1.id));
         assertThat(entity2.username, is(entity1.username));
@@ -132,7 +132,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     protected abstract ENGINE prepareDatabaseEngine();
 
-    private static class User_1_0_0 {
+    private static class User_r1 {
 
         public Long id;
 
@@ -143,7 +143,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public String email;
     }
 
-    private static class User_1_0_0_Description implements EntityDescription<User_1_0_0> {
+    private static class User_r1_Description implements EntityDescription<User_r1> {
 
         public static NumberProperty<Long> idProperty =
                 new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
@@ -164,7 +164,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_1_0_0 entity,
+        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r1 entity,
                                               Set<Class<?>> loadGroups) throws Exception {
             entity.id = rawEntity.getLong(idProperty.getSafeName());
             entity.username = rawEntity.getString(usernameProperty.getSafeName());
@@ -173,8 +173,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public User_1_0_0 createEmpty() {
-            return new User_1_0_0();
+        public User_r1 createEmpty() {
+            return new User_r1();
         }
 
         @Override
@@ -188,8 +188,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public String getVersion() {
-            return "1.0.0";
+        public long getRevision() {
+            return 1;
         }
 
         @Override
@@ -198,23 +198,23 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_1_0_0 entity) {
+        public Long getEntityId(User_r1 entity) {
             return entity.id;
         }
 
         @Override
-        public void setEntityId(User_1_0_0 entity, Long id) {
+        public void setEntityId(User_r1 entity, Long id) {
             entity.id = id;
         }
 
         @Override
-        public Class<User_1_0_0> getEntityClass() {
-            return User_1_0_0.class;
+        public Class<User_r1> getEntityClass() {
+            return User_r1.class;
         }
 
 
         @Override
-        public void toRawEntity(TorchFactory torchFactory, User_1_0_0 entity,
+        public void toRawEntity(TorchFactory torchFactory, User_r1 entity,
                                 WritableRawEntity rawEntity) throws Exception {
             rawEntity.put(idProperty.getSafeName(), entity.id);
             rawEntity.put(usernameProperty.getSafeName(), entity.username);
@@ -223,15 +223,15 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public void migrate(MigrationAssistant<User_1_0_0> assistant, String sourceVersion,
-                            String targetVersion) throws Exception {
+        public void migrate(MigrationAssistant<User_r1> assistant, long sourceRevision,
+                            long targetRevision) throws Exception {
             throw new MigrationException(
-                    (((("Unable to migrate entity! Could not find migration path from '" + sourceVersion) + "' to '") +
-                      targetVersion) + "'!"));
+                    (((("Unable to migrate entity! Could not find migration path from '" + sourceRevision) + "' to '") +
+                            targetRevision) + "'!"));
         }
     }
 
-    private static class User_1_1_0 {
+    private static class User_r2 {
 
         public Long id;
 
@@ -241,13 +241,13 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         public String email;
 
-        public static void migrate_100_110(MigrationAssistant<User_1_1_0> assistant) {
-            assistant.renameProperty(User_1_0_0_Description.nameProperty.getSafeName(),
-                                     User_1_1_0_Description.fullNameProperty.getSafeName());
+        public static void migrate_r1_r2(MigrationAssistant<User_r2> assistant) {
+            assistant.renameProperty(User_r1_Description.nameProperty.getSafeName(),
+                    User_r2_Description.fullNameProperty.getSafeName());
         }
     }
 
-    private static class User_1_1_0_Description implements EntityDescription<User_1_1_0> {
+    private static class User_r2_Description implements EntityDescription<User_r2> {
         public static NumberProperty<Long> idProperty =
                 new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
@@ -262,7 +262,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         };
 
         @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_1_1_0 entity,
+        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r2 entity,
                                               Set<Class<?>> loadGroups) throws Exception {
             entity.id = rawEntity.getLong(idProperty.getSafeName());
             entity.username = rawEntity.getString(usernameProperty.getSafeName());
@@ -271,8 +271,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public User_1_1_0 createEmpty() {
-            return new User_1_1_0();
+        public User_r2 createEmpty() {
+            return new User_r2();
         }
 
         @Override
@@ -291,8 +291,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public String getVersion() {
-            return "1.1.0";
+        public long getRevision() {
+            return 2;
         }
 
         @Override
@@ -301,23 +301,23 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_1_1_0 entity) {
+        public Long getEntityId(User_r2 entity) {
             return entity.id;
         }
 
         @Override
-        public void setEntityId(User_1_1_0 entity, Long id) {
+        public void setEntityId(User_r2 entity, Long id) {
             entity.id = id;
         }
 
         @Override
-        public Class<User_1_1_0> getEntityClass() {
-            return User_1_1_0.class;
+        public Class<User_r2> getEntityClass() {
+            return User_r2.class;
         }
 
 
         @Override
-        public void toRawEntity(TorchFactory torchFactory, User_1_1_0 entity,
+        public void toRawEntity(TorchFactory torchFactory, User_r2 entity,
                                 WritableRawEntity rawEntity) throws Exception {
             rawEntity.put(idProperty.getSafeName(), entity.id);
             rawEntity.put(usernameProperty.getSafeName(), entity.username);
@@ -326,21 +326,20 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public void migrate(MigrationAssistant<User_1_1_0> assistant, String sourceVersion,
-                            String targetVersion) throws Exception {
-            String migration = ((sourceVersion + "->") + targetVersion);
-            if (migration.equals("1.0.0->1.1.0")) {
-                assistant.renameProperty(User_1_0_0_Description.nameProperty.getSafeName(),
-                                         User_1_1_0_Description.fullNameProperty.getSafeName());
+        public void migrate(MigrationAssistant<User_r2> assistant, long sourceRevision,
+                            long targetRevision) throws Exception {
+            String migration = ((sourceRevision + "->") + targetRevision);
+            if (migration.equals("1->2")) {
+                User_r2.migrate_r1_r2(assistant);
             } else {
                 throw new MigrationException(
-                        (((("Unable to migrate entity! Could not find migration path from '" + sourceVersion) +
-                           "' to '") + targetVersion) + "'!"));
+                        (((("Unable to migrate entity! Could not find migration path from '" + sourceRevision) +
+                           "' to '") + targetRevision) + "'!"));
             }
         }
     }
 
-    private static class User_1_2_0 {
+    private static class User_r3 {
 
         public Long id;
 
@@ -353,20 +352,20 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public String email;
 
 
-        public static void migrate_100_110(MigrationAssistant<User_1_2_0> assistant) {
-            assistant.renameProperty(User_1_0_0_Description.nameProperty.getSafeName(),
-                                     User_1_1_0_Description.fullNameProperty.getSafeName());
+        public static void migrate_r1_r2(MigrationAssistant<User_r3> assistant) {
+            assistant.renameProperty(User_r1_Description.nameProperty.getSafeName(),
+                    User_r2_Description.fullNameProperty.getSafeName());
         }
 
-        public static void migrate_110_120(MigrationAssistant<User_1_2_0> assistant) {
-            assistant.renameProperty(User_1_1_0_Description.fullNameProperty.getSafeName(),
-                                     User_1_2_0_Description.firstNameProperty.getSafeName());
+        public static void migrate_r2_r3(MigrationAssistant<User_r3> assistant) {
+            assistant.renameProperty(User_r2_Description.fullNameProperty.getSafeName(),
+                    User_r3_Description.firstNameProperty.getSafeName());
 
-            assistant.addProperty(User_1_2_0_Description.lastNameProperty);
+            assistant.addProperty(User_r3_Description.lastNameProperty);
 
-            assistant.torch().load().type(User_1_2_0.class).process().each(new EditFunction<User_1_2_0>() {
+            assistant.torch().load().type(User_r3.class).process().each(new EditFunction<User_r3>() {
                 @Override
-                public boolean apply(User_1_2_0 entity) {
+                public boolean apply(User_r3 entity) {
                     String[] splitName = entity.firstName.split(" ");
 
                     if(splitName.length > 1) {
@@ -381,7 +380,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
     }
 
-    private static class User_1_2_0_Description implements EntityDescription<User_1_2_0> {
+    private static class User_r3_Description implements EntityDescription<User_r3> {
         public static NumberProperty<Long> idProperty =
                 new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
@@ -413,8 +412,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public String getVersion() {
-            return "1.2.0";
+        public long getRevision() {
+            return 3;
         }
 
         @Override
@@ -423,22 +422,22 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_1_2_0 entity) {
+        public Long getEntityId(User_r3 entity) {
             return entity.id;
         }
 
         @Override
-        public void setEntityId(User_1_2_0 entity, Long id) {
+        public void setEntityId(User_r3 entity, Long id) {
             entity.id = id;
         }
 
         @Override
-        public Class<User_1_2_0> getEntityClass() {
-            return User_1_2_0.class;
+        public Class<User_r3> getEntityClass() {
+            return User_r3.class;
         }
 
         @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_1_2_0 entity,
+        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r3 entity,
                                            Set<Class<?>> loadGroups) throws Exception {
             entity.id = rawEntity.getLong(idProperty.getSafeName());
             entity.username = rawEntity.getString(usernameProperty.getSafeName());
@@ -448,12 +447,12 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public User_1_2_0 createEmpty() {
-            return new User_1_2_0();
+        public User_r3 createEmpty() {
+            return new User_r3();
         }
 
         @Override
-        public void toRawEntity(TorchFactory torchFactory, User_1_2_0 entity,
+        public void toRawEntity(TorchFactory torchFactory, User_r3 entity,
                                 WritableRawEntity rawEntity) throws Exception {
             rawEntity.put(idProperty.getSafeName(), entity.id);
             rawEntity.put(usernameProperty.getSafeName(), entity.username);
@@ -463,25 +462,25 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public void migrate(MigrationAssistant<User_1_2_0> assistant, String sourceVersion,
-                            String targetVersion) throws Exception {
-            String migration = ((sourceVersion + "->") + targetVersion);
-            if (migration.equals("1.0.0->1.1.0")) {
-                User_1_2_0.migrate_100_110(assistant);
-            } else if (migration.equals("1.0.0->1.2.0")) {
-                User_1_2_0.migrate_100_110(assistant);
-                User_1_2_0.migrate_110_120(assistant);
-            } else if (migration.equals("1.1.0->1.2.0")) {
-                User_1_2_0.migrate_110_120(assistant);
+        public void migrate(MigrationAssistant<User_r3> assistant, long sourceRevision,
+                            long targetRevision) throws Exception {
+            String migration = ((sourceRevision + "->") + targetRevision);
+            if (migration.equals("1->2")) {
+                User_r3.migrate_r1_r2(assistant);
+            } else if (migration.equals("1->3")) {
+                User_r3.migrate_r1_r2(assistant);
+                User_r3.migrate_r2_r3(assistant);
+            } else if (migration.equals("2->3")) {
+                User_r3.migrate_r2_r3(assistant);
             } else {
                 throw new MigrationException(
-                        (((("Unable to migrate entity! Could not find migration path from '" + sourceVersion) +
-                           "' to '") + targetVersion) + "'!"));
+                        (((("Unable to migrate entity! Could not find migration path from '" + sourceRevision) +
+                           "' to '") + targetRevision) + "'!"));
             }
         }
     }
 
-    private static class User_1_3_0 {
+    private static class User_r4 {
 
         public Long id;
 
@@ -492,20 +491,20 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public String lastName;
 
 
-        public static void migrate_100_110(MigrationAssistant<User_1_3_0> assistant) {
-            assistant.renameProperty(User_1_0_0_Description.nameProperty.getSafeName(),
-                                     User_1_1_0_Description.fullNameProperty.getSafeName());
+        public static void migrate_r1_r2(MigrationAssistant<User_r4> assistant) {
+            assistant.renameProperty(User_r1_Description.nameProperty.getSafeName(),
+                    User_r2_Description.fullNameProperty.getSafeName());
         }
 
-        public static void migrate_110_120(MigrationAssistant<User_1_3_0> assistant) {
-            assistant.renameProperty(User_1_1_0_Description.fullNameProperty.getSafeName(),
-                                     User_1_2_0_Description.firstNameProperty.getSafeName());
+        public static void migrate_r2_r3(MigrationAssistant<User_r4> assistant) {
+            assistant.renameProperty(User_r2_Description.fullNameProperty.getSafeName(),
+                    User_r3_Description.firstNameProperty.getSafeName());
 
-            assistant.addProperty(User_1_2_0_Description.lastNameProperty);
+            assistant.addProperty(User_r3_Description.lastNameProperty);
 
-            assistant.torch().load().type(User_1_3_0.class).process().each(new EditFunction<User_1_3_0>() {
+            assistant.torch().load().type(User_r4.class).process().each(new EditFunction<User_r4>() {
                 @Override
-                public boolean apply(User_1_3_0 entity) {
+                public boolean apply(User_r4 entity) {
                     String[] splitName = entity.firstName.split(" ");
 
                     if(splitName.length > 1) {
@@ -519,12 +518,12 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
             });
         }
 
-        public static void migrate_120_130(MigrationAssistant<User_1_3_0> assistant) {
+        public static void migrate_r3_r4(MigrationAssistant<User_r4> assistant) {
             assistant.removeProperty("email");
         }
     }
 
-    private static class User_1_3_0_Description implements EntityDescription<User_1_3_0> {
+    private static class User_r4_Description implements EntityDescription<User_r4> {
         public static NumberProperty<Long> idProperty =
                 new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
@@ -556,8 +555,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public String getVersion() {
-            return "1.2.0";
+        public long getRevision() {
+            return 4;
         }
 
         @Override
@@ -566,22 +565,22 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_1_3_0 entity) {
+        public Long getEntityId(User_r4 entity) {
             return entity.id;
         }
 
         @Override
-        public void setEntityId(User_1_3_0 entity, Long id) {
+        public void setEntityId(User_r4 entity, Long id) {
             entity.id = id;
         }
 
         @Override
-        public Class<User_1_3_0> getEntityClass() {
-            return User_1_3_0.class;
+        public Class<User_r4> getEntityClass() {
+            return User_r4.class;
         }
 
         @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_1_3_0 entity,
+        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r4 entity,
                                      Set<Class<?>> loadGroups) throws Exception {
             entity.id = rawEntity.getLong(idProperty.getSafeName());
             entity.username = rawEntity.getString(usernameProperty.getSafeName());
@@ -590,12 +589,12 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public User_1_3_0 createEmpty() {
-            return new User_1_3_0();
+        public User_r4 createEmpty() {
+            return new User_r4();
         }
 
         @Override
-        public void toRawEntity(TorchFactory torchFactory, User_1_3_0 entity,
+        public void toRawEntity(TorchFactory torchFactory, User_r4 entity,
                                 WritableRawEntity rawEntity) throws Exception {
             rawEntity.put(idProperty.getSafeName(), entity.id);
             rawEntity.put(usernameProperty.getSafeName(), entity.username);
@@ -604,29 +603,29 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public void migrate(MigrationAssistant<User_1_3_0> assistant, String sourceVersion,
-                            String targetVersion) throws Exception {
-            String migration = ((sourceVersion + "->") + targetVersion);
-            if (migration.equals("1.0.0->1.1.0")) {
-                User_1_3_0.migrate_100_110(assistant);
-            } else if (migration.equals("1.0.0->1.2.0")) {
-                User_1_3_0.migrate_100_110(assistant);
-                User_1_3_0.migrate_110_120(assistant);
-            } else if (migration.equals("1.1.0->1.2.0")) {
-                User_1_3_0.migrate_110_120(assistant);
-            } else if (migration.equals("1.0.0->1.3.0")) {
-                User_1_3_0.migrate_100_110(assistant);
-                User_1_3_0.migrate_110_120(assistant);
-                User_1_3_0.migrate_120_130(assistant);
-            } else if (migration.equals("1.1.0->1.3.0")) {
-                User_1_3_0.migrate_110_120(assistant);
-                User_1_3_0.migrate_120_130(assistant);
-            } else if (migration.equals("1.2.0->1.3.0")) {
-                User_1_3_0.migrate_120_130(assistant);
+        public void migrate(MigrationAssistant<User_r4> assistant, long sourceRevision,
+                            long targetRevision) throws Exception {
+            String migration = ((sourceRevision + "->") + targetRevision);
+            if (migration.equals("1->2")) {
+                User_r4.migrate_r1_r2(assistant);
+            } else if (migration.equals("1->3")) {
+                User_r4.migrate_r1_r2(assistant);
+                User_r4.migrate_r2_r3(assistant);
+            } else if (migration.equals("2->3")) {
+                User_r4.migrate_r2_r3(assistant);
+            } else if (migration.equals("1->4")) {
+                User_r4.migrate_r1_r2(assistant);
+                User_r4.migrate_r2_r3(assistant);
+                User_r4.migrate_r3_r4(assistant);
+            } else if (migration.equals("2->4")) {
+                User_r4.migrate_r2_r3(assistant);
+                User_r4.migrate_r3_r4(assistant);
+            } else if (migration.equals("3->4")) {
+                User_r4.migrate_r3_r4(assistant);
             } else {
                 throw new MigrationException(
-                        (((("Unable to migrate entity! Could not find migration path from '" + sourceVersion) +
-                           "' to '") + targetVersion) + "'!"));
+                        (((("Unable to migrate entity! Could not find migration path from '" + sourceRevision) +
+                           "' to '") + targetRevision) + "'!"));
             }
         }
     }

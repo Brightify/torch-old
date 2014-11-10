@@ -41,6 +41,11 @@ public class CodeModelTypes {
     // FIXME we should not rely on static stateful object!
     public static final JCodeModel CODE_MODEL = new JCodeModel();
 
+    // Java primitives
+    public static final JClass BYTE_PRIMITIVE = ref(byte.class.getCanonicalName());
+    public static final JClass INTEGER_PRIMITIVE = ref(int.class.getCanonicalName());
+    public static final JClass LONG_PRIMITIVE = ref(long.class.getCanonicalName());
+
     // Java classes
     public static final JClass BYTE = ref(Byte.class.getCanonicalName());
     public static final JClass INTEGER = ref(Integer.class.getCanonicalName());
@@ -54,6 +59,7 @@ public class CodeModelTypes {
     public static final JClass HASH_SET = ref(HashSet.class.getCanonicalName());
     public static final JClass WILDCARD = OBJECT.wildcard();
     public static final JClass ANNOTATION = ref(Annotation.class.getCanonicalName());
+
     // Torch classes
     public static final JClass TORCH = ref(Torch.class.getCanonicalName());
     public static final JClass TORCH_FACTORY = ref(TorchFactory.class.getCanonicalName());
@@ -67,6 +73,7 @@ public class CodeModelTypes {
     public static final JClass LAZY_ARRAY_LIST = ref(LazyArrayList.class.getCanonicalName());
     public static final JClass READABLE_RAW_ENTITY = ref(ReadableRawEntity.class.getCanonicalName());
     public static final JClass WRITABLE_RAW_ENTITY = ref(WritableRawEntity.class.getCanonicalName());
+    
     // Torch getProperties
     public static final JClass PROPERTY = ref(Property.class.getCanonicalName());
     public static final JClass PROPERTY_IMPL = ref(PropertyImpl.class.getCanonicalName());

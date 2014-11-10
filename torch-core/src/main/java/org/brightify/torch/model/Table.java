@@ -4,17 +4,22 @@ import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.Load;
+import org.brightify.torch.annotation.Migration;
+import org.brightify.torch.util.MigrationAssistant;
+import org.brightify.torch.util.functional.EditFunction;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-@Entity
+@Entity(revision = 2)
 public class Table {
 
     private Long id;
     private String tableName;
-    private String version;
+    private Long revision;
     private TableDetails details;
+
+    protected String version;
 
     // FIXME if no generic type argument is set, handle error through messager
     // public Key<TableDetails> details;
@@ -40,12 +45,12 @@ public class Table {
         this.tableName = tableName;
     }
 
-    public String getVersion() {
-        return version;
+    public Long getRevision() {
+        return revision;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setRevision(Long revision) {
+        this.revision = revision;
     }
 
     public TableDetails getDetails() {
@@ -54,6 +59,22 @@ public class Table {
 
     public void setDetails(TableDetails details) {
         this.details = details;
+    }
+
+    @Migration(source = 1, target = 2)
+    static void migrate_addTableDetailsAndRevision(MigrationAssistant<Table> assistant) {
+        assistant.addProperty(Table$.details);
+        assistant.addProperty(Table$.revision);
+
+        assistant.torch().load().type(Table.class).process().each(new EditFunction<Table>() {
+            @Override
+            public boolean apply(Table table) {
+                table.setRevision(Entity.DEFAULT_REVISION);
+                return true;
+            }
+        });
+
+        assistant.removeProperty(Table$.version.getSafeName());
     }
 
 }

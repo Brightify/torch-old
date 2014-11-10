@@ -13,7 +13,6 @@ import org.brightify.torch.compile.migration.MigrationPathImpl;
 import org.brightify.torch.compile.migration.MigrationPathPart;
 import org.brightify.torch.compile.migration.MigrationPathPartImpl;
 import org.brightify.torch.compile.util.TypeHelper;
-import org.brightify.torch.compile.util.VersionComparator;
 import org.brightify.torch.parse.EntityParseException;
 import org.brightify.torch.util.MigrationAssistant;
 
@@ -70,20 +69,19 @@ public class MigrationParserImpl implements MigrationParser {
         ExecutableElement executable = (ExecutableElement) element;
 
         Migration migration = element.getAnnotation(Migration.class);
-
-        if (migration.source().equals(migration.target())) {
+        if (migration.source() == migration.target()) {
             throw new EntityParseException(element, "Source and target versions cannot equal.");
         }
 
-        if (VersionComparator.compareVersions(migration.source(), migration.target()) >= 0) {
+        if (migration.source() > migration.target()) {
             throw new EntityParseException(element, "Source version cannot be greater than target version.");
         }
 
         MigrationMethodImpl migrationMethod = new MigrationMethodImpl();
         migrationMethod.setExecutable(executable);
         migrationMethod.setPreferred(migration.preferred());
-        migrationMethod.setFromVersion(migration.source());
-        migrationMethod.setToVersion(migration.target());
+        migrationMethod.setSourceRevision(migration.source());
+        migrationMethod.setTargetRevision(migration.target());
         list.add(migrationMethod);
     }
 
@@ -134,7 +132,7 @@ public class MigrationParserImpl implements MigrationParser {
 
         ArrayList<MigrationPathPartImpl> returnPaths = new ArrayList<MigrationPathPartImpl>();
         for (MigrationMethod migrationMethod : allMigrationMethods) {
-            if (migrationMethod.fromVersion().equals(current.toVersion())) {
+            if (migrationMethod.sourceRevision() == current.targetRevision()) {
                 List<MigrationPathPartImpl> possiblePaths = findMigrationPaths(allMigrationMethods, target,
                                                                                migrationMethod);
                 for (MigrationPathPartImpl possiblePath : possiblePaths) {
@@ -153,17 +151,17 @@ public class MigrationParserImpl implements MigrationParser {
     private List<MigrationPath> checkMigrationMethods(Element element, EntityMirror entity,
                                                       List<MigrationMethod> migrationMethods)
             throws EntityParseException {
-        String sourceVersion = Entity.LOWEST_VERSION;
-        String targetVersion = entity.getVersion();
+        long sourceVersion = Entity.DEFAULT_REVISION;
+        long targetVersion = entity.getRevision();
 
         Map<String, List<MigrationPathPart>> migrationPaths = new HashMap<String, List<MigrationPathPart>>();
         for (MigrationMethod sourceMethod : migrationMethods) {
             for (MigrationMethod targetMethod : migrationMethods) {
-                if (VersionComparator.compareVersions(sourceMethod.fromVersion(), targetMethod.toVersion()) > 0) {
+                if (sourceMethod.sourceRevision() > targetMethod.targetRevision()) {
                     continue;
                 }
 
-                String key = sourceMethod.fromVersion() + "->" + targetMethod.toVersion();
+                String key = sourceMethod.sourceRevision() + "->" + targetMethod.targetRevision();
 
                 if (!migrationPaths.containsKey(key)) {
                     List<MigrationPathPart> listToSave = new ArrayList<MigrationPathPart>();
@@ -186,7 +184,7 @@ public class MigrationParserImpl implements MigrationParser {
             }
         }
 
-        if (!sourceVersion.equals(targetVersion) &&
+        if (sourceVersion != targetVersion &&
             (!migrationPaths.containsKey(sourceVersion + "->" + targetVersion) ||
              migrationPaths.get(sourceVersion + "->" + targetVersion).size() == 0)) {
             throw new EntityParseException(element,

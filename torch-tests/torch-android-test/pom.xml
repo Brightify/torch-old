@@ -23,17 +23,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>junit</groupId>-->
-            <!--<artifactId>junit</artifactId>-->
-            <!--<version>3.8.2</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.hamcrest</groupId>-->
-                    <!--<artifactId>hamcrest-core</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
@@ -60,6 +49,7 @@
         <dependency>
             <groupId>org.brightify.torch</groupId>
             <artifactId>torch-testing-utils</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
