@@ -7,8 +7,19 @@ import org.brightify.torch.filter.BooleanProperty;
  */
 public class BooleanPropertyImpl extends PropertyImpl<Boolean> implements BooleanProperty {
 
-    public BooleanPropertyImpl(String name, String safeName, Feature... features) {
-        super(name, safeName, Boolean.class, features);
+    public BooleanPropertyImpl(String name, String safeName) {
+        super(Boolean.class, name, safeName);
     }
 
+    @Override
+    public BooleanPropertyImpl defaultValue(Boolean defaultValue) {
+        super.defaultValue(defaultValue);
+        return this;
+    }
+
+    @Override
+    public BooleanPropertyImpl feature(Feature feature) {
+        super.feature(feature);
+        return this;
+    }
 }

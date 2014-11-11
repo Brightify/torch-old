@@ -1,5 +1,7 @@
 package org.brightify.torch.filter;
 
+import java.util.Set;
+
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
@@ -11,7 +13,9 @@ public interface Property<TYPE> {
 
     Class<TYPE> getType();
 
-    Feature[] getFeatures();
+    Set<Feature> getFeatures();
+
+    TYPE getDefaultValue();
 
     EqualToFilter<?> equalTo(TYPE value);
 

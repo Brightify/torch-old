@@ -10,8 +10,8 @@ import org.brightify.torch.filter.StringProperty;
  */
 public class StringPropertyImpl extends GenericPropertyImpl<String> implements StringProperty {
 
-    public StringPropertyImpl(String name, String safeName, Feature... features) {
-        super(name, safeName, String.class, features);
+    public StringPropertyImpl(String name, String safeName) {
+        super(String.class, name, safeName);
     }
 
     @Override
@@ -28,5 +28,17 @@ public class StringPropertyImpl extends GenericPropertyImpl<String> implements S
     @Override
     public ContainsStringFilter contains(String value) {
         return new ContainsStringFilter(this, value);
+    }
+
+    @Override
+    public StringPropertyImpl defaultValue(String defaultValue) {
+        super.defaultValue(defaultValue);
+        return this;
+    }
+
+    @Override
+    public StringPropertyImpl feature(Feature feature) {
+        super.feature(feature);
+        return this;
     }
 }

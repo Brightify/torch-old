@@ -8,8 +8,8 @@ import org.brightify.torch.filter.ListProperty;
  */
 public class ListPropertyImpl<PARENT, T> extends PropertyImpl<T> implements ListProperty<PARENT, T> {
 
-    public ListPropertyImpl(String name, String safeName, Class<T> type, Feature... features) {
-        super(name, safeName, type, features);
+    public ListPropertyImpl(Class<T> type, String name, String safeName) {
+        super(type, name, safeName);
     }
 
     @Override
@@ -20,5 +20,17 @@ public class ListPropertyImpl<PARENT, T> extends PropertyImpl<T> implements List
     @Override
     public EntityFilter excludes(T... values) {
         return null;
+    }
+
+    @Override
+    public ListPropertyImpl<PARENT, T> defaultValue(T defaultValue) {
+        super.defaultValue(defaultValue);
+        return this;
+    }
+
+    @Override
+    public ListPropertyImpl<PARENT, T> feature(Feature feature) {
+        super.feature(feature);
+        return this;
     }
 }

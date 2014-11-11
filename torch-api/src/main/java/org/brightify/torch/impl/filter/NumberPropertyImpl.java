@@ -11,8 +11,8 @@ import org.brightify.torch.filter.NumberProperty;
  */
 public class NumberPropertyImpl<TYPE extends Number> extends GenericPropertyImpl<TYPE> implements NumberProperty<TYPE> {
 
-    public NumberPropertyImpl(String name, String safeName, Class<TYPE> type, Feature... features) {
-        super(name, safeName, type, features);
+    public NumberPropertyImpl(Class<TYPE> type, String name, String safeName) {
+        super(type, name, safeName);
     }
 
     @Override
@@ -33,5 +33,17 @@ public class NumberPropertyImpl<TYPE extends Number> extends GenericPropertyImpl
     @Override
     public LessThanOrEqualToFilter<?> lessThanOrEqualTo(TYPE value) {
         return new LessThanOrEqualToFilter<TYPE>(this, value);
+    }
+
+    @Override
+    public NumberPropertyImpl<TYPE> defaultValue(TYPE defaultValue) {
+        super.defaultValue(defaultValue);
+        return this;
+    }
+
+    @Override
+    public NumberPropertyImpl<TYPE> feature(Feature feature) {
+        super.feature(feature);
+        return this;
     }
 }

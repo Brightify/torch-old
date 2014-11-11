@@ -9,8 +9,8 @@ import org.brightify.torch.filter.NotInFilter;
  */
 public class GenericPropertyImpl<TYPE> extends PropertyImpl<TYPE> implements GenericProperty<TYPE> {
 
-    public GenericPropertyImpl(String name, String safeName, Class<TYPE> type, Feature... features) {
-        super(name, safeName, type, features);
+    public GenericPropertyImpl(Class<TYPE> type, String name, String safeName) {
+        super(type, name, safeName);
     }
 
     @Override
@@ -21,5 +21,17 @@ public class GenericPropertyImpl<TYPE> extends PropertyImpl<TYPE> implements Gen
     @Override
     public NotInFilter<?> notIn(TYPE... values) {
         return new NotInFilter<TYPE>(this, values);
+    }
+
+    @Override
+    public GenericPropertyImpl<TYPE> defaultValue(TYPE defaultValue) {
+        super.defaultValue(defaultValue);
+        return this;
+    }
+
+    @Override
+    public GenericPropertyImpl<TYPE> feature(Feature feature) {
+        super.feature(feature);
+        return this;
     }
 }

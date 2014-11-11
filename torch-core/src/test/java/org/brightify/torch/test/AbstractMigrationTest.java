@@ -146,7 +146,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
     private static class User_r1_Description implements EntityDescription<User_r1> {
 
         public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
+                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
         public static StringProperty nameProperty = new StringPropertyImpl("name", "torch_name");
         public static StringProperty emailProperty = new StringPropertyImpl("email", "torch_email");
@@ -249,7 +249,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     private static class User_r2_Description implements EntityDescription<User_r2> {
         public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
+                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
         public static StringProperty fullNameProperty = new StringPropertyImpl("fullName", "torch_fullName");
         public static StringProperty emailProperty = new StringPropertyImpl("email", "torch_email");
@@ -382,7 +382,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     private static class User_r3_Description implements EntityDescription<User_r3> {
         public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
+                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
         public static StringProperty firstNameProperty = new StringPropertyImpl("firstName", "torch_firstName");
         public static StringProperty lastNameProperty = new StringPropertyImpl("lastName", "torch_lastName");
@@ -525,7 +525,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     private static class User_r4_Description implements EntityDescription<User_r4> {
         public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>("id", "torch_id", Long.class, new Id.IdFeature(true));
+                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
         public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
         public static StringProperty firstNameProperty = new StringPropertyImpl("firstName", "torch_firstName");
         public static StringProperty lastNameProperty = new StringPropertyImpl("lastName", "torch_lastName");

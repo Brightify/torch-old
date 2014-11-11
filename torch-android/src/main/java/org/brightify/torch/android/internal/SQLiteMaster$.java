@@ -22,8 +22,8 @@ public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
     public static final StringProperty type = new StringPropertyImpl("type", "type");
     public static final StringProperty name = new StringPropertyImpl("name", "name");
     public static final StringProperty tableName = new StringPropertyImpl("tbl_name", "tbl_name");
-    public static final NumberProperty<Integer> rootpage = new NumberPropertyImpl<Integer>("rootpage", "rootpage",
-                                                                                           Integer.class);
+    public static final NumberProperty<Integer> rootpage =
+            new NumberPropertyImpl<Integer>(Integer.class, "rootpage", "rootpage");
     public static final StringProperty sql = new StringPropertyImpl("sql", "sql");
 
     private static final Property<?>[] properties = {
@@ -94,7 +94,7 @@ public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
 
     @Override
     public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, SQLiteMaster entity,
-                                            Set<Class<?>> loadGroups) throws Exception {
+                                 Set<Class<?>> loadGroups) throws Exception {
         entity.setType(rawEntity.getString(type.getName()));
         entity.setName(rawEntity.getString(name.getName()));
         entity.setTableName(rawEntity.getString(tableName.getName()));

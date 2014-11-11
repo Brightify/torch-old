@@ -4,6 +4,7 @@ import org.brightify.torch.filter.Property;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -13,7 +14,7 @@ public final class PropertyUtil {
     private PropertyUtil() { }
 
     public static <T extends Property.Feature> T getFeature(Property<?> property, Class<T> featureClass) {
-        Property.Feature[] features = property.getFeatures();
+        Set<Property.Feature> features = property.getFeatures();
 
         for (Property.Feature feature : features) {
             if (featureClass.isAssignableFrom(feature.getClass())) {
@@ -30,7 +31,7 @@ public final class PropertyUtil {
 
         if (filteredFeatures.size() != 1) {
             throw new IllegalStateException("There has to be exacly one feature of type " + featureClass.getName() +
-                                            ". There were " + filteredFeatures.size());
+                    ". There were " + filteredFeatures.size());
         }
 
         return filteredFeatures.iterator().next();
@@ -38,7 +39,7 @@ public final class PropertyUtil {
 
     public static <T extends Property.Feature> List<T> getFeatures(Property<?> property, Class<T> featureClass) {
         List<T> filteredFeatures = new ArrayList<T>();
-        Property.Feature[] features = property.getFeatures();
+        Set<Property.Feature> features = property.getFeatures();
 
         for (Property.Feature feature : features) {
             if (featureClass.isAssignableFrom(feature.getClass())) {

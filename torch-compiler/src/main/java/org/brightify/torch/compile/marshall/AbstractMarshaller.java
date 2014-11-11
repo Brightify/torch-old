@@ -86,9 +86,9 @@ public abstract class AbstractMarshaller implements Marshaller {
 
     protected JInvocation propertyClassInvocation(PropertyMirror propertyMirror) {
         JInvocation propertyInvocation = JExpr._new(propertyClassImpl(propertyMirror))
+                .arg(CodeModelTypes.ref(getBackingType(propertyMirror)).dotclass())
                 .arg(propertyMirror.getName())
-                .arg(propertyMirror.getSafeName())
-                .arg(CodeModelTypes.ref(getBackingType(propertyMirror)).dotclass());
+                .arg(propertyMirror.getSafeName());
 
         return propertyClassInvocationFeatureParameters(propertyInvocation, propertyMirror);
     }
@@ -98,7 +98,7 @@ public abstract class AbstractMarshaller implements Marshaller {
         List<JExpression> featureConstructions = featureProviderRegistry.getFeatureConstructions(propertyMirror);
 
         for (JExpression featureConstruction : featureConstructions) {
-            propertyInvocation = propertyInvocation.arg(featureConstruction);
+            propertyInvocation = propertyInvocation.invoke("feature").arg(featureConstruction);
         }
 
         return propertyInvocation;
