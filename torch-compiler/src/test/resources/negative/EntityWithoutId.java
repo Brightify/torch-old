@@ -1,4 +1,4 @@
-package org.brightify.torch.test;
+package negative;
 
 import org.brightify.torch.annotation.Entity;
 

@@ -17,25 +17,53 @@ public class SimpleEntityTest {
     }
 
     @Test
+    public void testEntityWithoutPackage() {
+        ASSERT.about(javaSource())
+                .that(JavaFileObjects.forResource("EntityWithoutPackage.java"))
+                .processedWith(new TorchCompilerEntrypoint())
+                .compilesWithoutError();
+    }
+
+    @Test
     public void testEntityWithoutId() {
         ASSERT.about(javaSource())
-                .that(JavaFileObjects.forResource("EntityWithoutId.java"))
+                .that(JavaFileObjects.forResource("negative/EntityWithoutId.java"))
                 .processedWith(new TorchCompilerEntrypoint())
                 .failsToCompile()
                 .withErrorContaining("There has to be exactly one @Id property in each entity!")
-                .in(JavaFileObjects.forResource("EntityWithoutId.java")).onLine(6);
+                .in(JavaFileObjects.forResource("negative/EntityWithoutId.java")).onLine(6);
+    }
+
+    @Test
+    public void testEntityWithPrimitiveLongId() {
+        ASSERT.about(javaSource())
+                .that(JavaFileObjects.forResource("negative/EntityWithPrimitiveLongId.java"))
+                .processedWith(new TorchCompilerEntrypoint())
+                .failsToCompile()
+                .withErrorContaining("@Id property has to be type Long.")
+                .in(JavaFileObjects.forResource("negative/EntityWithPrimitiveLongId.java")).onLine(10);
+    }
+
+    @Test
+    public void testEntityWithStringId() {
+        ASSERT.about(javaSource())
+                .that(JavaFileObjects.forResource("negative/EntityWithStringId.java"))
+                .processedWith(new TorchCompilerEntrypoint())
+                .failsToCompile()
+                .withErrorContaining("@Id property has to be type Long.")
+                .in(JavaFileObjects.forResource("negative/EntityWithStringId.java")).onLine(10);
     }
 
     @Test
     public void testEntityWithTwoIdProperties() {
         ASSERT.about(javaSource())
-                .that(JavaFileObjects.forResource("EntityWithTwoIdProperties.java"))
+                .that(JavaFileObjects.forResource("negative/EntityWithTwoIdProperties.java"))
                 .processedWith(new TorchCompilerEntrypoint())
                 .failsToCompile()
                 .withErrorContaining("There has to be exactly one @Id property in each entity!")
-                .in(JavaFileObjects.forResource("EntityWithTwoIdProperties.java")).onLine(8).and()
+                .in(JavaFileObjects.forResource("negative/EntityWithTwoIdProperties.java")).onLine(10).and()
                 .withErrorContaining("There has to be exactly one @Id property in each entity!")
-                .in(JavaFileObjects.forResource("EntityWithTwoIdProperties.java")).onLine(11);
+                .in(JavaFileObjects.forResource("negative/EntityWithTwoIdProperties.java")).onLine(13);
     }
 
 }

@@ -8,7 +8,10 @@ import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.generate.SourceCodeWriter;
 import org.brightify.torch.compile.parse.EntityParser;
 import org.brightify.torch.compile.util.CodeModelTypes;
-import org.brightify.torch.compile.util.EntityParseException;
+import org.brightify.torch.compile.parse.EntityParseException;
+import org.brightify.torch.compile.util.ElementException;
+import org.brightify.torch.compile.verify.EntityVerificationException;
+import org.brightify.torch.compile.verify.EntityVerifier;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -37,6 +40,9 @@ public class TorchAnnotationProcessor {
     private EntityParser entityParser;
 
     @Inject
+    private EntityVerifier entityVerifier;
+
+    @Inject
     private EntityContext entityContext;
 
     @Inject
@@ -48,8 +54,7 @@ public class TorchAnnotationProcessor {
         for (Element element : elements) {
             if (entityContext.containsEntity(element)) {
                 messager.printMessage(Diagnostic.Kind.NOTE,
-                                      "Entity " + element.getSimpleName() + "already on classpath.",
-                                      element);
+                        "Entity " + element.getSimpleName() + "already on classpath.", element);
                 continue;
             }
 
@@ -57,14 +62,16 @@ public class TorchAnnotationProcessor {
                 EntityMirror entityMirror = entityParser.parseEntityElement(element);
 
                 entityContext.registerEntityInfo(entityMirror);
-            } catch (EntityParseException e) {
-                if(e.getElements().size() > 0) {
-                    for (Element elementInError : e.getElements()) {
-                        environment.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), elementInError);
-                    }
-                } else {
-                    environment.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-                }
+            } catch (ElementException e) {
+                e.print(messager);
+            }
+        }
+
+        for (EntityMirror entityMirror : entityContext.getEntityMirrors()) {
+            try {
+                entityVerifier.verifyEntity(entityMirror);
+            } catch (ElementException e) {
+                e.print(messager);
             }
         }
 /*
@@ -123,7 +130,7 @@ public class TorchAnnotationProcessor {
         //entityMetadataMapGenerator.generateEntities(entityInfoSet);
 
         try {
-            CodeModelTypes.CODE_MODEL.build(new SourceCodeWriter(environment.getFiler()));
+            CodeModelTypes.build(new SourceCodeWriter(environment.getFiler()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

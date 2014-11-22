@@ -22,6 +22,8 @@ import org.brightify.torch.compile.util.TypeHelper;
 import org.brightify.torch.compile.util.TypeHelperImpl;
 import org.brightify.torch.compile.verify.EntityVerifier;
 import org.brightify.torch.compile.verify.EntityVerifierImpl;
+import org.brightify.torch.compile.verify.PropertyVerifier;
+import org.brightify.torch.compile.verify.PropertyVerifierImpl;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -76,8 +78,10 @@ public class TorchCompilerModule extends AbstractModule {
         bind(PropertyParser.class).to(PropertyParserImpl.class);
         bind(MigrationParser.class).to(MigrationParserImpl.class);
 
-        bind(EntityContext.class).to(EntityContextImpl.class).in(Singleton.class);
         bind(EntityVerifier.class).to(EntityVerifierImpl.class);
+        bind(PropertyVerifier.class).to(PropertyVerifierImpl.class);
+
+        bind(EntityContext.class).to(EntityContextImpl.class).in(Singleton.class);
 
         bind(EntityGenerator.class).to(EntityGeneratorImpl.class);
         bind(EntityDescriptionGenerator.class).to(EntityDescriptionGeneratorImpl.class);

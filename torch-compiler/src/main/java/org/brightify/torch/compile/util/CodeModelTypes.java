@@ -10,6 +10,7 @@ import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.compile.PropertyMirror;
+import org.brightify.torch.compile.generate.SourceCodeWriter;
 import org.brightify.torch.filter.BooleanProperty;
 import org.brightify.torch.filter.GenericProperty;
 import org.brightify.torch.filter.ListProperty;
@@ -26,6 +27,7 @@ import org.brightify.torch.util.LazyArrayList;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.MigrationException;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,7 +41,7 @@ public class CodeModelTypes {
 
     // Static codemodel used in whole compilation.
     // FIXME we should not rely on static stateful object!
-    public static final JCodeModel CODE_MODEL = new JCodeModel();
+    public static JCodeModel CODE_MODEL = new JCodeModel();
 
     // Java primitives
     public static final JClass BYTE_PRIMITIVE = ref(byte.class.getCanonicalName());
@@ -100,5 +102,12 @@ public class CodeModelTypes {
 
     public static JClass ref(PropertyMirror propertyMirror) {
         return ref(propertyMirror.getType().toString());
+    }
+
+    public static void build(SourceCodeWriter sourceCodeWriter) throws IOException {
+        CODE_MODEL.build(sourceCodeWriter);
+
+        // Resetting JCodeModel after the build to ensure its freshness
+        CODE_MODEL = new JCodeModel();
     }
 }

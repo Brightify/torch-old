@@ -222,11 +222,12 @@
                         <configLocation>checkstyle-rules.xml</configLocation>
                         <logViolationsToConsole>true</logViolationsToConsole>
                         <violationSeverity>error</violationSeverity>
+                        <consoleOutput>true</consoleOutput>
                     </configuration>
                     <executions>
                         <execution>
                             <id>checkstyle-report</id>
-                            <phase>process-classes</phase>
+                            <phase>prepare-package</phase>
                             <goals>
                                 <goal>check</goal>
                             </goals>

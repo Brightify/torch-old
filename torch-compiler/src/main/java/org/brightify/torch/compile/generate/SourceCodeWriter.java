@@ -43,6 +43,7 @@ public class SourceCodeWriter extends CodeWriter {
 
     private String fullyQualifiedClassName(JPackage jPackage, String filename) {
         String className = filename.substring(0, filename.lastIndexOf('.'));
-        return jPackage.name() + "." + className;
+        String packageName = jPackage.name();
+        return (packageName.length() != 0 ? packageName + "." : "") + className;
     }
 }

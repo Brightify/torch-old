@@ -14,7 +14,6 @@ import org.brightify.torch.annotation.Unique;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.PropertyMirrorImpl;
-import org.brightify.torch.compile.util.EntityParseException;
 import org.brightify.torch.compile.util.TypeHelper;
 
 import javax.annotation.processing.Messager;
