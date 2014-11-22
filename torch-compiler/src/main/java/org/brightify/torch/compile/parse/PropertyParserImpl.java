@@ -14,8 +14,8 @@ import org.brightify.torch.annotation.Unique;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.PropertyMirrorImpl;
+import org.brightify.torch.compile.util.EntityParseException;
 import org.brightify.torch.compile.util.TypeHelper;
-import org.brightify.torch.parse.EntityParseException;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -59,7 +59,6 @@ public class PropertyParserImpl implements PropertyParser {
         for (Element property : element.getEnclosedElements()) {
             parseGetSetPairs(getSetPairMap, property);
         }
-
 
         List<PropertyMirror> propertyMirrors = new ArrayList<PropertyMirror>();
         for (GetSetPair pair : getSetPairMap.values()) {

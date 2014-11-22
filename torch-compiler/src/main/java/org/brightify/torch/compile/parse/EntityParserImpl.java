@@ -5,7 +5,7 @@ import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.compile.EntityMirror;
 import org.brightify.torch.compile.EntityMirrorImpl;
 import org.brightify.torch.compile.PropertyMirror;
-import org.brightify.torch.parse.EntityParseException;
+import org.brightify.torch.compile.util.EntityParseException;
 import org.brightify.torch.util.Helper;
 import org.brightify.torch.compile.util.TypeHelper;
 

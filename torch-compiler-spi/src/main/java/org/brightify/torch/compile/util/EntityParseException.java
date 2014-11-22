@@ -1,4 +1,4 @@
-package org.brightify.torch.parse;
+package org.brightify.torch.compile.util;
 
 import javax.lang.model.element.Element;
 import java.util.ArrayList;

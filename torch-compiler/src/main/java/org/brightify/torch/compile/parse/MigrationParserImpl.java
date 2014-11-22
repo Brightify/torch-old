@@ -12,8 +12,8 @@ import org.brightify.torch.compile.migration.MigrationPath;
 import org.brightify.torch.compile.migration.MigrationPathImpl;
 import org.brightify.torch.compile.migration.MigrationPathPart;
 import org.brightify.torch.compile.migration.MigrationPathPartImpl;
+import org.brightify.torch.compile.util.EntityParseException;
 import org.brightify.torch.compile.util.TypeHelper;
-import org.brightify.torch.parse.EntityParseException;
 import org.brightify.torch.util.MigrationAssistant;
 
 import javax.annotation.processing.Messager;
