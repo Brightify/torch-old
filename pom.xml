@@ -11,7 +11,7 @@
 
     <groupId>org.brightify.torch</groupId>
     <artifactId>torch-parent</artifactId>
-    <version>1.0-alpha-02-SNAPSHOT</version>
+    <version>1.0.0.Alpha2-SNAPSHOT</version>
     <name>Torch - Android ORM framework</name>
     <packaging>pom</packaging>
     <url>http://github.com/brightify/torch</url>
