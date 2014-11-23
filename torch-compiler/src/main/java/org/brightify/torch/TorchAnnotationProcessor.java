@@ -8,9 +8,7 @@ import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
 import org.brightify.torch.compile.generate.SourceCodeWriter;
 import org.brightify.torch.compile.parse.EntityParser;
 import org.brightify.torch.compile.util.CodeModelTypes;
-import org.brightify.torch.compile.parse.EntityParseException;
 import org.brightify.torch.compile.util.ElementException;
-import org.brightify.torch.compile.verify.EntityVerificationException;
 import org.brightify.torch.compile.verify.EntityVerifier;
 
 import javax.annotation.processing.Messager;

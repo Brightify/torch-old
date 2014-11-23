@@ -10,8 +10,11 @@ public interface TypedRelationResolverOnProperty<ENTITY, VALUE> {
 
     LazyArrayList<VALUE> parentId(Long id);
 
-    LazyArrayList<VALUE> parent(ENTITY entity);
+    LazyArrayList<VALUE> parent(ENTITY parent);
 
     LazyArrayList<VALUE> parentKey(Key<ENTITY> key);
+
+
+
 
 }

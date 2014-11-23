@@ -35,7 +35,8 @@ public class RelationResolverImpl implements RelationResolver {
         }
 
         @Override
-        public <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> property) {
+        public <VALUE>
+        TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> property) {
             return new TypedRelationResolverOnPropertyImpl<ENTITY, VALUE>(torch, entityClass, property);
         }
     }

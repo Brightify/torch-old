@@ -170,9 +170,9 @@ public class ListMarshaller implements Marshaller {
                 .narrow(listType);
 
         JInvocation invocation = JExpr._new(columnClassImpl)
+                .arg(listType.dotclass())
                 .arg(propertyMirror.getName())
-                .arg(propertyMirror.getSafeName())
-                .arg(listType.dotclass());
+                .arg(propertyMirror.getSafeName());
 
         List<JExpression> featureConstructions = featureProviderRegistry.getFeatureConstructions(propertyMirror);
 

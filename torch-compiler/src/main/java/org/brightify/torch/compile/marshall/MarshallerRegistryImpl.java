@@ -84,11 +84,14 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
     public Marshaller getMarshallerOrThrow(TypeMirror type) {
         Marshaller marshaller = getMarshaller(type);
         if(marshaller == null) { // FIXME change to GenerationException
-            StringBuilder builder = new StringBuilder("Supported marshallers: ");
-            for (Marshaller marshaller1 : marshallers) {
-                builder.append(marshaller1.getClass().getSimpleName()).append("\n");
+            StringBuilder builder = new StringBuilder();
+
+            builder.append("Unsupported type: ").append(type).append("!\n");
+            builder.append("\tMarshallers on classpath: \n");
+            for (Marshaller supportedMarshaller : marshallers) {
+                builder.append("\t\t").append(supportedMarshaller.getClass().getSimpleName()).append('\n');
             }
-            throw new IllegalStateException(LongMarshaller.class.getCanonicalName() + " Unsupported type: " + type + ". " + builder.toString());
+            throw new IllegalStateException(builder.toString());
         }
         return marshaller;
     }

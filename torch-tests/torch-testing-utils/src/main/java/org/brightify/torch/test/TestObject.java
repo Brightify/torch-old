@@ -3,6 +3,7 @@ package org.brightify.torch.test;
 import org.brightify.torch.annotation.Accessor;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
+import org.brightify.torch.annotation.Ignore;
 import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.Migration;
 import org.brightify.torch.util.MigrationAssistant;
@@ -11,8 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 /**
+ *
+ *
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @Entity(revision = 4)
@@ -34,8 +38,12 @@ public class TestObject implements Serializable {
     public String group; // Test for #20, should be forbidden column name, but we add torch_ to every column name
     protected String protectedTest = "protectedTest";
     String defaultTest = "defaultTest";
-//    public Table table;
-//    public List<Table> tables;
+    @Ignore
+    public List<String> strings;
+    @Ignore
+    public SecondTestObject secondTestObject;
+    @Ignore
+    public List<SecondTestObject> secondTestObjects;
 //    public List<String> strings = new ArrayList<String>();
 
     @Migration(source = 1, target = 2)
@@ -88,6 +96,35 @@ public class TestObject implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TestObject that = (TestObject) o;
+
+        if (booleanPrimitiveField != that.booleanPrimitiveField) return false;
+        if (intPrimitiveField != that.intPrimitiveField) return false;
+        if (longPrimitiveField != that.longPrimitiveField) return false;
+        if (booleanField != null ? !booleanField.equals(that.booleanField) : that.booleanField != null) return false;
+        if (!Arrays.equals(byteArrayField, that.byteArrayField)) return false;
+        if (defaultTest != null ? !defaultTest.equals(that.defaultTest) : that.defaultTest != null) return false;
+        if (group != null ? !group.equals(that.group) : that.group != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (intField != null ? !intField.equals(that.intField) : that.intField != null) return false;
+        if (longField != null ? !longField.equals(that.longField) : that.longField != null) return false;
+        if (protectedTest != null ? !protectedTest.equals(that.protectedTest) : that.protectedTest != null)
+            return false;
+        if (secondTestObject != null ? !secondTestObject.equals(that.secondTestObject) : that.secondTestObject != null)
+            return false;
+        if (secondTestObjects != null ? !secondTestObjects.equals(that.secondTestObjects) : that.secondTestObjects !=
+                null)
+            return false;
+        if (stringField != null ? !stringField.equals(that.stringField) : that.stringField != null) return false;
+
+        return true;
+    }
+
+    @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (byteArrayField != null ? Arrays.hashCode(byteArrayField) : 0);
@@ -98,92 +135,11 @@ public class TestObject implements Serializable {
         result = 31 * result + (int) (longPrimitiveField ^ (longPrimitiveField >>> 32));
         result = 31 * result + (booleanField != null ? booleanField.hashCode() : 0);
         result = 31 * result + (booleanPrimitiveField ? 1 : 0);
+        result = 31 * result + (group != null ? group.hashCode() : 0);
         result = 31 * result + (protectedTest != null ? protectedTest.hashCode() : 0);
         result = 31 * result + (defaultTest != null ? defaultTest.hashCode() : 0);
-        result = 31 * result + (group != null ? group.hashCode() : 0);
-//        result = 31 * result + (strings != null ? strings.hashCode() : 0);
+        result = 31 * result + (secondTestObject != null ? secondTestObject.hashCode() : 0);
+        result = 31 * result + (secondTestObjects != null ? secondTestObjects.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            LOGGER.debug("Types not equal: `{}` vs `{}`", getClass(), o != null ? o.getClass() : "`null`");
-            return false;
-        }
-
-        TestObject that = (TestObject) o;
-
-        if (booleanPrimitiveField != that.booleanPrimitiveField) {
-            LOGGER.debug("`booleanPrimitiveField` not equal: `{}` vs `{}`", booleanPrimitiveField,
-                         that.booleanPrimitiveField);
-            return false;
-        }
-
-        if (intPrimitiveField != that.intPrimitiveField) {
-            LOGGER.debug("`intPrimitiveField` not equal: `{}` vs `{}`", intPrimitiveField, that.intPrimitiveField);
-            return false;
-        }
-
-        if (longPrimitiveField != that.longPrimitiveField) {
-            LOGGER.debug("`longPrimitiveField` not equal: `{}` vs `{}`", longPrimitiveField, that.longPrimitiveField);
-            return false;
-        }
-
-        if (booleanField != null ? !booleanField.equals(that.booleanField) : that.booleanField != null) {
-            LOGGER.debug("`booleanField` not equal: {} vs {}", booleanField, that.booleanField);
-            return false;
-        }
-
-        if (!Arrays.equals(byteArrayField, that.byteArrayField)) {
-            LOGGER.debug("`byteArrayField` not equal: `{}` vs `{}`", Arrays.toString(byteArrayField),
-                         Arrays.toString(that.byteArrayField));
-            return false;
-        }
-
-        if (defaultTest != null ? !defaultTest.equals(that.defaultTest) : that.defaultTest != null) {
-            LOGGER.debug("`defaultTest` not equal: `{}` vs `{}`", defaultTest, that.defaultTest);
-            return false;
-        }
-
-        if (group != null ? !group.equals(that.group) : that.group != null) {
-            LOGGER.debug("`group` not equal: `{}` vs `{}`", group, that.group);
-            return false;
-        }
-
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            LOGGER.debug("`id` not equal: `{}` vs `{}`", id, that.id);
-            return false;
-        }
-
-        if (intField != null ? !intField.equals(that.intField) : that.intField != null) {
-            LOGGER.debug("`intField` not equal: `{}` vs `{}`", intField, that.intField);
-            return false;
-        }
-
-        if (longField != null ? !longField.equals(that.longField) : that.longField != null) {
-            LOGGER.debug("`longField` not equal: `{}` vs `{}`", longField, that.longField);
-            return false;
-        }
-
-        if (protectedTest != null ? !protectedTest.equals(that.protectedTest) : that.protectedTest != null) {
-            LOGGER.debug("`protectedTest` not equal: `{}` vs `{}`", protectedTest, that.protectedTest);
-            return false;
-        }
-
-        if (stringField != null ? !stringField.equals(that.stringField) : that.stringField != null) {
-            LOGGER.debug("`stringField` not equal: `{}` vs `{}`", stringField, that.stringField);
-            return false;
-        }
-
-/*        if (strings != null ? !strings.equals(that.strings) : that.strings != null) {
-            LOGGER.debug("`strings` not equal: `{}` vs `{}`", strings.toArray(), that.strings.toArray());
-            return false;
-        }*/
-
-        return true;
     }
 }

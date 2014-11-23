@@ -11,6 +11,8 @@ public interface ListLoader<ENTITY> extends Iterable<ENTITY> {
 
     ProcessingLoader<ENTITY> process();
 
+    // RawPropertyLoader<ENTITY> raw();
+
     /**
      * Loads and returns a list of all entities matched by this loader.
      */

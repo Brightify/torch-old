@@ -12,17 +12,12 @@ import java.util.concurrent.Callable;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class DeleterImpl implements Deleter, AsyncDeleter {
+public class DeleterImpl implements Deleter {
 
     protected final Torch torch;
 
     public DeleterImpl(Torch torch) {
         this.torch = torch;
-    }
-
-    @Override
-    public AsyncDeleter async() {
-        return this;
     }
 
     @Override

@@ -9,17 +9,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class SaverImpl implements Saver, AsyncSaver {
+public class SaverImpl implements Saver {
 
     private final Torch torch;
 
     public SaverImpl(Torch torch) {
         this.torch = torch;
-    }
-
-    @Override
-    public AsyncSaver async() {
-        return this;
     }
 
     @Override

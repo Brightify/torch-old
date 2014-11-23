@@ -7,6 +7,6 @@ import org.brightify.torch.filter.ListProperty;
  */
 public interface TypedRelationResolver<ENTITY> {
 
-    <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> value);
+    <VALUE> TypedRelationResolverOnProperty<ENTITY, VALUE> onProperty(ListProperty<ENTITY, VALUE> property);
 
 }
