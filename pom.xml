@@ -10,7 +10,7 @@
 
     <groupId>org.brightify.torch</groupId>
     <artifactId>torch-parent</artifactId>
-    <version>1.0.0.Alpha3-SNAPSHOT</version>
+    <version>1.0.0-alpha.3-SNAPSHOT</version>
     <name>Torch - Android ORM framework</name>
     <packaging>pom</packaging>
     <url>http://github.com/brightify/torch</url>
@@ -157,6 +157,11 @@
                 <directory>src/test/resources</directory>
             </testResource>
         </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -282,6 +287,15 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <pushChanges>false</pushChanges>
+                        <localCheckout>true</localCheckout>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
