@@ -160,12 +160,20 @@
         <plugins>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.1</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <pushChanges>false</pushChanges>
                     <localCheckout>true</localCheckout>
                     <tagNameFormat>@{version}</tagNameFormat>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <version>1.9.2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
         <pluginManagement>
