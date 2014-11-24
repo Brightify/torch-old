@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -27,7 +28,7 @@
 
     <licenses>
         <license>
-            <name>THe MIT License</name>
+            <name>The MIT License</name>
             <url>LICENSE</url>
             <distribution>repo</distribution>
         </license>
@@ -42,7 +43,7 @@
     <developers>
         <developer>
             <name>Tadeas Kriz</name>
-            <email>tadeas.kriz@gmail.com</email>
+            <email>tadeas@brightify.org</email>
             <id>TadeasKriz</id>
             <timezone>+1</timezone>
         </developer>
@@ -50,7 +51,7 @@
 
     <organization>
         <name>Brightify</name>
-        <url>http://brightify.org</url>
+        <url>http://www.brightify.org</url>
     </organization>
 
     <issueManagement>
@@ -160,6 +161,12 @@
         <plugins>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
+                    <tagNameFormat>@{version}</tagNameFormat>
+                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
@@ -287,15 +294,6 @@
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <configuration>
-                        <autoVersionSubmodules>true</autoVersionSubmodules>
-                        <pushChanges>false</pushChanges>
-                        <localCheckout>true</localCheckout>
-                        <tagNameFormat>@{project.version}</tagNameFormat>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
