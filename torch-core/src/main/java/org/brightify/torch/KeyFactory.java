@@ -6,10 +6,10 @@ package org.brightify.torch;
 public class KeyFactory {
 
     /**
-     * @param entityClass
-     * @param id
-     * @param <ENTITY>
-     * @return
+     * @param entityClass Class of the target entity.
+     * @param id Id of the entity.
+     * @param <ENTITY> Type of the target entity.
+     * @return An instance of a key for the given entity type and id.
      */
     public static <ENTITY> Key<ENTITY> create(Class<ENTITY> entityClass, Long id) {
         if (id == null) {

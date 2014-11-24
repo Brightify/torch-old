@@ -10,17 +10,14 @@ public interface MigrationAssistant<ENTITY> {
 
     /**
      * Creates a property in the store.
+     *
+     * @param property Property to be added.
      */
     void addProperty(Property<?> property);
 
 // FIXME implement typesafe change type when Torch Validator comes along
 //  void changePropertyType(Property<?> from, Property<?> to);
 
-    /**
-     *
-     * @param from
-     * @param to
-     */
     @Deprecated
     void renameProperty(String from, String to);
 
@@ -29,6 +26,8 @@ public interface MigrationAssistant<ENTITY> {
 
     /**
      * Removes a property with the given name from the store.
+     *
+     * @param name Name of the property to be removed.
      */
     @Deprecated
     void removeProperty(String name);

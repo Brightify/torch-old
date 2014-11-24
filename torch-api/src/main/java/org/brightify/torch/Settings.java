@@ -37,7 +37,7 @@ public class Settings {
     }
 
     /**
-     * Returns true if debug mode is enabled, false otherwise.
+     * @return True if debug mode is enabled, false otherwise.
      */
     public static boolean isDebugModeEnabled() {
         return isBooleanSettingEnabled(BooleanSetting.DEBUG);
@@ -58,7 +58,7 @@ public class Settings {
     }
 
     /**
-     * Returns true if query logging is enabled, false otherwise.
+     * @return True if query logging is enabled, false otherwise.
      *
      * @see Settings#enableQueryLogging()
      */
@@ -69,7 +69,7 @@ public class Settings {
     /**
      * Enables query logging. If query logging is enabled, Torch will log all SQL queries into the logcat. This however
      * does not include non-SQL commands like save or delete. This will be fixed in a future release.
-     * <p/>
+     *
      * Enabling this will reduce the performance! Always be sure to disable the logging in a production package!
      */
     public static void enableQueryLogging() {
@@ -86,7 +86,7 @@ public class Settings {
     }
 
     /**
-     * Returns true if logging query arguments is enabled, false otherwise.
+     * @return True if logging query arguments is enabled, false otherwise.
      *
      * @see Settings#enableQueryArgumentsLogging()
      */
@@ -98,7 +98,7 @@ public class Settings {
      * Enables logging of query arguments. This way you can directly see which arguments are used with the SQL query.
      * Enabling this option without {@link Settings#enableQueryLogging()} will result in nothing being shown in the log.
      * The query arguments logging is basically just an extension of the query logging itself.
-     * <p/>
+     *
      * Enabling this will reduce the performance! Always be sure to disable the logging in a production package!
      */
     public static void enableQueryArgumentsLogging() {
@@ -115,7 +115,7 @@ public class Settings {
     }
 
     /**
-     * Returns true if stack trace query logging is enabled, false otherwise.
+     * @return True if stack trace query logging is enabled, false otherwise.
      *
      * @see Settings#enableStackTraceQueryLogging()
      */
@@ -128,10 +128,10 @@ public class Settings {
      * so you can debug just using the logcat, without actually attaching the debugger to your application. This is very
      * useful when you do many queries at once and just some of them might be wrong, or called from a wrong place, where
      * debugging step by step might not show the issue.
-     * <p/>
+     *
      * This once again will have no effect, if you will not enable the query logging itself. This is similarly to the
      * arguments logging just an extension of the query logging.
-     * <p/>
+     *
      * Enabling this will reduce the performance! Always be sure to disable the logging in a production package!
      */
     public static void enableStackTraceQueryLogging() {
@@ -148,9 +148,9 @@ public class Settings {
     }
 
     /**
-     * Returns currently set executor for the {@link AsyncRunner}.
-     * <p/>
      * Default is {@link SerialExecutor#INSTANCE}.
+     *
+     * @return Currently set executor for the {@link AsyncRunner}.
      */
     public static Executor getAsyncExecutor() {
         return asyncExecutor;
@@ -158,6 +158,8 @@ public class Settings {
 
     /**
      * Sets a custom executor for the {@link AsyncRunner}.
+     *
+     * @param executor Executor to be set as a current one.
      *
      * @see Settings#getAsyncExecutor()
      */

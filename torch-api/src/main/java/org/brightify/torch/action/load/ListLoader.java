@@ -15,11 +15,15 @@ public interface ListLoader<ENTITY> extends Iterable<ENTITY> {
 
     /**
      * Loads and returns a list of all entities matched by this loader.
+     *
+     * @return List of entities.
      */
     List<ENTITY> list();
 
     /**
      * Loads and returns first entity from a list of all entities matched by this filter or null if the list is empty.
+     *
+     * @return Single entity.
      */
     ENTITY single();
 

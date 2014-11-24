@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
  * torch-compiler on classpath will result into generation of a class, named like the original class annotated with
  * {@link Entity}, but with dollar sign at the end. This class is called <strong>metadata class</strong>. Look at the
  * following example:
- * <p/>
+ *
  * <pre>
  * {@code
  * &#64;Entity
@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  *      Long id;
  *  }}
  * </pre>
- * <p/>
+ *
  * The {@link Entity} annotation for class {@code User}, would produce a class named {@code User$} which contains all
  * the necessary data needed for torch to work with the entity. Also, this class has static field for each property of
  * the original class, which you would use for filtering and ordering.
@@ -28,22 +28,22 @@ public @interface Entity {
 
     /**
      * Overrides the default table name.
-     * <p/>
+     *
      * This is not recommended, because it might collide with another table. The default table name is entity name,
      * prepended by it's package name, with dots replaced by underscores. For example, {@code
      * org.brightify.torch.model.TorchEntityModel} will become {@code org_brightify_torch_model_TorchEntityModel}.
      *
-     * @return
+     * @return Name of the entity.
      */
     String name() default ""; // TODO check if implemented
 
     /**
      * Table version. The lowest possible version is the default, 1. You can only increment the version through new
      * versions of your applications.
-     * <p/>
+     *
      * If you need to make changes to the table, increment this value and implement migration methods.
      *
-     * @return
+     * @return Revision of the entity.
      */
     long revision() default DEFAULT_REVISION;
 
@@ -66,7 +66,7 @@ public @interface Entity {
     /**
      * When this flag is enabled, the package name is not included in the table name. It's not recommended to use this
      * unless you have very deep package structure.
-     * <p/>
+     *
      * TODO provide maximal package length
      *
      * @return True if entity's table should only have class' simple name.
@@ -75,6 +75,8 @@ public @interface Entity {
 
     /**
      * Set this to true, to ignore this entity completely.
+     *
+     * @return True if entity should be ignored, false otherwise.
      */
     boolean ignore() default false; // TODO check if implemented
 
@@ -83,7 +85,7 @@ public @interface Entity {
          * Call all migration methods in order, if any of them fails (or there is no migration method available),
          * brightify will throw a {@link org.brightify.torch.util.MigrationException} and revert any change made to the
          * database. This is default behavior.
-         * <p/>
+         *
          * If migration methods don't cover all version upgrades, compile-time error will be raised.
          */
         MIGRATE,

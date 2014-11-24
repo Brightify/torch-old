@@ -10,16 +10,22 @@ import org.brightify.torch.action.save.Saver;
 public interface ActionSelector {
     /**
      * Initialize delete operation.
+     *
+     * @return New instance of deleter.
      */
     Deleter delete();
 
     /**
      * Initialize load operation.
+     *
+     * @return New instance of loader.
      */
     Loader load();
 
     /**
      * Initialize save operation.
+     *
+     * @return New instance of saver.
      */
     Saver save();
 }

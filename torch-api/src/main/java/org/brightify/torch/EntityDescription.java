@@ -14,11 +14,15 @@ import java.util.Set;
 public interface EntityDescription<ENTITY> {
     /**
      * Returns the ID property.
+     *
+     * @return ID property of the target entity.
      */
     NumberProperty<Long> getIdProperty();
 
     /**
      * Returns an array of properties.
+     *
+     * @return An array of properties in the target entity.
      */
     Property<?>[] getProperties();
 
@@ -26,6 +30,8 @@ public interface EntityDescription<ENTITY> {
      * Returns a safe class name.
      *
      * @see Helper#safeNameFromClass(Class) for meaning of the safety.
+     *
+     * @return Safe name of the entity.
      */
     String getSafeName();
 

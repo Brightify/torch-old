@@ -9,21 +9,21 @@ public @interface Migration {
     /**
      * Source version of the Entity.
      *
-     * @return the source revision of the entity.
+     * @return The source revision of the entity.
      */
     long source();
 
     /**
      * Target version of the Entity.
      *
-     * @return the target revision of the entity.
+     * @return The target revision of the entity.
      */
     long target();
 
     /**
      * In case of equal migration path costs, path with more preferred migration methods will be selected.
      *
-     * @return
+     * @return True if this method is preferred in case of equal cost, false otherwise.
      */
     boolean preferred() default false;
 }

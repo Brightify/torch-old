@@ -63,7 +63,7 @@ public class TorchService {
 
     /**
      * Use this to force unload Torch. Probably used in tests only.
-     * <p/>
+     *
      * This will NOT delete the database. It will only unload the factory and unregister all the Entities.
      */
     public static void forceUnload() {
@@ -78,8 +78,10 @@ public class TorchService {
 
     /**
      * This is the main method that will initialize the Torch.
-     * <p/>
+     *
      * We recommend to static import this method, so that you can only call torch() to begin.
+     *
+     * @return An instance of {@link Torch}.
      */
     public static Torch torch() {
         if (!isLoaded()) {

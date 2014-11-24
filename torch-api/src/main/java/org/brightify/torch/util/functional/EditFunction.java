@@ -6,7 +6,7 @@ package org.brightify.torch.util.functional;
 public interface EditFunction<INPUT> {
     /**
      *
-     * @param input
+     * @param input Input of the function.
      * @return true to save the input, false otherwise
      */
     boolean apply(INPUT input);

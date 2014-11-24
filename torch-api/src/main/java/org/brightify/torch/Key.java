@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Key is unique definition of an entity and should be used instead of using plain entity id.
  *
- * @param <ENTITY>
+ * @param <ENTITY> Target entity of the key.
  */
 public class Key<ENTITY> implements Serializable {
 
