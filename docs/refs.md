@@ -91,16 +91,19 @@ Column type | Column name
 Long        | id
 String      | name
 Long        | UserDetails_details_customIdName
-  
-  
-### User__to__Email_BindTable
+Integer     | emails
+
+PRIMARY KEY (id)
+
+### User#emails__to__Email_BindTable
 
 Column type | Column name
 ------------|-------------
-Long        | id
 Long        | User_id
+Integer     | position
 Long        | Email_id
   
+PRIMARY KEY (User_id, position)
   
 ### UserDetails
 
@@ -110,7 +113,8 @@ Long        | customIdName
 String      | something
 Long        | User_mother_id
 Long        | User_father_id
-  
+
+PRIMARY KEY (customIdName)
   
 ### UserDetails__nicknames
 
