@@ -1,0 +1,10 @@
+package negative;
+
+import org.brightify.torch.annotation.Entity;
+import org.brightify.torch.annotation.Id;
+
+@Entity
+public class EntityWithIntId {
+    @Id
+    Integer id;
+}

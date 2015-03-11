@@ -65,5 +65,49 @@ public class SimpleEntityTest {
                 .withErrorContaining("There has to be exactly one @Id property in each entity!")
                 .in(JavaFileObjects.forResource("negative/EntityWithTwoIdProperties.java")).onLine(13);
     }
+    
+    @Test
+    public void testEntityWithIntId(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithIntId.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("@Id has to be type Long.").
+                in(JavaFileObjects.forResource("negative/EntityWithIntId.java")).onLine(9);
+    }
+    
+    @Test
+    public void testEntityWithPrimitiveIntId(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithPrimitiveIntId.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("@ID has to be type Long.").
+                in(JavaFileObjects.forResource("negative/EntityWithPrimitiveIntId.java")).onLine(9);
+    }
 
+    @Test
+    public void testEntityWithoutIdAnnotation(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithoutIdAnnotation.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("You has to mark exactly one of Long fields with @Id annotation").
+                in(JavaFileObjects.forResource("negative/EntityWithoutIdAnnotation.java")).onLine(7);
+        
+    }
+
+    @Test
+    public void testEntityWithoutEntityAnnotation(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithoutEntityAnnotation.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("You has to mark class representing an entity with @Entity annotation.").
+                in(JavaFileObjects.forResource("negative/EntityWithoutEntityAnnotation.java")).onLine(5);
+
+    }
+    
+    @Test
+    public void testEntityWithNoAnnotations(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithNoAnnotations.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("You have to annotate your class with an @Entity annotation.").
+                in(JavaFileObjects.forResource("negative/EntityWithNoAnnotations.java")).onLine(3).and().
+                withErrorContaining("You have to annotate exactly one Long field with @Id annotation.").
+                in(JavaFileObjects.forResource("negative/EntityWithNoAnnotations.java")).onLine(4);
+        
+    }
 }
