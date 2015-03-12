@@ -83,11 +83,11 @@ public class SimpleEntityTest {
     }
 
     @Test
-    public void testEntityWithoutIdAnnotation(){
-        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithoutIdAnnotation.java")).
+    public void testEntityWithLongFieldsWithoutIdAnnotation(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).
                 processedWith(new TorchCompilerEntrypoint()).failsToCompile().
                 withErrorContaining("You has to mark exactly one of Long fields with @Id annotation").
-                in(JavaFileObjects.forResource("negative/EntityWithoutIdAnnotation.java")).onLine(7);
+                in(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).onLine(7);
         
     }
 
