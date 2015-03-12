@@ -70,7 +70,7 @@ public class SimpleEntityTest {
     public void testEntityWithIntId(){
         ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithIntId.java")).
                 processedWith(new TorchCompilerEntrypoint()).failsToCompile().
-                withErrorContaining("@Id has to be type Long.").
+                withErrorContaining("@Id property has to be type Long.").
                 in(JavaFileObjects.forResource("negative/EntityWithIntId.java")).onLine(9);
     }
     
@@ -78,7 +78,7 @@ public class SimpleEntityTest {
     public void testEntityWithPrimitiveIntId(){
         ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithPrimitiveIntId.java")).
                 processedWith(new TorchCompilerEntrypoint()).failsToCompile().
-                withErrorContaining("@ID has to be type Long.").
+                withErrorContaining("@Id property has to be type Long.").
                 in(JavaFileObjects.forResource("negative/EntityWithPrimitiveIntId.java")).onLine(9);
     }
 
@@ -86,7 +86,7 @@ public class SimpleEntityTest {
     public void testEntityWithLongFieldsWithoutIdAnnotation(){
         ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).
                 processedWith(new TorchCompilerEntrypoint()).failsToCompile().
-                withErrorContaining("You has to mark exactly one of Long fields with @Id annotation").
+                withErrorContaining("There has to be exactly one @Id property in each entity!").
                 in(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).onLine(7);
         
     }
