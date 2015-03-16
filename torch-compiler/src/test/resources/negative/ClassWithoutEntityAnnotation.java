@@ -2,7 +2,7 @@ package negative;
 
 import org.brightify.torch.annotation.Id;
 
-public class EntityWithoutEntityAnnotation{
+public class ClassWithoutEntityAnnotation{
     @Id
     Long id;
     

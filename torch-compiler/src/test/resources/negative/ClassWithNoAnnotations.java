@@ -1,6 +1,6 @@
 package negative;
 
-public class EntityWithNoAnnotations{
+public class ClassWithNoAnnotations{
     Long id;
     String name;
     Long accountNumber;
