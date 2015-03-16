@@ -87,27 +87,21 @@ public class SimpleEntityTest {
         ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).
                 processedWith(new TorchCompilerEntrypoint()).failsToCompile().
                 withErrorContaining("There has to be exactly one @Id property in each entity!").
-                in(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).onLine(7);
+                in(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).onLine(6);
         
     }
 
     @Test
-    public void testEntityWithoutEntityAnnotation(){
-        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithoutEntityAnnotation.java")).
-                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
-                withErrorContaining("You has to mark class representing an entity with @Entity annotation.").
-                in(JavaFileObjects.forResource("negative/EntityWithoutEntityAnnotation.java")).onLine(5);
+    public void testClassWithoutEntityAnnotation(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/ClassWithoutEntityAnnotation.java")).
+                processedWith(new TorchCompilerEntrypoint()).compilesWithoutError();
 
     }
     
     @Test
-    public void testEntityWithNoAnnotations(){
-        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithNoAnnotations.java")).
-                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
-                withErrorContaining("You have to annotate your class with an @Entity annotation.").
-                in(JavaFileObjects.forResource("negative/EntityWithNoAnnotations.java")).onLine(3).and().
-                withErrorContaining("You have to annotate exactly one Long field with @Id annotation.").
-                in(JavaFileObjects.forResource("negative/EntityWithNoAnnotations.java")).onLine(4);
+    public void testClassWithNoAnnotations(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/ClassWithNoAnnotations.java")).
+                processedWith(new TorchCompilerEntrypoint()).compilesWithoutError();
         
     }
 }
