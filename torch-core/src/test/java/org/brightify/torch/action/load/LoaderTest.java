@@ -20,6 +20,7 @@ import static org.brightify.torch.TorchService.torch;
 import static org.brightify.torch.test.TestUtils.createTestObject;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -86,6 +87,12 @@ public class LoaderTest {
         assertThat(objects.size(), is(2));
         assertThat(objects.get(0), is(testObject2));
         assertThat(objects.get(1), is(testObject3));
+    }
+
+    @Test
+    public void loadByInvalidIdReturnsNull() {
+        TestObject object = torch().load().type(TestObject.class).id(-1000);
+        assertThat(object, is(nullValue()));
     }
 
     @Test

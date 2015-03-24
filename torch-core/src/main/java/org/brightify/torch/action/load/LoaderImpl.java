@@ -200,7 +200,12 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public ENTITY id(long id) {
-        return ids(Collections.singleton(id)).iterator().next();
+        List<ENTITY> entities = ids(Collections.singleton(id));
+        if(entities.size() == 0) {
+            return null;
+        } else {
+            return entities.get(0);
+        }
     }
 
     @Override
