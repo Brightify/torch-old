@@ -29,6 +29,15 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
         }
     }
 
+    public boolean close() {
+        if(cursor.isClosed()) {
+            return false;
+        } else {
+            cursor.close();
+            return true;
+        }
+    }
+
     @Override
     public boolean hasNext() { // this goes forever when there is no data!
         return !cursor.isClosed();

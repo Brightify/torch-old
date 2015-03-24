@@ -243,11 +243,15 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     public <ENTITY> ENTITY first(LoadQuery<ENTITY> query) {
         CursorIterator<ENTITY> iterator = new CursorIterator<ENTITY>(torchFactory, query, runQuery(query, false));
 
-        if (!iterator.hasNext()) {
-            return null;
-        }
+        try {
+            if (!iterator.hasNext()) {
+                return null;
+            }
+            return iterator.next();
 
-        return iterator.next();
+        } finally {
+            iterator.close();
+        }
     }
 
     @Override
