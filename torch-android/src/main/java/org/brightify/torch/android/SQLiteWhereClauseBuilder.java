@@ -164,7 +164,7 @@ public class SQLiteWhereClauseBuilder {
             if (filter instanceof EnumerationFilter<?, ?>) {
                 EnumerationFilter<?, ?> enumerationFilter = (EnumerationFilter<?, ?>) filter;
                 Property<?> property = FilterMethodPublicRouter.getProperty(filter);
-                Object[] values = FilterMethodPublicRouter.getValueEnumeration(enumerationFilter);
+                Iterable<?> values = FilterMethodPublicRouter.getValueEnumeration(enumerationFilter);
 
                 builder.append(" ").append(property.getSafeName()).append(" ").append(operator).append(" (");
 

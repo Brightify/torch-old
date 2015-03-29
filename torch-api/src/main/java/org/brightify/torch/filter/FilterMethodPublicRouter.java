@@ -18,7 +18,7 @@ public final class FilterMethodPublicRouter {
         return filter.getValue();
     }
 
-    public static <TYPE> TYPE[] getValueEnumeration(EnumerationFilter<TYPE, ?> filter) {
+    public static <TYPE> Iterable<TYPE> getValueEnumeration(EnumerationFilter<TYPE, ?> filter) {
         return filter.getValues();
     }
 

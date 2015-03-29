@@ -91,7 +91,7 @@ public class MockDatabaseFilter {
         });
         operatorMap.put(InFilter.class, new EnumerationMockFilterMatcher() {
             @Override
-            protected boolean applyWithEnumeration(Object value, Object[] filterValues) {
+            protected boolean applyWithEnumeration(Object value, Iterable<?> filterValues) {
                 for (Object filterValue : filterValues) {
                     if(filterValue.equals(value)) {
                         return true;
@@ -102,7 +102,7 @@ public class MockDatabaseFilter {
         });
         operatorMap.put(NotInFilter.class, new EnumerationMockFilterMatcher() {
             @Override
-            protected boolean applyWithEnumeration(Object value, Object[] filterValues) {
+            protected boolean applyWithEnumeration(Object value, Iterable<?> filterValues) {
                 for (Object filterValue : filterValues) {
                     if(filterValue.equals(value)) {
                         return false;
@@ -190,7 +190,7 @@ public class MockDatabaseFilter {
             return applyWithEnumeration(value, FilterMethodPublicRouter.getValueEnumeration(enumerationFilter));
         }
 
-        protected abstract boolean applyWithEnumeration(Object value, Object[] filterValues);
+        protected abstract boolean applyWithEnumeration(Object value, Iterable<?> filterValues);
     }
 
     private static abstract class NumberComparationFilterMatcher extends SingleValueMockFilterMatcher {

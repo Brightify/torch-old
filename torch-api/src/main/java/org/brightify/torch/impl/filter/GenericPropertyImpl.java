@@ -19,7 +19,17 @@ public class GenericPropertyImpl<TYPE> extends PropertyImpl<TYPE> implements Gen
     }
 
     @Override
+    public InFilter<?> in(Iterable<TYPE> values) {
+        return new InFilter<TYPE>(this, values);
+    }
+
+    @Override
     public NotInFilter<?> notIn(TYPE... values) {
+        return new NotInFilter<TYPE>(this, values);
+    }
+
+    @Override
+    public NotInFilter<?> notIn(Iterable<TYPE> values) {
         return new NotInFilter<TYPE>(this, values);
     }
 
