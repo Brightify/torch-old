@@ -20,7 +20,6 @@
         <module>torch-compiler</module>
         <module>torch-compiler-spi</module>
         <module>torch-core</module>
-        <module>torch-demo-todo</module>
         <module>torch-android</module>
     </modules>
 
