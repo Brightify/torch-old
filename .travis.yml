@@ -1,7 +1,10 @@
 language: java
 jdk: oraclejdk7
 before_install:
-- curl -L https://raw.github.com/embarkmobile/android-sdk-installer/version-2/android-sdk-installer | bash /dev/stdin --install=android-21 && source ~/.android-sdk-installer/env
+- sudo apt-get update -qq
+- sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
+- curl -L https://raw.github.com/embarkmobile/android-sdk-installer/version-2/android-sdk-installer
+  | bash /dev/stdin --install=android-21 && source ~/.android-sdk-installer/env
 script: mvn install -B
 notifications:
   hipchat:
