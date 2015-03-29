@@ -22,7 +22,6 @@
         <module>torch-core</module>
         <module>torch-demo-todo</module>
         <module>torch-android</module>
-        <module>torch-tests</module>
     </modules>
 
     <licenses>

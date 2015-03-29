@@ -1,22 +1,6 @@
 language: java
 jdk: oraclejdk7
-before_install:
-- sudo apt-get update -qq
-- sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
-- export COMPONENTS=build-tools-21.0.0,android-19,sys-img-x86-android-19,extra-android-support,addon-google_apis-google-18,android-18,android-21
-- curl -L https://raw.github.com/embarkmobile/android-sdk-installer/version-2/android-sdk-installer
-  | bash /dev/stdin --install=$COMPONENTS && source ~/.android-sdk-installer/env
-- mvn install:install-file -DgroupId=com.google.android.maps -DartifactId=maps -Dversion=18_r3
-  -Dpackaging=jar -Dfile="$ANDROID_HOME/add-ons/addon-google_apis-google-18/libs/maps.jar"
-- mvn install:install-file -DgroupId=com.android.support -DartifactId=support-v4 -Dversion=19.0.1
-  -Dpackaging=jar -Dfile="$ANDROID_HOME/extras/android/support/v4/android-support-v4.jar"
-- echo no | android create avd --force -n torch_test_avd -t android-19 --abi x86
-- mksdcard -l torch_sdcard 64M torch_sdcard.bin
-- emulator -avd torch_test_avd -sdcard torch_sdcard.bin -no-skin -no-audio -no-window
-  &
-before_script:
-- wait_for_emulator
-script: mvn install -B -Dandroid.device=torch_test_avd
+script: mvn install -B
 notifications:
   hipchat:
     rooms:
