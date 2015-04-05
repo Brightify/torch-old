@@ -6,19 +6,19 @@ package org.brightify.torch.filter;
  */
 public final class FilterMethodPublicRouter {
 
-    public static <TYPE> Property<TYPE> getProperty(BaseFilter<TYPE, ?> filter) {
+    public static <OWNER, TYPE> Property<OWNER, TYPE> getProperty(BaseFilter<OWNER, TYPE, ?> filter) {
         return filter.getProperty();
     }
 
-    public static Iterable<BaseFilter.OperatorFilterTuple> getFilters(BaseFilter<?, ?> filter) {
+    public static <OWNER> Iterable<BaseFilter.OperatorFilterTuple> getFilters(BaseFilter<OWNER, ?, ?> filter) {
         return filter.getFilters();
     }
 
-    public static <TYPE> TYPE getSingleValue(SingleValueFilter<TYPE, ?> filter) {
+    public static <OWNER, TYPE> TYPE getSingleValue(SingleValueFilter<OWNER, TYPE, ?> filter) {
         return filter.getValue();
     }
 
-    public static <TYPE> Iterable<TYPE> getValueEnumeration(EnumerationFilter<TYPE, ?> filter) {
+    public static <OWNER, TYPE> Iterable<TYPE> getValueEnumeration(EnumerationFilter<OWNER, TYPE, ?> filter) {
         return filter.getValues();
     }
 

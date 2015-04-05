@@ -8,9 +8,9 @@ import org.brightify.torch.filter.Property;
  */
 public interface OrderLoader<ENTITY> {
 
-    OrderDirectionLimitListLoader<ENTITY> orderBy(Property<?> property);
+    OrderDirectionLimitListLoader<ENTITY> orderBy(Property<ENTITY, ?> property);
 
-    public enum Direction {
+    enum Direction {
         ASCENDING, DESCENDING
     }
 

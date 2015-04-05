@@ -1,5 +1,6 @@
 package org.brightify.torch.model;
 
+import org.brightify.torch.Ref;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.annotation.Index;
@@ -17,7 +18,7 @@ public class Table {
     private Long id;
     private String tableName;
     private Long revision;
-    private TableDetails details;
+    private Ref<TableDetails> details;
 
     protected String version;
 
@@ -52,18 +53,27 @@ public class Table {
     public void setRevision(Long revision) {
         this.revision = revision;
     }
-
+/*
+    @Ignore
     public TableDetails getDetails() {
-        return details;
+        return details.get();
     }
 
     public void setDetails(TableDetails details) {
-        this.details = details;
+        this.details.set(details);
+    }
+*/
+    Ref<TableDetails> getDetailsRef() {
+        return details;
+    }
+
+    void setDetailsRef(Ref<TableDetails> detailsRef) {
+        this.details = detailsRef;
     }
 
     @Migration(source = 1, target = 2)
     static void migrate_addTableDetailsAndRevision(MigrationAssistant<Table> assistant) {
-        assistant.addProperty(Table$.details);
+        assistant.addProperty(Table$.detailsRef);
         assistant.addProperty(Table$.revision);
 
         assistant.torch().load().type(Table.class).process().each(new EditFunction<Table>() {

@@ -82,11 +82,15 @@ public class KeyMarshaller extends AbstractMarshaller {
 
     @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG);
+        return CodeModelTypes.NUMBER_PROPERTY
+                .narrow(CodeModelTypes.ref(propertyMirror.getOwner()))
+                .narrow(CodeModelTypes.LONG);
     }
 
     @Override
-    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.NUMBER_PROPERTY_IMPL.narrow(CodeModelTypes.LONG);
+    protected JClass propertyClassBase(PropertyMirror propertyMirror) {
+        return CodeModelTypes.NUMBER_PROPERTY_IMPL
+                .narrow(CodeModelTypes.ref(propertyMirror.getOwner()))
+                .narrow(CodeModelTypes.LONG);
     }
 }

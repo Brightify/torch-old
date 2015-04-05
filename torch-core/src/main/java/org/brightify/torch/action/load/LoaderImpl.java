@@ -42,13 +42,13 @@ public class LoaderImpl<ENTITY> implements
 
     protected final Torch torch;
     protected final LoaderImpl<?> previousLoader;
-    protected final LoaderType loaderType;
+    protected final LoaderType<ENTITY> loaderType;
 
     public LoaderImpl(Torch torch) {
         this(torch, null, new LoaderType.NopLoaderType());
     }
 
-    public LoaderImpl(Torch torch, LoaderImpl<?> previousLoader, LoaderType loaderType) {
+    public LoaderImpl(Torch torch, LoaderImpl<?> previousLoader, LoaderType<ENTITY> loaderType) {
         this.torch = torch;
         this.previousLoader = previousLoader;
         this.loaderType = loaderType;
@@ -58,17 +58,17 @@ public class LoaderImpl<ENTITY> implements
         return previousLoader;
     }
 
-    protected <LOCAL_ENTITY> LoaderImpl<LOCAL_ENTITY> nextLoader(LoaderType type) {
+    protected <LOCAL_ENTITY> LoaderImpl<LOCAL_ENTITY> nextLoader(LoaderType<LOCAL_ENTITY> type) {
         return new LoaderImpl<LOCAL_ENTITY>(torch, this, type);
     }
 
-    public void prepareQuery(LoaderImpl<?>.LoadQueryImpl query) {
+    public void prepareQuery(LoaderImpl<ENTITY>.LoadQueryImpl query) {
         loaderType.prepareQuery(query);
     }
 
     @Override
     public LoaderImpl<ENTITY> desc() {
-        return nextLoader(new LoaderType.DirectionLoaderType(Direction.DESCENDING));
+        return nextLoader(new LoaderType.DirectionLoaderType<ENTITY>(Direction.DESCENDING));
     }
 
     @Override
@@ -113,17 +113,17 @@ public class LoaderImpl<ENTITY> implements
 
     @Override
     public LoaderImpl<ENTITY> limit(int limit) {
-        return nextLoader(new LoaderType.LimitLoaderType(limit));
+        return nextLoader(new LoaderType.LimitLoaderType<ENTITY>(limit));
     }
 
     @Override
     public LoaderImpl<ENTITY> group(Class<?> loadGroup) {
-        return nextLoader(new LoaderType.SingleGroupLoaderType(loadGroup));
+        return nextLoader(new LoaderType.SingleGroupLoaderType<ENTITY>(loadGroup));
     }
 
     @Override
     public LoaderImpl<ENTITY> groups(Class<?>... loadGroups) {
-        return nextLoader(new LoaderType.MultipleGroupLoaderType(loadGroups));
+        return nextLoader(new LoaderType.MultipleGroupLoaderType<ENTITY>(loadGroups));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class LoaderImpl<ENTITY> implements
         if (torch.getFactory().getEntities().getDescription(entityClass) == null) {
             throw new IllegalStateException("Entity not registered!");
         }
-        return nextLoader(new LoaderType.TypedLoaderType(entityClass));
+        return nextLoader(new LoaderType.TypedLoaderType<LOCAL_ENTITY>(entityClass));
     }
 
     @Override
@@ -219,13 +219,13 @@ public class LoaderImpl<ENTITY> implements
             throw new IllegalArgumentException("Ids cannot be null!");
         }
 
-        LoaderType.TypedLoaderType typedLoaderType = (LoaderType.TypedLoaderType) loaderType;
+        LoaderType.TypedLoaderType<ENTITY> typedLoaderType = (LoaderType.TypedLoaderType<ENTITY>) loaderType;
         // FIXME This should be typesafe!
         EntityDescription<ENTITY> metadata =
                 torch.getFactory().getEntities().getDescription(typedLoaderType.entityClass);
-        NumberProperty<Long> idColumn = metadata.getIdProperty();
+        NumberProperty<ENTITY, Long> idColumn = metadata.getIdProperty();
 
-        BaseFilter<?, ?> filter = null;
+        BaseFilter<ENTITY, ?, ?> filter = null;
         for (Long id : ids) {
             if (filter == null) {
                 filter = idColumn.equalTo(id);
@@ -284,13 +284,13 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
-    public LoaderImpl<ENTITY> filter(BaseFilter<?, ?> filter) {
-        return nextLoader(new LoaderType.FilterLoaderType(filter));
+    public LoaderImpl<ENTITY> filter(BaseFilter<ENTITY, ?, ?> filter) {
+        return nextLoader(new LoaderType.FilterLoaderType<ENTITY>(filter));
     }
 
     @Override
-    public LoaderImpl<ENTITY> orderBy(Property<?> column) {
-        return nextLoader(new LoaderType.OrderLoaderType(column));
+    public LoaderImpl<ENTITY> orderBy(Property<ENTITY, ?> column) {
+        return nextLoader(new LoaderType.OrderLoaderType<ENTITY>(column));
     }
 
     @Override
@@ -393,20 +393,20 @@ public class LoaderImpl<ENTITY> implements
 
         private EntityDescription<ENTITY> entityDescription;
         private Set<Class<?>> loadGroups = new HashSet<Class<?>>();
-        private BaseFilter<?, ?> entityFilter;
-        private Map<Property<?>, OrderLoader.Direction> orderMap = new HashMap<Property<?>, Direction>();
-        private Property<?> lastOrderColumn;
+        private BaseFilter<ENTITY, ?, ?> entityFilter;
+        private Map<Property<ENTITY, ?>, OrderLoader.Direction> orderMap = new HashMap<Property<ENTITY, ?>, Direction>();
+        private Property<ENTITY, ?> lastOrderColumn;
         private Integer limit;
         private Integer offset;
 
         LoadQueryImpl() {
-            LinkedList<LoaderImpl<?>> loaders = new LinkedList<LoaderImpl<?>>();
+            LinkedList<LoaderImpl<ENTITY>> loaders = new LinkedList<LoaderImpl<ENTITY>>();
 
             for (LoaderImpl<?> loader = LoaderImpl.this; loader != null; loader = loader.getPreviousLoader()) {
-                loaders.addFirst(loader);
+                loaders.addFirst((LoaderImpl<ENTITY>) loader);
             }
 
-            for (LoaderImpl<?> loader : loaders) {
+            for (LoaderImpl<ENTITY> loader : loaders) {
                 loader.prepareQuery(this);
             }
         }
@@ -422,12 +422,12 @@ public class LoaderImpl<ENTITY> implements
         }
 
         @Override
-        public BaseFilter<?, ?> getFilter() {
+        public BaseFilter<ENTITY, ?, ?> getFilter() {
             return entityFilter;
         }
 
         @Override
-        public Map<Property<?>, OrderLoader.Direction> getOrderMap() {
+        public Map<Property<ENTITY, ?>, OrderLoader.Direction> getOrderMap() {
             return orderMap;
         }
 
@@ -461,11 +461,11 @@ public class LoaderImpl<ENTITY> implements
             Collections.addAll(loadGroups, groups);
         }
 
-        public void setEntityFilter(BaseFilter<?, ?> entityFilter) {
+        public void setEntityFilter(BaseFilter<ENTITY, ?, ?> entityFilter) {
             this.entityFilter = entityFilter;
         }
 
-        public void addOrdering(Property<?> orderColumn, Direction orderDirection) {
+        public void addOrdering(Property<ENTITY, ?> orderColumn, Direction orderDirection) {
             orderMap.put(orderColumn, orderDirection);
             lastOrderColumn = orderColumn;
         }

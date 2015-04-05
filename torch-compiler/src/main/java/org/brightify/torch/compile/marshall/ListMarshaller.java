@@ -71,6 +71,11 @@ public class ListMarshaller implements Marshaller {
     }
 
     @Override
+    public PropertyType getPropertyType() {
+        return PropertyType.VALUE;
+    }
+
+    @Override
     public JStatement marshall(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
         JClass listType = CodeModelTypes.ref(typeHelper.singleGenericParameter(propertyMirror.getType()).toString());
 
@@ -86,7 +91,7 @@ public class ListMarshaller implements Marshaller {
         JForEach forEachItem = isLazyList._else().forEach(listType, "item", propertyItems);
         forEachItem.body().add(items.invoke("add").arg(forEachItem.var()));
 
-        block.add(holder.torchFactory.invoke("begin").invoke("save").invoke("entities").arg(items));
+        block.add(holder.saveContainer.invoke("getTorchFactory").invoke("begin").invoke("save").invoke("entities").arg(items));
 
         return block;
     }
@@ -95,7 +100,7 @@ public class ListMarshaller implements Marshaller {
     public JStatement unmarshall(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
                                  PropertyMirror propertyMirror) {
 
-        JExpression relation = holder.torchFactory
+        JExpression relation = holder.loadContainer.invoke("getTorchFactory")
                 .invoke("getRelationResolver")
                 .invoke("with").arg(CodeModelTypes.ref(holder.classHolder.entityMirror.getFullName()).dotclass())
                 .invoke("onProperty").arg(holder.classHolder.definedClass.staticRef(propertyMirror.getName()))

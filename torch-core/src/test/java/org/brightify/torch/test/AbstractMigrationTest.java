@@ -2,16 +2,16 @@ package org.brightify.torch.test;
 
 import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
-import org.brightify.torch.ReadableRawEntity;
-import org.brightify.torch.TorchFactory;
-import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.StringProperty;
-import org.brightify.torch.impl.filter.NumberPropertyImpl;
+import org.brightify.torch.filter.ValueProperty;
+import org.brightify.torch.impl.filter.LongPropertyImpl;
 import org.brightify.torch.impl.filter.StringPropertyImpl;
+import org.brightify.torch.util.ArrayListBuilder;
 import org.brightify.torch.util.Helper;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.MigrationException;
@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.brightify.torch.TorchService.forceUnload;
 import static org.brightify.torch.TorchService.torch;
@@ -145,31 +145,77 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     private static class User_r1_Description implements EntityDescription<User_r1> {
 
-        public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
-        public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
-        public static StringProperty nameProperty = new StringPropertyImpl("name", "torch_name");
-        public static StringProperty emailProperty = new StringPropertyImpl("email", "torch_email");
+        public static NumberProperty<User_r1, Long> idProperty =
+                new LongPropertyImpl<User_r1>(User_r1.class, "id", "torch_id") {
+                    @Override
+                    public Long get(User_r1 entity) {
+                        return entity.id;
+                    }
 
-        public static Property<?>[] properties = {
-                idProperty,
-                usernameProperty,
-                nameProperty,
-                emailProperty
-        };
+                    @Override
+                    public void set(User_r1 entity, Long value) {
+                        entity.id = value;
+                    }
+                }.feature(new Id.IdFeature(true));
+        public static StringProperty<User_r1> usernameProperty =
+                new StringPropertyImpl<User_r1>(User_r1.class, "username", "torch_username") {
+                    @Override
+                    public String get(User_r1 entity) {
+                        return entity.username;
+                    }
+
+                    @Override
+                    public void set(User_r1 entity, String value) {
+                        entity.username = value;
+                    }
+                };
+        public static StringProperty<User_r1> nameProperty =
+                new StringPropertyImpl<User_r1>(User_r1.class, "name", "torch_name") {
+                    @Override
+                    public String get(User_r1 entity) {
+                        return entity.name;
+                    }
+
+                    @Override
+                    public void set(User_r1 entity, String value) {
+                        entity.name = value;
+                    }
+                };
+        public static StringProperty<User_r1> emailProperty =
+                new StringPropertyImpl<User_r1>(User_r1.class, "email", "torch_email") {
+                    @Override
+                    public String get(User_r1 entity) {
+                        return entity.email;
+                    }
+
+                    @Override
+                    public void set(User_r1 entity, String value) {
+                        entity.email = value;
+                    }
+                };
+
+        public static final List<? extends Property<User_r1, ?>> properties =
+                ArrayListBuilder.<Property<User_r1, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(nameProperty)
+                                .add(emailProperty)
+                                .list();
+
+        public static final List<? extends ValueProperty<User_r1, ?>> valueProperties =
+                ArrayListBuilder.<ValueProperty<User_r1, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(nameProperty)
+                                .add(emailProperty)
+                                .list();
+
+        public static final List<? extends ReferenceProperty<User_r1, ?>> referenceProperties =
+                ArrayListBuilder.<ReferenceProperty<User_r1, ?>>begin().list();
 
         @Override
-        public NumberProperty<Long> getIdProperty() {
+        public NumberProperty<User_r1, Long> getIdProperty() {
             return idProperty;
-        }
-
-        @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r1 entity,
-                                              Set<Class<?>> loadGroups) throws Exception {
-            entity.id = rawEntity.getLong(idProperty.getSafeName());
-            entity.username = rawEntity.getString(usernameProperty.getSafeName());
-            entity.name = rawEntity.getString(nameProperty.getSafeName());
-            entity.email = rawEntity.getString(emailProperty.getSafeName());
         }
 
         @Override
@@ -178,8 +224,18 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Property<?>[] getProperties() {
+        public List<? extends Property<User_r1, ?>> getProperties() {
             return properties;
+        }
+
+        @Override
+        public List<? extends ValueProperty<User_r1, ?>> getValueProperties() {
+            return valueProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceProperty<User_r1, ?>> getReferenceProperties() {
+            return referenceProperties;
         }
 
         @Override
@@ -198,28 +254,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_r1 entity) {
-            return entity.id;
-        }
-
-        @Override
-        public void setEntityId(User_r1 entity, Long id) {
-            entity.id = id;
-        }
-
-        @Override
         public Class<User_r1> getEntityClass() {
             return User_r1.class;
-        }
-
-
-        @Override
-        public void toRawEntity(TorchFactory torchFactory, User_r1 entity,
-                                WritableRawEntity rawEntity) throws Exception {
-            rawEntity.put(idProperty.getSafeName(), entity.id);
-            rawEntity.put(usernameProperty.getSafeName(), entity.username);
-            rawEntity.put(nameProperty.getSafeName(), entity.name);
-            rawEntity.put(emailProperty.getSafeName(), entity.email);
         }
 
         @Override
@@ -227,7 +263,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
                             long targetRevision) throws Exception {
             throw new MigrationException(
                     (((("Unable to migrate entity! Could not find migration path from '" + sourceRevision) + "' to '") +
-                            targetRevision) + "'!"));
+                      targetRevision) + "'!"));
         }
     }
 
@@ -243,32 +279,78 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         public static void migrate_r1_r2(MigrationAssistant<User_r2> assistant) {
             assistant.renameProperty(User_r1_Description.nameProperty.getSafeName(),
-                    User_r2_Description.fullNameProperty.getSafeName());
+                                     User_r2_Description.fullNameProperty.getSafeName());
         }
     }
 
     private static class User_r2_Description implements EntityDescription<User_r2> {
-        public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
-        public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
-        public static StringProperty fullNameProperty = new StringPropertyImpl("fullName", "torch_fullName");
-        public static StringProperty emailProperty = new StringPropertyImpl("email", "torch_email");
+        public static NumberProperty<User_r2, Long> idProperty =
+                new LongPropertyImpl<User_r2>(User_r2.class, "id", "torch_id") {
+                    @Override
+                    public Long get(User_r2 entity) {
+                        return entity.id;
+                    }
 
-        public static Property<?>[] properties = {
-                idProperty,
-                usernameProperty,
-                fullNameProperty,
-                emailProperty
-        };
+                    @Override
+                    public void set(User_r2 entity, Long value) {
+                        entity.id = value;
+                    }
+                }.feature(new Id.IdFeature(true));
+        public static StringProperty<User_r2> usernameProperty =
+                new StringPropertyImpl<User_r2>(User_r2.class, "username", "torch_username") {
+                    @Override
+                    public String get(User_r2 entity) {
+                        return entity.username;
+                    }
 
-        @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r2 entity,
-                                              Set<Class<?>> loadGroups) throws Exception {
-            entity.id = rawEntity.getLong(idProperty.getSafeName());
-            entity.username = rawEntity.getString(usernameProperty.getSafeName());
-            entity.fullName = rawEntity.getString(fullNameProperty.getSafeName());
-            entity.email = rawEntity.getString(emailProperty.getSafeName());
-        }
+                    @Override
+                    public void set(User_r2 entity, String value) {
+                        entity.username = value;
+                    }
+                };
+        public static StringProperty<User_r2> fullNameProperty =
+                new StringPropertyImpl<User_r2>(User_r2.class, "fullName", "torch_fullName") {
+                    @Override
+                    public String get(User_r2 entity) {
+                        return entity.fullName;
+                    }
+
+                    @Override
+                    public void set(User_r2 entity, String value) {
+                        entity.fullName = value;
+                    }
+                };
+        public static StringProperty<User_r2> emailProperty =
+                new StringPropertyImpl<User_r2>(User_r2.class, "email", "torch_email") {
+                    @Override
+                    public String get(User_r2 entity) {
+                        return entity.email;
+                    }
+
+                    @Override
+                    public void set(User_r2 entity, String value) {
+                        entity.email = value;
+                    }
+                };
+
+        public static final List<? extends Property<User_r2, ?>> properties =
+                ArrayListBuilder.<Property<User_r2, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(fullNameProperty)
+                                .add(emailProperty)
+                                .list();
+
+        public static final List<? extends ValueProperty<User_r2, ?>> valueProperties =
+                ArrayListBuilder.<ValueProperty<User_r2, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(fullNameProperty)
+                                .add(emailProperty)
+                                .list();
+
+        public static final List<? extends ReferenceProperty<User_r2, ?>> referenceProperties =
+                ArrayListBuilder.<ReferenceProperty<User_r2, ?>>begin().list();
 
         @Override
         public User_r2 createEmpty() {
@@ -276,13 +358,23 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public NumberProperty<Long> getIdProperty() {
+        public NumberProperty<User_r2, Long> getIdProperty() {
             return idProperty;
         }
 
         @Override
-        public Property<?>[] getProperties() {
+        public List<? extends Property<User_r2, ?>> getProperties() {
             return properties;
+        }
+
+        @Override
+        public List<? extends ValueProperty<User_r2, ?>> getValueProperties() {
+            return valueProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceProperty<User_r2, ?>> getReferenceProperties() {
+            return referenceProperties;
         }
 
         @Override
@@ -301,28 +393,8 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_r2 entity) {
-            return entity.id;
-        }
-
-        @Override
-        public void setEntityId(User_r2 entity, Long id) {
-            entity.id = id;
-        }
-
-        @Override
         public Class<User_r2> getEntityClass() {
             return User_r2.class;
-        }
-
-
-        @Override
-        public void toRawEntity(TorchFactory torchFactory, User_r2 entity,
-                                WritableRawEntity rawEntity) throws Exception {
-            rawEntity.put(idProperty.getSafeName(), entity.id);
-            rawEntity.put(usernameProperty.getSafeName(), entity.username);
-            rawEntity.put(fullNameProperty.getSafeName(), entity.fullName);
-            rawEntity.put(emailProperty.getSafeName(), entity.email);
         }
 
         @Override
@@ -354,12 +426,12 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         public static void migrate_r1_r2(MigrationAssistant<User_r3> assistant) {
             assistant.renameProperty(User_r1_Description.nameProperty.getSafeName(),
-                    User_r2_Description.fullNameProperty.getSafeName());
+                                     User_r2_Description.fullNameProperty.getSafeName());
         }
 
         public static void migrate_r2_r3(MigrationAssistant<User_r3> assistant) {
             assistant.renameProperty(User_r2_Description.fullNameProperty.getSafeName(),
-                    User_r3_Description.firstNameProperty.getSafeName());
+                                     User_r3_Description.firstNameProperty.getSafeName());
 
             assistant.addProperty(User_r3_Description.lastNameProperty);
 
@@ -368,7 +440,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
                 public boolean apply(User_r3 entity) {
                     String[] splitName = entity.firstName.split(" ");
 
-                    if(splitName.length > 1) {
+                    if (splitName.length > 1) {
                         entity.firstName = splitName[0];
                         entity.lastName = Helper.stringsToString(splitName, 1, " ");
                         return true;
@@ -381,29 +453,106 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
     }
 
     private static class User_r3_Description implements EntityDescription<User_r3> {
-        public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
-        public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
-        public static StringProperty firstNameProperty = new StringPropertyImpl("firstName", "torch_firstName");
-        public static StringProperty lastNameProperty = new StringPropertyImpl("lastName", "torch_lastName");
-        public static StringProperty emailProperty = new StringPropertyImpl("email", "torch_email");
+        public static NumberProperty<User_r3, Long> idProperty =
+                new LongPropertyImpl<User_r3>(User_r3.class, "id", "torch_id") {
+                    @Override
+                    public Long get(User_r3 entity) {
+                        return entity.id;
+                    }
 
-        public static Property<?>[] properties = {
-                idProperty,
-                usernameProperty,
-                firstNameProperty,
-                lastNameProperty,
-                emailProperty
-        };
+                    @Override
+                    public void set(User_r3 entity, Long value) {
+                        entity.id = value;
+                    }
+                }.feature(new Id.IdFeature(true));
+        public static StringProperty<User_r3> usernameProperty =
+                new StringPropertyImpl<User_r3>(User_r3.class, "username", "torch_username") {
+                    @Override
+                    public String get(User_r3 entity) {
+                        return entity.username;
+                    }
+
+                    @Override
+                    public void set(User_r3 entity, String value) {
+                        entity.username = value;
+                    }
+                };
+        public static StringProperty<User_r3> firstNameProperty =
+                new StringPropertyImpl<User_r3>(User_r3.class, "firstName", "torch_firstName") {
+                    @Override
+                    public String get(User_r3 entity) {
+                        return entity.firstName;
+                    }
+
+                    @Override
+                    public void set(User_r3 entity, String value) {
+                        entity.firstName = value;
+                    }
+                };
+        public static StringProperty<User_r3> lastNameProperty =
+                new StringPropertyImpl<User_r3>(User_r3.class, "lastName", "torch_lastName") {
+                    @Override
+                    public String get(User_r3 entity) {
+                        return entity.lastName;
+                    }
+
+                    @Override
+                    public void set(User_r3 entity, String value) {
+                        entity.lastName = value;
+                    }
+                };
+        public static StringProperty<User_r3> emailProperty =
+                new StringPropertyImpl<User_r3>(User_r3.class, "email", "torch_email") {
+                    @Override
+                    public String get(User_r3 entity) {
+                        return entity.email;
+                    }
+
+                    @Override
+                    public void set(User_r3 entity, String value) {
+                        entity.email = value;
+                    }
+                };
+
+        public static final List<? extends Property<User_r3, ?>> properties =
+                ArrayListBuilder.<Property<User_r3, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(firstNameProperty)
+                                .add(lastNameProperty)
+                                .add(emailProperty)
+                                .list();
+
+        public static final List<? extends ValueProperty<User_r3, ?>> valueProperties =
+                ArrayListBuilder.<ValueProperty<User_r3, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(firstNameProperty)
+                                .add(lastNameProperty)
+                                .add(emailProperty)
+                                .list();
+
+        public static final List<? extends ReferenceProperty<User_r3, ?>> referenceProperties =
+                ArrayListBuilder.<ReferenceProperty<User_r3, ?>>begin().list();
 
         @Override
-        public NumberProperty<Long> getIdProperty() {
+        public NumberProperty<User_r3, Long> getIdProperty() {
             return idProperty;
         }
 
         @Override
-        public Property<?>[] getProperties() {
+        public List<? extends Property<User_r3, ?>> getProperties() {
             return properties;
+        }
+
+        @Override
+        public List<? extends ValueProperty<User_r3, ?>> getValueProperties() {
+            return valueProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceProperty<User_r3, ?>> getReferenceProperties() {
+            return referenceProperties;
         }
 
         @Override
@@ -422,43 +571,13 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_r3 entity) {
-            return entity.id;
-        }
-
-        @Override
-        public void setEntityId(User_r3 entity, Long id) {
-            entity.id = id;
-        }
-
-        @Override
         public Class<User_r3> getEntityClass() {
             return User_r3.class;
         }
 
         @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r3 entity,
-                                           Set<Class<?>> loadGroups) throws Exception {
-            entity.id = rawEntity.getLong(idProperty.getSafeName());
-            entity.username = rawEntity.getString(usernameProperty.getSafeName());
-            entity.firstName = rawEntity.getString(firstNameProperty.getSafeName());
-            entity.lastName = rawEntity.getString(lastNameProperty.getSafeName());
-            entity.email = rawEntity.getString(emailProperty.getSafeName());
-        }
-
-        @Override
         public User_r3 createEmpty() {
             return new User_r3();
-        }
-
-        @Override
-        public void toRawEntity(TorchFactory torchFactory, User_r3 entity,
-                                WritableRawEntity rawEntity) throws Exception {
-            rawEntity.put(idProperty.getSafeName(), entity.id);
-            rawEntity.put(usernameProperty.getSafeName(), entity.username);
-            rawEntity.put(firstNameProperty.getSafeName(), entity.firstName);
-            rawEntity.put(lastNameProperty.getSafeName(), entity.lastName);
-            rawEntity.put(emailProperty.getSafeName(), entity.email);
         }
 
         @Override
@@ -493,21 +612,21 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         public static void migrate_r1_r2(MigrationAssistant<User_r4> assistant) {
             assistant.renameProperty(User_r1_Description.nameProperty.getSafeName(),
-                    User_r2_Description.fullNameProperty.getSafeName());
+                                     User_r2_Description.fullNameProperty.getSafeName());
         }
 
         public static void migrate_r2_r3(MigrationAssistant<User_r4> assistant) {
             assistant.renameProperty(User_r2_Description.fullNameProperty.getSafeName(),
-                    User_r3_Description.firstNameProperty.getSafeName());
+                                     User_r3_Description.firstNameProperty.getSafeName());
 
-            assistant.addProperty(User_r3_Description.lastNameProperty);
+            assistant.addProperty(User_r4_Description.lastNameProperty);
 
             assistant.torch().load().type(User_r4.class).process().each(new EditFunction<User_r4>() {
                 @Override
                 public boolean apply(User_r4 entity) {
                     String[] splitName = entity.firstName.split(" ");
 
-                    if(splitName.length > 1) {
+                    if (splitName.length > 1) {
                         entity.firstName = splitName[0];
                         entity.lastName = Helper.stringsToString(splitName, 1, " ");
                         return true;
@@ -524,28 +643,91 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
     }
 
     private static class User_r4_Description implements EntityDescription<User_r4> {
-        public static NumberProperty<Long> idProperty =
-                new NumberPropertyImpl<Long>(Long.class, "id", "torch_id").feature(new Id.IdFeature(true));
-        public static StringProperty usernameProperty = new StringPropertyImpl("username", "torch_username");
-        public static StringProperty firstNameProperty = new StringPropertyImpl("firstName", "torch_firstName");
-        public static StringProperty lastNameProperty = new StringPropertyImpl("lastName", "torch_lastName");
-        public static StringProperty emailProperty = new StringPropertyImpl("email", "torch_email");
+        public static NumberProperty<User_r4, Long> idProperty =
+                new LongPropertyImpl<User_r4>(User_r4.class, "id", "torch_id") {
+                    @Override
+                    public Long get(User_r4 entity) {
+                        return entity.id;
+                    }
 
-        public static Property<?>[] properties = {
-                idProperty,
-                usernameProperty,
-                firstNameProperty,
-                lastNameProperty,
-                emailProperty
-        };
+                    @Override
+                    public void set(User_r4 entity, Long value) {
+                        entity.id = value;
+                    }
+                }.feature(new Id.IdFeature(true));
+        public static StringProperty<User_r4> usernameProperty =
+                new StringPropertyImpl<User_r4>(User_r4.class, "username", "torch_username") {
+                    @Override
+                    public String get(User_r4 entity) {
+                        return entity.username;
+                    }
+
+                    @Override
+                    public void set(User_r4 entity, String value) {
+                        entity.username = value;
+                    }
+                };
+        public static StringProperty<User_r4> firstNameProperty =
+                new StringPropertyImpl<User_r4>(User_r4.class, "firstName", "torch_firstName") {
+                    @Override
+                    public String get(User_r4 entity) {
+                        return entity.firstName;
+                    }
+
+                    @Override
+                    public void set(User_r4 entity, String value) {
+                        entity.firstName = value;
+                    }
+                };
+        public static StringProperty<User_r4> lastNameProperty =
+                new StringPropertyImpl<User_r4>(User_r4.class, "lastName", "torch_lastName") {
+                    @Override
+                    public String get(User_r4 entity) {
+                        return entity.lastName;
+                    }
+
+                    @Override
+                    public void set(User_r4 entity, String value) {
+                        entity.lastName = value;
+                    }
+                };
+
+        public static final List<? extends Property<User_r4, ?>> properties =
+                ArrayListBuilder.<Property<User_r4, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(firstNameProperty)
+                                .add(lastNameProperty)
+                                .list();
+
+        public static final List<? extends ValueProperty<User_r4, ?>> valueProperties =
+                ArrayListBuilder.<ValueProperty<User_r4, ?>>begin()
+                                .add(idProperty)
+                                .add(usernameProperty)
+                                .add(firstNameProperty)
+                                .add(lastNameProperty)
+                                .list();
+
+        public static final List<? extends ReferenceProperty<User_r4, ?>> referenceProperties =
+                ArrayListBuilder.<ReferenceProperty<User_r4, ?>>begin().list();
 
         @Override
-        public NumberProperty<Long> getIdProperty() {
+        public NumberProperty<User_r4, Long> getIdProperty() {
             return idProperty;
         }
 
         @Override
-        public Property<?>[] getProperties() {
+        public List<? extends ValueProperty<User_r4, ?>> getValueProperties() {
+            return valueProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceProperty<User_r4, ?>> getReferenceProperties() {
+            return referenceProperties;
+        }
+
+        @Override
+        public List<? extends Property<User_r4, ?>> getProperties() {
             return properties;
         }
 
@@ -565,41 +747,13 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         }
 
         @Override
-        public Long getEntityId(User_r4 entity) {
-            return entity.id;
-        }
-
-        @Override
-        public void setEntityId(User_r4 entity, Long id) {
-            entity.id = id;
-        }
-
-        @Override
         public Class<User_r4> getEntityClass() {
             return User_r4.class;
         }
 
         @Override
-        public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, User_r4 entity,
-                                     Set<Class<?>> loadGroups) throws Exception {
-            entity.id = rawEntity.getLong(idProperty.getSafeName());
-            entity.username = rawEntity.getString(usernameProperty.getSafeName());
-            entity.firstName = rawEntity.getString(firstNameProperty.getSafeName());
-            entity.lastName = rawEntity.getString(lastNameProperty.getSafeName());
-        }
-
-        @Override
         public User_r4 createEmpty() {
             return new User_r4();
-        }
-
-        @Override
-        public void toRawEntity(TorchFactory torchFactory, User_r4 entity,
-                                WritableRawEntity rawEntity) throws Exception {
-            rawEntity.put(idProperty.getSafeName(), entity.id);
-            rawEntity.put(usernameProperty.getSafeName(), entity.username);
-            rawEntity.put(firstNameProperty.getSafeName(), entity.firstName);
-            rawEntity.put(lastNameProperty.getSafeName(), entity.lastName);
         }
 
         @Override

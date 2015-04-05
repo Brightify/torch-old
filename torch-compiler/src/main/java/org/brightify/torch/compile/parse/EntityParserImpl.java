@@ -47,31 +47,31 @@ public class EntityParserImpl implements EntityParser {
             return null;
         }
 
-        EntityMirrorImpl info = new EntityMirrorImpl();
-        info.setElement(element);
-        info.setName(element.getSimpleName().toString());
-        info.setFullName(element.toString());
-        info.setPackageName(typeHelper.packageOf(element));
+        EntityMirrorImpl entityMirror = new EntityMirrorImpl();
+        entityMirror.setElement(element);
+        entityMirror.setName(element.getSimpleName().toString());
+        entityMirror.setFullName(element.toString());
+        entityMirror.setPackageName(typeHelper.packageOf(element));
 
         String tableName;
         if (!entity.name().equals("")) {
             tableName = entity.name();
         } else if (entity.useSimpleName()) {
-            tableName = info.getSimpleName();
+            tableName = entityMirror.getSimpleName();
         } else {
-            tableName = info.getFullName();
+            tableName = entityMirror.getFullName();
         }
 
-        info.setTableName(Helper.safeNameFromClassName(tableName));
-        info.setDelete(entity.delete());
-        info.setRevision(entity.revision());
-        info.setMigrationType(entity.migration());
+        entityMirror.setTableName(Helper.safeNameFromClassName(tableName));
+        entityMirror.setDelete(entity.delete());
+        entityMirror.setRevision(entity.revision());
+        entityMirror.setMigrationType(entity.migration());
 
-        info.setProperties(propertyParser.parseEntityElement(element));
-        info.setMigrationPaths(migrationParser.parseEntityElement(element, info));
+        entityMirror.setProperties(propertyParser.parseEntity(entityMirror));
+        entityMirror.setMigrationPaths(migrationParser.parseEntityElement(element, entityMirror));
 
         List<PropertyMirror> idPropertyMirrors = new ArrayList<PropertyMirror>();
-        for (PropertyMirror propertyMirror : info.getProperties()) {
+        for (PropertyMirror propertyMirror : entityMirror.getProperties()) {
             if (propertyMirror.getId() != null) {
                 idPropertyMirrors.add(propertyMirror);
             }
@@ -87,13 +87,13 @@ public class EntityParserImpl implements EntityParser {
             throw new EntityParseException(element, "There has to be exactly one @Id property in each entity!");
         }
 
-        info.setIdPropertyMirror(idPropertyMirrors.get(0));
+        entityMirror.setIdPropertyMirror(idPropertyMirrors.get(0));
 
         // We need ID property to be the first
-        info.getProperties().remove(info.getIdPropertyMirror());
-        info.getProperties().add(0, info.getIdPropertyMirror());
+        entityMirror.getProperties().remove(entityMirror.getIdPropertyMirror());
+        entityMirror.getProperties().add(0, entityMirror.getIdPropertyMirror());
 
-        return info;
+        return entityMirror;
     }
 
 

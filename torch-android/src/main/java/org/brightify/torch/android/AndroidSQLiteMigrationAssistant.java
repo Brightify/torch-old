@@ -21,7 +21,7 @@ public class AndroidSQLiteMigrationAssistant<ENTITY> implements MigrationAssista
     }
 
     @Override
-    public void addProperty(Property<?> property) {
+    public void addProperty(Property<ENTITY, ?> property) {
         databaseEngine.addColumn(entityDescription, property);
     }
 

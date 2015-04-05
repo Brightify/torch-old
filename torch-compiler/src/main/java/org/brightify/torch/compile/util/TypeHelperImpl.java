@@ -39,7 +39,6 @@ import java.util.Map;
  */
 public class TypeHelperImpl implements TypeHelper {
 
-
     @Inject
     private ProcessingEnvironment environment;
 

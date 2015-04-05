@@ -1,13 +1,18 @@
 package org.brightify.torch.compile.marshall;
 
 import com.google.inject.Inject;
+import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JStatement;
+import com.sun.codemodel.JVar;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.feature.FeatureProviderRegistry;
 import org.brightify.torch.compile.generate.EntityDescriptionGenerator;
@@ -44,6 +49,11 @@ public abstract class AbstractMarshaller implements Marshaller {
     }
 
     @Override
+    public PropertyType getPropertyType() {
+        return PropertyType.VALUE;
+    }
+
+    @Override
     public int getPriority() {
         return 0;
     }
@@ -72,11 +82,12 @@ public abstract class AbstractMarshaller implements Marshaller {
     }
 
     @Override
-    public JFieldVar createPropertyField(EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror) {
+    public JFieldVar createPropertyField(EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror)
+            throws JClassAlreadyExistsException {
         return holder.definedClass.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL,
-                propertyClass(propertyMirror),
-                propertyMirror.getName(),
-                propertyClassInvocation(propertyMirror));
+                                         propertyClass(propertyMirror),
+                                         propertyMirror.getName(),
+                                         propertyClassInvocation(holder, propertyMirror));
     }
 
     protected JExpression marshallValue(EntityDescriptionGenerator.ToRawEntityHolder holder,
@@ -84,13 +95,15 @@ public abstract class AbstractMarshaller implements Marshaller {
         return propertyMirror.getGetter().getValue(holder.entity);
     }
 
-    protected JInvocation propertyClassInvocation(PropertyMirror propertyMirror) {
-        JInvocation propertyInvocation = JExpr._new(propertyClassImpl(propertyMirror))
-                .arg(CodeModelTypes.ref(getBackingType(propertyMirror)).dotclass())
-                .arg(propertyMirror.getName())
-                .arg(propertyMirror.getSafeName());
+    protected JInvocation propertyClassInvocation(
+            EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror)
+            throws JClassAlreadyExistsException {
+        JClass propertyInnerImpl = propertyInnerImpl(holder, propertyMirror);
+
+        JInvocation propertyInvocation = JExpr._new(propertyInnerImpl);
 
         return propertyClassInvocationFeatureParameters(propertyInvocation, propertyMirror);
+
     }
 
     protected JInvocation propertyClassInvocationFeatureParameters(JInvocation propertyInvocation,
@@ -104,8 +117,8 @@ public abstract class AbstractMarshaller implements Marshaller {
         return propertyInvocation;
     }
 
-    protected Class<?> getBackingType(PropertyMirror propertyMirror) {
-        return acceptedClass;
+    protected JClass getBackingType(PropertyMirror propertyMirror) {
+        return CodeModelTypes.ref(acceptedClass);
     }
 
     protected abstract JExpression fromRawEntity(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
@@ -115,6 +128,52 @@ public abstract class AbstractMarshaller implements Marshaller {
 
     protected abstract JClass propertyClass(PropertyMirror propertyMirror);
 
-    protected abstract JClass propertyClassImpl(PropertyMirror propertyMirror);
+    protected abstract JClass propertyClassBase(PropertyMirror propertyMirror);
+
+    protected JClass propertyInnerImpl(EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror)
+            throws JClassAlreadyExistsException {
+        JClass baseClass = propertyClassBase(propertyMirror);
+
+        JDefinedClass propertyImpl = holder.definedClass._class(
+                JMod.PUBLIC | JMod.STATIC,
+                "Property$" + holder.entityMirror.getSimpleName() + "$" + propertyMirror.getName() + "$" +
+                baseClass.erasure().name());
+        propertyImpl._extends(baseClass);
+
+        JClass backingType = getBackingType(propertyMirror);
+
+        JMethod constructor = propertyImpl.constructor(JMod.PUBLIC);
+        invokeSuperConstructor(constructor.body(), holder.entityClass, propertyMirror);
+
+
+        JMethod getMethod = propertyImpl.method(JMod.PUBLIC, backingType, "get");
+        getMethod.annotate(Override.class);
+        JVar ownerParam = getMethod.param(holder.entityClass, "owner");
+        getMethod.body()._return(propertyMirror.getGetter().getValue(ownerParam));
+
+        JMethod setMethod = propertyImpl.method(JMod.PUBLIC, CodeModelTypes.CODE_MODEL.VOID, "set");
+        setMethod.annotate(Override.class);
+        ownerParam = setMethod.param(holder.entityClass, "owner");
+        JVar valueParam = setMethod.param(backingType, "value");
+        setMethod.body().add(propertyMirror.getSetter().setValue(ownerParam, valueParam));
+
+        JMethod defaultValue = propertyImpl.method(JMod.PUBLIC, propertyImpl, "defaultValue");
+        defaultValue.annotate(Override.class);
+        JVar defaultValueParam = defaultValue.param(backingType, "defaultValue");
+        defaultValue.body().add(JExpr._super().invoke("defaultValue").arg(defaultValueParam))._return(JExpr._this());
+
+        JMethod feature = propertyImpl.method(JMod.PUBLIC, propertyImpl, "feature");
+        feature.annotate(Override.class);
+        JVar featureParam = feature.param(CodeModelTypes.FEATURE, "feature");
+        feature.body().add(JExpr._super().invoke("feature").arg(featureParam))._return(JExpr._this());
+
+        return propertyImpl;
+    }
+
+    protected JInvocation invokeSuperConstructor(JBlock body, JClass entityClass, PropertyMirror propertyMirror) {
+        return body.invoke("super").arg(entityClass.dotclass())
+                   .arg(propertyMirror.getName())
+                   .arg(propertyMirror.getSafeName());
+    }
 
 }

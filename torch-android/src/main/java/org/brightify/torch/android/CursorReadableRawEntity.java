@@ -39,6 +39,15 @@ public class CursorReadableRawEntity implements ReadableRawEntity {
     }
 
     @Override
+    public Byte getByte(String propertyName) {
+        int index = getIndex(propertyName);
+        if(cursor.isNull(index)) {
+            return null;
+        }
+        return (byte) cursor.getShort(index);
+    }
+
+    @Override
     public Short getShort(String propertyName) {
         int index = getIndex(propertyName);
         if(cursor.isNull(index)) {

@@ -7,40 +7,41 @@ import org.brightify.torch.filter.NotInFilter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class GenericPropertyImpl<TYPE> extends PropertyImpl<TYPE> implements GenericProperty<TYPE> {
+public abstract class GenericPropertyImpl<OWNER, TYPE> extends PropertyImpl<OWNER, TYPE>
+        implements GenericProperty<OWNER, TYPE> {
 
-    public GenericPropertyImpl(Class<TYPE> type, String name, String safeName) {
-        super(type, name, safeName);
+    public GenericPropertyImpl(Class<OWNER> owner, Class<TYPE> type, String name, String safeName) {
+        super(owner, type, name, safeName);
     }
 
     @Override
-    public InFilter<?> in(TYPE... values) {
-        return new InFilter<TYPE>(this, values);
+    public InFilter<OWNER, TYPE> in(TYPE... values) {
+        return new InFilter<OWNER, TYPE>(this, values);
     }
 
     @Override
-    public InFilter<?> in(Iterable<TYPE> values) {
-        return new InFilter<TYPE>(this, values);
+    public InFilter<OWNER, TYPE> in(Iterable<TYPE> values) {
+        return new InFilter<OWNER, TYPE>(this, values);
     }
 
     @Override
-    public NotInFilter<?> notIn(TYPE... values) {
-        return new NotInFilter<TYPE>(this, values);
+    public NotInFilter<OWNER, TYPE> notIn(TYPE... values) {
+        return new NotInFilter<OWNER, TYPE>(this, values);
     }
 
     @Override
-    public NotInFilter<?> notIn(Iterable<TYPE> values) {
-        return new NotInFilter<TYPE>(this, values);
+    public NotInFilter<OWNER, TYPE> notIn(Iterable<TYPE> values) {
+        return new NotInFilter<OWNER, TYPE>(this, values);
     }
 
     @Override
-    public GenericPropertyImpl<TYPE> defaultValue(TYPE defaultValue) {
+    public GenericPropertyImpl<OWNER, TYPE> defaultValue(TYPE defaultValue) {
         super.defaultValue(defaultValue);
         return this;
     }
 
     @Override
-    public GenericPropertyImpl<TYPE> feature(Feature feature) {
+    public GenericPropertyImpl<OWNER, TYPE> feature(Feature feature) {
         super.feature(feature);
         return this;
     }

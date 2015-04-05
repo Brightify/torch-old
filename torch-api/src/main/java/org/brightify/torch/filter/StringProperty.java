@@ -3,12 +3,12 @@ package org.brightify.torch.filter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface StringProperty extends GenericProperty<String> {
+public interface StringProperty<OWNER> extends GenericProperty<OWNER, String> {
 
-    StartsWithStringFilter startsWith(String value);
+    StartsWithStringFilter<OWNER> startsWith(String value);
 
-    EndsWithStringFilter endsWith(String value);
+    EndsWithStringFilter<OWNER> endsWith(String value);
 
-    ContainsStringFilter contains(String value);
+    ContainsStringFilter<OWNER> contains(String value);
 
 }

@@ -13,6 +13,8 @@ public interface ReadableRawEntity {
 
     boolean getBooleanPrimitive(String propertyName);
 
+    Byte getByte(String propertyName);
+
     Short getShort(String propertyName);
 
     short getShortPrimitive(String propertyName);

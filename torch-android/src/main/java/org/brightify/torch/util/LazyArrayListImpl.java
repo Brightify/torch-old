@@ -56,7 +56,7 @@ class LazyArrayListImpl<ENTITY> extends ArrayList<ENTITY> implements LazyArrayLi
             return false;
         }
         ENTITY castObject = (ENTITY) o;
-        Long id = entityDescription.getEntityId(castObject);
+        Long id = entityDescription.getIdProperty().get(castObject);
         if (id != null) {
             Integer count = TorchService.torch().load().type(entityDescription.getEntityClass()).filter(
                     entityDescription

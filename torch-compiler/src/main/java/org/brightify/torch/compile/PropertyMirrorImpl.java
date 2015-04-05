@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class PropertyMirrorImpl implements PropertyMirror {
 
+    private EntityMirror owner;
     private List<? extends AnnotationMirror> annotations;
     private Id id;
     private Index index;
@@ -25,6 +26,15 @@ public class PropertyMirrorImpl implements PropertyMirror {
     private TypeMirror typeMirror;
     private Getter getter;
     private Setter setter;
+
+    @Override
+    public EntityMirror getOwner() {
+        return owner;
+    }
+
+    public void setOwner(EntityMirror owner) {
+        this.owner = owner;
+    }
 
     @Override
     public List<? extends AnnotationMirror> getAnnotations() {
@@ -78,7 +88,7 @@ public class PropertyMirrorImpl implements PropertyMirror {
 
     public void setName(String name) {
         this.name = name;
-        if(safeName == null) {
+        if (safeName == null) {
             safeName = Constants.SAFETY_PREFIX + name;
         }
     }

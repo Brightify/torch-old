@@ -48,11 +48,11 @@ public class SerializableMarshaller extends AbstractMarshaller {
 
     @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY;
+        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.ref(propertyMirror.getOwner()));
     }
 
     @Override
-    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY;
+    protected JClass propertyClassBase(PropertyMirror propertyMirror) {
+        return CodeModelTypes.SERIALIZABLE_PROPERTY_IMPL.narrow(CodeModelTypes.ref(propertyMirror.getOwner()));
     }
 }

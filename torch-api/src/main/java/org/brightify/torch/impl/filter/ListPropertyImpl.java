@@ -6,31 +6,21 @@ import org.brightify.torch.filter.ListProperty;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class ListPropertyImpl<PARENT, T> extends PropertyImpl<T> implements ListProperty<PARENT, T> {
+public abstract class ListPropertyImpl<OWNER, TYPE> extends PropertyImpl<OWNER, TYPE>
+        implements ListProperty<OWNER, TYPE> {
 
-    public ListPropertyImpl(Class<T> type, String name, String safeName) {
-        super(type, name, safeName);
+    public ListPropertyImpl(Class<OWNER> owner, Class<TYPE> type, String name, String safeName) {
+        super(owner, type, name, safeName);
     }
 
     @Override
-    public EntityFilter contains(T... values) {
+    public EntityFilter contains(TYPE... values) {
         return null;
     }
 
     @Override
-    public EntityFilter excludes(T... values) {
+    public EntityFilter excludes(TYPE... values) {
         return null;
     }
 
-    @Override
-    public ListPropertyImpl<PARENT, T> defaultValue(T defaultValue) {
-        super.defaultValue(defaultValue);
-        return this;
-    }
-
-    @Override
-    public ListPropertyImpl<PARENT, T> feature(Feature feature) {
-        super.feature(feature);
-        return this;
-    }
 }

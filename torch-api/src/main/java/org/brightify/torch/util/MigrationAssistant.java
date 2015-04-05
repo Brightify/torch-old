@@ -13,7 +13,7 @@ public interface MigrationAssistant<ENTITY> {
      *
      * @param property Property to be added.
      */
-    void addProperty(Property<?> property);
+    void addProperty(Property<ENTITY, ?> property);
 
 // FIXME implement typesafe change type when Torch Validator comes along
 //  void changePropertyType(Property<?> from, Property<?> to);

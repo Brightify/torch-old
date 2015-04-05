@@ -34,13 +34,14 @@ public class ByteArrayMarshaller extends AbstractMarshaller {
 
     @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY.narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror)
-                .toString()));
+        return CodeModelTypes.GENERIC_PROPERTY
+                .narrow(CodeModelTypes.ref(propertyMirror.getOwner()))
+                .narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
     }
 
     @Override
-    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY_IMPL.narrow(CodeModelTypes.ref(typeHelper.getWrappedType
-                (propertyMirror).toString()));
+    protected JClass propertyClassBase(PropertyMirror propertyMirror) {
+        return CodeModelTypes.BYTE_ARRAY_PROPERTY_IMPL
+                .narrow(CodeModelTypes.ref(propertyMirror.getOwner()));
     }
 }

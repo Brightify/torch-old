@@ -1,5 +1,6 @@
 package org.brightify.torch.compile.marshall;
 
+import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
@@ -19,12 +20,12 @@ public class StringMarshaller extends AbstractMarshaller {
 
     @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.STRING_PROPERTY;
+        return CodeModelTypes.STRING_PROPERTY.narrow(CodeModelTypes.ref(propertyMirror.getOwner()));
     }
 
     @Override
-    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.STRING_PROPERTY_IMPL;
+    protected JClass propertyClassBase(PropertyMirror propertyMirror) {
+        return CodeModelTypes.STRING_PROPERTY_IMPL.narrow(CodeModelTypes.ref(propertyMirror.getOwner()));
     }
 
     @Override
@@ -39,11 +40,9 @@ public class StringMarshaller extends AbstractMarshaller {
     }
 
     @Override
-    protected JInvocation propertyClassInvocation(PropertyMirror propertyMirror) {
-        JInvocation invocation = JExpr._new(propertyClassImpl(propertyMirror))
-                .arg(propertyMirror.getName())
-                .arg(propertyMirror.getSafeName());
-
-        return propertyClassInvocationFeatureParameters(invocation, propertyMirror);
+    protected JInvocation invokeSuperConstructor(JBlock body, JClass entityClass, PropertyMirror propertyMirror) {
+        return body.invoke("super").arg(entityClass.dotclass())
+                   .arg(propertyMirror.getName())
+                   .arg(propertyMirror.getSafeName());
     }
 }

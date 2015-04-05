@@ -1,5 +1,6 @@
 package references.list;
 
+import org.brightify.torch.RefCollection;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 
@@ -13,6 +14,6 @@ public class ParentEntity {
 
     String name;
 
-    List<ChildEntity> childEntities;
+    RefCollection<ChildEntity> childEntities;
 
 }

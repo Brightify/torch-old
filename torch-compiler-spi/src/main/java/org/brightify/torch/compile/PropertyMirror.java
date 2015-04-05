@@ -18,6 +18,8 @@ import java.util.List;
  */
 public interface PropertyMirror {
 
+    EntityMirror getOwner();
+
     List<? extends AnnotationMirror> getAnnotations();
 
     Id getId();

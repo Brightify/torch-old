@@ -1,5 +1,6 @@
 package org.brightify.torch.compile.marshall;
 
+import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JStatement;
 import org.brightify.torch.compile.PropertyMirror;
@@ -16,9 +17,17 @@ public interface Marshaller {
 
     int getPriority();
 
-    JFieldVar createPropertyField(EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror);
+    PropertyType getPropertyType();
+
+    JFieldVar createPropertyField(EntityDescriptionGenerator.ClassHolder holder, PropertyMirror propertyMirror)
+            throws JClassAlreadyExistsException;
 
     JStatement marshall(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror);
 
     JStatement unmarshall(EntityDescriptionGenerator.CreateFromRawEntityHolder holder, PropertyMirror propertyMirror);
+
+    enum PropertyType {
+        VALUE, REFERENCE
+    }
+
 }

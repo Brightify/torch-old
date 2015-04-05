@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 public @interface Id {
     boolean autoIncrement() default true;
 
-    public static class IdFeature implements Property.Feature {
+    class IdFeature implements Property.Feature {
         private final boolean autoIncrement;
 
         public IdFeature(boolean autoIncrement) {

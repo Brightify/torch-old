@@ -1,7 +1,6 @@
 package org.brightify.torch.compile.generate;
 
 import com.google.inject.Inject;
-import com.sun.codemodel.JArray;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JConditional;
@@ -9,6 +8,7 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
@@ -59,71 +59,104 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         definedClass.constructor(JMod.PRIVATE);
         definedClass._implements(CodeModelTypes.ENTITY_METADATA.narrow(classHolder.entityClass));
 
-        JArray propertiesArray = JExpr.newArray(CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD));
+        JInvocation propertiesInvocation = JExpr._new(CodeModelTypes.ARRAY_LIST_BUILDER
+                .narrow(CodeModelTypes.PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD)));
+
+        JInvocation valuePropertiesInvocation = JExpr._new(CodeModelTypes.ARRAY_LIST_BUILDER
+                .narrow(CodeModelTypes.VALUE_PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD)));
+
+        JInvocation referencePropertiesInvocation = JExpr._new(CodeModelTypes.ARRAY_LIST_BUILDER
+                .narrow(CodeModelTypes.REFERENCE_PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD)));
+
+        /*JArray propertiesArray = JExpr.newArray(
+                CodeModelTypes.PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD));
+        JArray valuePropertiesArray = JExpr.newArray(
+                CodeModelTypes.PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD));
+        JArray referencePropertiesArray = JExpr.newArray(
+                CodeModelTypes.REFERENCE_PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD));*/
         for (PropertyMirror propertyMirror : entityMirror.getProperties()) {
             Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
 
             JFieldVar propertyField = marshaller.createPropertyField(classHolder, propertyMirror);
-            propertiesArray.add(propertyField);
 
+            propertiesInvocation = propertiesInvocation.invoke("add").arg(propertyField);
+
+            switch (marshaller.getPropertyType()) {
+                case VALUE:
+                    valuePropertiesInvocation = valuePropertiesInvocation.invoke("add").arg(propertyField);
+                    break;
+                case REFERENCE:
+                    referencePropertiesInvocation = referencePropertiesInvocation.invoke("add").arg(propertyField);
+                    break;
+            }
         }
-        JFieldVar propertiesField = classHolder.definedClass.field(JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
-                CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
+
+        JFieldVar propertiesField = classHolder.definedClass.field(
+                JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
                 "properties",
-                propertiesArray);
+                propertiesInvocation.invoke("list"));
+
+        JFieldVar valuePropertiesField = classHolder.definedClass.field(
+                JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.VALUE_PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "valueProperties",
+                valuePropertiesInvocation.invoke("list"));
+
+        JFieldVar referencePropertiesField = classHolder.definedClass.field(
+                JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.REFERENCE_PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "referenceProperties",
+                referencePropertiesInvocation.invoke("list"));
+
+        JMethod getPropertiesMethod = classHolder.definedClass.method(
+                JMod.PUBLIC,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "getProperties");
+        getPropertiesMethod.annotate(Override.class);
+        getPropertiesMethod.body()._return(propertiesField);
+
+        JMethod getValuePropertiesMethod = classHolder.definedClass.method(
+                JMod.PUBLIC,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.VALUE_PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "getValueProperties");
+        getValuePropertiesMethod.annotate(Override.class);
+        getValuePropertiesMethod.body()._return(valuePropertiesField);
+
+        JMethod getReferencePropertiesMethod = classHolder.definedClass.method(
+                JMod.PUBLIC,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.REFERENCE_PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "getReferenceProperties");
+        getReferencePropertiesMethod.annotate(Override.class);
+        getReferencePropertiesMethod.body()._return(referencePropertiesField);
 
 
-        classHolder.definedClass.method(JMod.PUBLIC,
-                CodeModelTypes.PROPERTY.narrow(CodeModelTypes.WILDCARD).array(),
-                "getProperties")
-                .body()._return(propertiesField);
-
-
-        generate_setFromRawEntity(classHolder);
-        generate_toRawEntity(classHolder);
         generate_migrate(classHolder);
         generate_utilityMethods(classHolder);
-    }
-
-    private void generate_setFromRawEntity(ClassHolder classHolder) {
-        CreateFromRawEntityHolder holder = new CreateFromRawEntityHolder();
-        holder.classHolder = classHolder;
-        holder.method = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "setFromRawEntity");
-        holder.method.annotate(Override.class);
-
-        holder.torchFactory = holder.method.param(CodeModelTypes.TORCH_FACTORY, "torchFactory");
-        holder.rawEntity = holder.method.param(CodeModelTypes.READABLE_RAW_ENTITY, "rawEntity");
-        holder.entity = holder.method.param(classHolder.entityClass, "entity");
-        holder.loadGroups =
-                holder.method.param(CodeModelTypes.SET.narrow(CodeModelTypes.CLASS.narrow(
-                        CodeModelTypes.OBJECT.wildcard())), "loadGroups");
-
-        for (PropertyMirror propertyMirror : classHolder.entityMirror.getProperties()) {
-            Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
-
-            holder.method.body().directStatement(
-                    "// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
-            holder.method.body().add(marshaller.unmarshall(holder, propertyMirror));
-        }
-    }
-
-    private void generate_toRawEntity(ClassHolder classHolder) {
-        ToRawEntityHolder holder = new ToRawEntityHolder();
-        holder.classHolder = classHolder;
-        holder.method = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "toRawEntity");
-        holder.method.annotate(Override.class);
-
-        holder.torchFactory = holder.method.param(CodeModelTypes.TORCH_FACTORY, "torchFactory");
-        holder.entity = holder.method.param(classHolder.entityClass, "entity");
-        holder.rawEntity = holder.method.param(CodeModelTypes.WRITABLE_RAW_ENTITY, "rawEntity");
-
-        for (PropertyMirror propertyMirror : classHolder.entityMirror.getProperties()) {
-            Marshaller marshaller = marshallerRegistry.getMarshallerOrThrow(propertyMirror);
-
-            holder.method.body().directStatement(
-                    "// " + propertyMirror.getType() + " by " + marshaller.getClass().getName());
-            holder.method.body().add(marshaller.marshall(holder, propertyMirror));
-        }
     }
 
     private void generate_migrate(ClassHolder classHolder) {
@@ -135,7 +168,7 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         JVar targetRevision = method.param(CodeModelTypes.LONG_PRIMITIVE, "targetRevision");
 
         JVar migration = method.body().decl(CodeModelTypes.STRING, "migration",
-                sourceRevision.plus(JExpr.lit("->")).plus(targetRevision));
+                                            sourceRevision.plus(JExpr.lit("->")).plus(targetRevision));
         JConditional conditional = null;
         for (MigrationPath migrationPath : classHolder.entityMirror.getMigrationPaths()) {
             JExpression ifExpression = migration.invoke("equals").arg(JExpr.lit(migrationPath.getDescription()));
@@ -165,10 +198,10 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
 
         JExpression exception = JExpr._new(CodeModelTypes.MIGRATION_EXCEPTION).arg(
                 JExpr.lit("Unable to migrate entity! Could not find migration path from '")
-                        .plus(sourceRevision)
-                        .plus(JExpr.lit("' to '"))
-                        .plus(targetRevision)
-                        .plus(JExpr.lit("'!"))
+                     .plus(sourceRevision)
+                     .plus(JExpr.lit("' to '"))
+                     .plus(targetRevision)
+                     .plus(JExpr.lit("'!"))
         );
 
         if (conditional != null) {
@@ -180,7 +213,9 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
 
     private void generate_utilityMethods(ClassHolder classHolder) {
         JMethod getIdProperty = classHolder.definedClass.method(JMod.PUBLIC,
-                CodeModelTypes.NUMBER_PROPERTY.narrow(CodeModelTypes.LONG), "getIdProperty");
+                                                                CodeModelTypes.NUMBER_PROPERTY
+                                                                        .narrow(classHolder.entityClass)
+                                                                        .narrow(CodeModelTypes.LONG), "getIdProperty");
         getIdProperty.annotate(Override.class);
         getIdProperty.body()._return(JExpr.refthis(classHolder.entityMirror.getIdPropertyMirror().getName()));
 
@@ -201,37 +236,21 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
                 CodeModelTypes.ENTITY_MIGRATION_TYPE.staticRef(classHolder.entityMirror.getMigrationType().toString()));
 
 
-        JMethod getEntityId = classHolder.definedClass.method(JMod.PUBLIC, CodeModelTypes.LONG, "getEntityId");
-        JVar getEntityId_Entity = getEntityId.param(classHolder.entityClass, "entity");
-        getEntityId.annotate(Override.class);
-        getEntityId.body()._return(classHolder.entityMirror.getIdPropertyMirror().getGetter().getValue(
-                getEntityId_Entity));
-
-
-        JMethod setEntityId = classHolder.definedClass.method(JMod.PUBLIC, Void.TYPE, "setEntityId");
-        JVar setEntityId_Entity = setEntityId.param(classHolder.entityClass, "entity");
-        JVar setEntityId_Id = setEntityId.param(CodeModelTypes.LONG, "id");
-        setEntityId.annotate(Override.class);
-        setEntityId.body().add(
-                classHolder.entityMirror.getIdPropertyMirror().getSetter().setValue(setEntityId_Entity,
-                        setEntityId_Id));
-
-
         JMethod getEntityClass = classHolder.definedClass.method(JMod.PUBLIC,
-                CodeModelTypes.CLASS.narrow(classHolder.entityClass),
-                "getEntityClass");
+                                                                 CodeModelTypes.CLASS.narrow(classHolder.entityClass),
+                                                                 "getEntityClass");
         getEntityClass.annotate(Override.class);
         getEntityClass.body()._return(classHolder.entityClass.dotclass());
 
         JMethod createEmpty = classHolder.definedClass.method(JMod.PUBLIC,
-                classHolder.entityClass,
-                "createEmpty");
+                                                              classHolder.entityClass,
+                                                              "createEmpty");
         createEmpty.annotate(Override.class);
         createEmpty.body()._return(JExpr._new(classHolder.entityClass));
 
 
         classHolder.definedClass.method(JMod.PUBLIC | JMod.STATIC, classHolder.definedClass, "create")
-                .body()._return(JExpr._new(classHolder.definedClass));
+                                .body()._return(JExpr._new(classHolder.definedClass));
     }
 
 

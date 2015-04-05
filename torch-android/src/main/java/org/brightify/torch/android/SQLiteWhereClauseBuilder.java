@@ -59,7 +59,7 @@ public class SQLiteWhereClauseBuilder {
         });
     }
 
-    public static void appendFilter(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
+    public static void appendFilter(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
         Class<?> filterType = filter.getClass();
         FilterToSQLConvertor convertor = operatorMap.get(filterType);
         if (convertor == null) {
@@ -76,7 +76,7 @@ public class SQLiteWhereClauseBuilder {
         if (filterTuples != null) {
             for (BaseFilter.OperatorFilterTuple filterTuple : filterTuples) {
                 BaseFilter.Operator operator = filterTuple.getOperator();
-                BaseFilter<?, ?> nextFilter = filterTuple.getFilter();
+                BaseFilter<?, ?, ?> nextFilter = filterTuple.getFilter();
 
                 switch (operator) {
                     case AND:
@@ -98,7 +98,7 @@ public class SQLiteWhereClauseBuilder {
 
 
     private interface FilterToSQLConvertor {
-        void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs);
+        void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs);
     }
 
     private static class SingleValueFilterToSQLConvertor implements FilterToSQLConvertor {
@@ -110,10 +110,10 @@ public class SQLiteWhereClauseBuilder {
         }
 
         @Override
-        public void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
-            if (filter instanceof SingleValueFilter<?, ?>) {
-                SingleValueFilter<?, ?> singleValueFilter = (SingleValueFilter<?, ?>) filter;
-                Property<?> property = FilterMethodPublicRouter.getProperty(filter);
+        public void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
+            if (filter instanceof SingleValueFilter<?, ?, ?>) {
+                SingleValueFilter<?, ?, ?> singleValueFilter = (SingleValueFilter<?, ?, ?>) filter;
+                Property<?, ?> property = FilterMethodPublicRouter.getProperty(filter);
                 Object value = FilterMethodPublicRouter.getSingleValue(singleValueFilter);
                 builder.append(" ").append(property.getSafeName()).append(" ").append(operator).append(" ? ");
 
@@ -134,10 +134,10 @@ public class SQLiteWhereClauseBuilder {
 
     private abstract static class StringProcessingFilterToSQLConvertor implements FilterToSQLConvertor {
         @Override
-        public void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
-            if (filter instanceof SingleValueFilter<?, ?>) {
-                SingleValueFilter<?, ?> singleValueFilter = (SingleValueFilter<?, ?>) filter;
-                Property<?> property = FilterMethodPublicRouter.getProperty(filter);
+        public void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
+            if (filter instanceof SingleValueFilter<?, ?, ?>) {
+                SingleValueFilter<?, ?, ?> singleValueFilter = (SingleValueFilter<?, ?, ?>) filter;
+                Property<?, ?> property = FilterMethodPublicRouter.getProperty(filter);
                 Object value = FilterMethodPublicRouter.getSingleValue(singleValueFilter);
                 builder.append(" ").append(property.getSafeName()).append(" LIKE ? ");
 
@@ -160,10 +160,10 @@ public class SQLiteWhereClauseBuilder {
         }
 
         @Override
-        public void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
-            if (filter instanceof EnumerationFilter<?, ?>) {
-                EnumerationFilter<?, ?> enumerationFilter = (EnumerationFilter<?, ?>) filter;
-                Property<?> property = FilterMethodPublicRouter.getProperty(filter);
+        public void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
+            if (filter instanceof EnumerationFilter<?, ?, ?>) {
+                EnumerationFilter<?, ?, ?> enumerationFilter = (EnumerationFilter<?, ?, ?>) filter;
+                Property<?, ?> property = FilterMethodPublicRouter.getProperty(filter);
                 Iterable<?> values = FilterMethodPublicRouter.getValueEnumeration(enumerationFilter);
 
                 builder.append(" ").append(property.getSafeName()).append(" ").append(operator).append(" (");

@@ -2,14 +2,26 @@ package org.brightify.torch.test;
 
 import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
+import org.brightify.torch.LoadContainer;
+import org.brightify.torch.LoadContainerImpl;
 import org.brightify.torch.ReadableRawEntity;
+import org.brightify.torch.Ref;
+import org.brightify.torch.RefCollection;
+import org.brightify.torch.SaveContainer;
+import org.brightify.torch.SaveContainerImpl;
 import org.brightify.torch.Torch;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.action.load.LoadQuery;
 import org.brightify.torch.action.load.OrderLoader;
+import org.brightify.torch.filter.EqualToFilter;
+import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ValueProperty;
+import org.brightify.torch.impl.filter.LongPropertyImpl;
 import org.brightify.torch.util.MigrationAssistant;
+import org.brightify.torch.util.ReadableRawContainerImpl;
+import org.brightify.torch.util.WritableRawContainerImpl;
 import org.brightify.torch.util.functional.EditFunction;
 
 import java.util.ArrayList;
@@ -19,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -26,14 +39,39 @@ import java.util.Map;
 public class MockDatabaseEngine implements DatabaseEngine {
     private TorchFactory torchFactory;
     private Map<String, Map<Long, RawEntity>> database = new HashMap<String, Map<Long, RawEntity>>();
-    private Map<String, Long> idCounter = new HashMap<String, Long>();
+    private Map<String, AtomicLong> idCounter = new HashMap<String, AtomicLong>();
+
+    @Override
+    public boolean open() {
+        return wipe();
+    }
+
+    @Override
+    public boolean close() {
+        database = null;
+        idCounter = null;
+        return true;
+    }
+
+
+    @Override
+    public boolean wipe() {
+        database = new HashMap<String, Map<Long, RawEntity>>();
+        idCounter = new HashMap<String, AtomicLong>();
+        return true;
+    }
+
+    @Override
+    public boolean isOpen() {
+        return database != null && idCounter != null;
+    }
 
     @Override
     public <ENTITY> void each(LoadQuery<ENTITY> loadQuery, EditFunction<ENTITY> function) {
         List<ENTITY> entities = load(loadQuery);
         List<ENTITY> saveEntities = new ArrayList<ENTITY>();
         for (ENTITY entity : entities) {
-            if(function.apply(entity)) {
+            if (function.apply(entity)) {
                 saveEntities.add(entity);
             }
         }
@@ -48,7 +86,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
     @Override
     public <ENTITY> ENTITY first(LoadQuery<ENTITY> loadQuery) {
         Iterator<ENTITY> iterator = load(loadQuery).iterator();
-        if(iterator.hasNext()) {
+        if (iterator.hasNext()) {
             return iterator.next();
         }
         return null;
@@ -70,18 +108,28 @@ public class MockDatabaseEngine implements DatabaseEngine {
         @SuppressWarnings("unchecked")
         Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
         EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
-        Long counter = idCounter.get(description.getSafeName());
+        AtomicLong counter = idCounter.get(description.getSafeName());
         Map<Long, RawEntity> transaction = new HashMap<Long, RawEntity>();
 
+        WritableRawContainerImpl rawContainer = new WritableRawContainerImpl();
+        SaveContainer saveContainer = new SaveContainerImpl(torchFactory, Collections.<Class<?>>emptySet());
         for (ENTITY entity : entities) {
             RawEntity rawEntity = new RawEntity();
-
+            rawContainer.setRawEntity(rawEntity);
             try {
-                description.setEntityId(entity, counter);
-                description.toRawEntity(torchFactory, entity, rawEntity);
-                results.put(entity, counter);
-                transaction.put(counter, rawEntity);
-                counter++;
+                Long id = description.getIdProperty().get(entity);
+                if(id == null) {
+                    id = counter.getAndIncrement();
+                    description.getIdProperty().set(entity, id);
+                }
+
+                for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
+                    rawContainer.setPropertyName(valueProperty.getSafeName());
+                    valueProperty.writeToRawContainer(entity, rawContainer);
+                }
+
+                results.put(entity, id);
+                transaction.put(id, rawEntity);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -106,7 +154,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
         Map<Long, RawEntity> entityDatabase = database.get(description.getSafeName());
 
         for (ENTITY entity : entities) {
-            Long id = description.getEntityId(entity);
+            Long id = description.getIdProperty().get(entity);
             RawEntity rawEntity = entityDatabase.remove(id);
             result.put(entity, rawEntity != null);
         }
@@ -129,13 +177,6 @@ public class MockDatabaseEngine implements DatabaseEngine {
         torchFactory = factory;
     }
 
-    @Override
-    public boolean wipe() {
-        database = new HashMap<String, Map<Long, RawEntity>>();
-        idCounter = new HashMap<String, Long>();
-        return true;
-    }
-
     private <ENTITY> List<ENTITY> loadList(final LoadQuery<ENTITY> loadQuery) {
         EntityDescription<ENTITY> description = loadQuery.getEntityDescription();
         Map<Long, RawEntity> entityDatabase = database.get(description.getSafeName());
@@ -149,7 +190,8 @@ public class MockDatabaseEngine implements DatabaseEngine {
             rawEntities.add(rawEntity);
         }
 
-        for (final Map.Entry<Property<?>, OrderLoader.Direction> orderEntry : loadQuery.getOrderMap().entrySet()) {
+        for (final Map.Entry<Property<ENTITY, ?>, OrderLoader.Direction> orderEntry : loadQuery.getOrderMap()
+                                                                                               .entrySet()) {
             Collections.sort(rawEntities, new Comparator<RawEntity>() {
                 @Override
                 public int compare(RawEntity rawEntity1, RawEntity rawEntity2) {
@@ -173,19 +215,133 @@ public class MockDatabaseEngine implements DatabaseEngine {
             }
         }
 
+        ReadableRawContainerImpl rawContainer = new ReadableRawContainerImpl();
+        LoadContainer loadContainer = new LoadContainerImpl(torchFactory, loadQuery.getLoadGroups());
         List<ENTITY> result = new ArrayList<ENTITY>();
         for (RawEntity rawEntity : rawEntities) {
+            rawContainer.setRawEntity(rawEntity);
             ENTITY entity = description.createEmpty();
             try {
-                description.setFromRawEntity(torchFactory, rawEntity, entity, loadQuery.getLoadGroups());
+                for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
+                    rawContainer.setPropertyName(valueProperty.getSafeName());
+                    valueProperty.readFromRawContainer(rawContainer, entity);
+                }
             } catch (Exception e) {
                 // FIXME handle the exception better
                 throw new RuntimeException(e);
             }
             result.add(entity);
-
         }
+
+        loadReferences(loadContainer);
+        loadReferenceCollections(loadContainer);
+
         return result;
+    }
+
+    private void loadReferences(LoadContainer loadContainer) {
+        Iterator<Ref<?>> iterator = loadContainer.getReferenceQueue().iterator();
+        while (iterator.hasNext()) {
+            Ref<?> reference = iterator.next();
+
+            // #get() will load it.
+            // FIXME this has to be changed for better performance
+            reference.get();
+
+            iterator.remove();
+        }
+    }
+
+    private <T> void loadReferenceCollections(LoadContainer loadContainer) {
+        LoadContainer localLoadContainer = new LoadContainerImpl(loadContainer);
+        Iterator<RefCollection<?>> iterator = loadContainer.getReferenceCollectionQueue().iterator();
+        while (iterator.hasNext()) {
+            // The "T" will be erased and we use it only so we don't need to care about wildcards.
+            RefCollection<T> referenceCollection = (RefCollection<T>) iterator.next();
+            String bindTableName = getBindTableName(referenceCollection);
+
+            Long parentId = referenceCollection.getParentId();
+            EqualToFilter<?, ?> parentIdFilter = BindTableDescription.parentId.equalTo(parentId);
+
+            Map<Long, RawEntity> bindTableDatabase = database.get(bindTableName);
+            List<RawEntity> rawEntities = new ArrayList<RawEntity>();
+
+            for (RawEntity rawEntity : bindTableDatabase.values()) {
+                if (parentIdFilter != null && !MockDatabaseFilter.applyFilter(parentIdFilter, rawEntity)) {
+                    continue;
+                }
+
+                rawEntities.add(rawEntity);
+            }
+
+            ReadableRawContainerImpl rawContainer = new ReadableRawContainerImpl();
+            EntityDescription<T> childDescription = referenceCollection.getChildDescription();
+            Map<Long, RawEntity> childDatabase = database.get(childDescription.getSafeName());
+            for (RawEntity rawEntity : rawEntities) {
+                Long childId = BindTableDescription.childId.get(rawEntity);
+
+                RawEntity rawChild = childDatabase.get(childId);
+                rawContainer.setRawEntity(rawChild);
+                T child = childDescription.createEmpty();
+                try {
+                    for (ValueProperty<T, ?> valueProperty : childDescription.getValueProperties()) {
+                        rawContainer.setPropertyName(valueProperty.getSafeName());
+                        valueProperty.readFromRawContainer(rawContainer, child);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                referenceCollection.set(childId, child);
+            }
+
+            iterator.remove();
+        }
+
+    }
+
+    private String getBindTableName(RefCollection<?> referenceCollection) {
+        return "parent__" + referenceCollection.getParentDescription().getSafeName() +
+               "#" + referenceCollection.getParentProperty().getSafeName() +
+               "__child__" + referenceCollection.getChildDescription().getSafeName();
+    }
+
+    private static class BindTableDescription {
+        public static NumberProperty<RawEntity, Long> id =
+                new LongPropertyImpl<RawEntity>(RawEntity.class, "id", "torch_id") {
+                    @Override
+                    public Long get(RawEntity entity) {
+                        return entity.getLong(getSafeName());
+                    }
+
+                    @Override
+                    public void set(RawEntity entity, Long value) {
+                        entity.put(getSafeName(), value);
+                    }
+                };
+        public static NumberProperty<RawEntity, Long> parentId =
+                new LongPropertyImpl<RawEntity>(RawEntity.class, "parentId", "torch_parentId") {
+                    @Override
+                    public Long get(RawEntity entity) {
+                        return entity.getLong(getSafeName());
+                    }
+
+                    @Override
+                    public void set(RawEntity entity, Long value) {
+                        entity.put(getSafeName(), value);
+                    }
+                };
+        public static NumberProperty<RawEntity, Long> childId =
+                new LongPropertyImpl<RawEntity>(RawEntity.class, "childId", "torch_childId") {
+                    @Override
+                    public Long get(RawEntity entity) {
+                        return entity.getLong(getSafeName());
+                    }
+
+                    @Override
+                    public void set(RawEntity entity, Long value) {
+                        entity.put(getSafeName(), value);
+                    }
+                };
     }
 
     public class MockMigrationAssistant<ENTITY> implements MigrationAssistant<ENTITY> {
@@ -199,7 +355,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
         }
 
         @Override
-        public void addProperty(Property<?> property) {
+        public void addProperty(Property<ENTITY, ?> property) {
 
         }
 
@@ -223,9 +379,9 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public void createStore() {
-            if(!storeExists()) {
+            if (!storeExists()) {
                 database.put(entityDescription.getSafeName(), new HashMap<Long, RawEntity>());
-                idCounter.put(entityDescription.getSafeName(), 0L);
+                idCounter.put(entityDescription.getSafeName(), new AtomicLong());
             }
         }
 
@@ -274,6 +430,11 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public boolean getBooleanPrimitive(String propertyName) {
+            return getValue(propertyName);
+        }
+
+        @Override
+        public Byte getByte(String propertyName) {
             return getValue(propertyName);
         }
 

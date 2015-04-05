@@ -1,8 +1,11 @@
 package org.brightify.torch.android;
 
 import android.database.Cursor;
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.TorchFactory;
 import org.brightify.torch.action.load.LoadQuery;
+import org.brightify.torch.filter.ValueProperty;
+import org.brightify.torch.util.ReadableRawContainerImpl;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -11,19 +14,19 @@ import java.util.NoSuchElementException;
 * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
 */
 public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
-    private final TorchFactory torchFactory;
-    private final LoadQuery<ENTITY> query;
+    private final EntityDescription<ENTITY> description;
     private final Cursor cursor;
-    private final CursorReadableRawEntity cursorRawEntity;
+    private final ReadableRawContainerImpl rawContainer;
 
     public CursorIterator(TorchFactory torchFactory, LoadQuery<ENTITY> query, Cursor cursor) {
         this.cursor = cursor;
-        this.cursorRawEntity = new CursorReadableRawEntity(cursor);
         if(cursor.isClosed()) {
             throw new IllegalStateException("The cursor is closed!");
         }
-        this.torchFactory = torchFactory;
-        this.query = query;
+        CursorReadableRawEntity cursorRawEntity = new CursorReadableRawEntity(cursor);
+        this.rawContainer = new ReadableRawContainerImpl();
+        this.rawContainer.setRawEntity(cursorRawEntity);
+        this.description = query.getEntityDescription();
         if(!this.cursor.moveToFirst()) {
             this.cursor.close();
         }
@@ -49,9 +52,12 @@ public class CursorIterator<ENTITY> implements Iterator<ENTITY> {
             throw new NoSuchElementException("The cursor is closed!");
         }
 
-        ENTITY entity = query.getEntityDescription().createEmpty();
+        ENTITY entity = description.createEmpty();
         try {
-            query.getEntityDescription().setFromRawEntity(torchFactory, cursorRawEntity, entity, query.getLoadGroups());
+            for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
+                rawContainer.setPropertyName(valueProperty.getSafeName());
+                valueProperty.readFromRawContainer(rawContainer, entity);
+            }
         } catch (Exception e) {
             // FIXME handle the exception better
             throw new RuntimeException(e);

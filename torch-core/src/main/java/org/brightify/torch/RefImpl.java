@@ -3,40 +3,58 @@ package org.brightify.torch;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class RefImpl<ENTITY> implements Ref<ENTITY> {
-    private final EntityDescription<ENTITY> metadata;
-    private final Class<ENTITY> entityClass;
-    private final ENTITY entity;
+public class RefImpl<CHILD> implements Ref<CHILD> {
+    private final EntityDescription<CHILD> description;
+    private TorchFactory torchFactory;
+    private Long idToLoad;
 
-    public RefImpl(EntityDescription<ENTITY> metadata, ENTITY entity) {
-        this.metadata = metadata;
-        this.entityClass = metadata.getEntityClass();
+    private CHILD entity;
+
+    public RefImpl(EntityDescription<CHILD> description, TorchFactory torchFactory, Long idToLoad) {
+        this.description = description;
+        this.torchFactory = torchFactory;
+        this.idToLoad = idToLoad;
+    }
+
+    public RefImpl(EntityDescription<CHILD> description, CHILD entity) {
+        this.description = description;
         this.entity = entity;
     }
 
     @Override
-    public ENTITY get() {
+    public CHILD get() {
+        if(idToLoad != null) {
+            entity = torchFactory.begin().load().type(description.getEntityClass()).id(idToLoad);
+            torchFactory = null;
+            idToLoad = null;
+        }
         return entity;
     }
 
     @Override
+    public void set(CHILD entity) {
+        /*
+         * When user sets the entity from outside, we disable the load.
+         */
+        idToLoad = null;
+        torchFactory = null;
+        this.entity = entity;
+    }
+
+    @Override
     public boolean isLoaded() {
-        return true;
+        return idToLoad != null;
     }
 
     @Override
-    public boolean isSaved() {
-        return getEntityId() != null;
-    }
-
-    @Override
-    public Class<ENTITY> getEntityClass() {
-        return entityClass;
+    public EntityDescription<CHILD> getEntityDescription() {
+        return description;
     }
 
     @Override
     public Long getEntityId() {
-        return metadata.getEntityId(entity);
+        return description.getIdProperty().get(entity);
     }
+
 
 }

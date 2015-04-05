@@ -3,12 +3,12 @@ package org.brightify.torch.filter;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public abstract class SingleValueFilter<TYPE, FILTER extends SingleValueFilter<TYPE, FILTER>>
-        extends BaseFilter<TYPE, FILTER> {
+public abstract class SingleValueFilter<OWNER, TYPE, FILTER extends SingleValueFilter<OWNER, TYPE, FILTER>>
+        extends BaseFilter<OWNER, TYPE, FILTER> {
 
     private final TYPE value;
 
-    public SingleValueFilter(Property<TYPE> property, TYPE value) {
+    public SingleValueFilter(Property<OWNER, TYPE> property, TYPE value) {
         super(property);
         this.value = value;
     }

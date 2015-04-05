@@ -1,7 +1,8 @@
 package org.brightify.torch.filter;
 
-public final class GreaterThanFilter<TYPE extends Number> extends SingleValueFilter<TYPE, GreaterThanFilter<TYPE>> {
-    public GreaterThanFilter(Property<TYPE> property, TYPE value) {
+public final class GreaterThanFilter<OWNER, TYPE extends Number>
+        extends SingleValueFilter<OWNER, TYPE, GreaterThanFilter<OWNER, TYPE>> {
+    public GreaterThanFilter(Property<OWNER, TYPE> property, TYPE value) {
         super(property, value);
     }
 }

@@ -6,11 +6,11 @@ import java.util.Map;
 
 public interface RawPropertyLoaderSelector<ENTITY> {
 
-    <VALUE> RawPropertyLoader<ENTITY, VALUE> property(Property<VALUE> property);
+    <VALUE> RawPropertyLoader<ENTITY, VALUE> property(Property<ENTITY, VALUE> property);
 
     <VALUE> RawPropertyLoader<ENTITY, VALUE> property(Class<VALUE> propertyType, String propertyName);
 
-    RawEntityLoader<ENTITY> properties(Property<?>... properties);
+    RawEntityLoader<ENTITY> properties(Property<ENTITY, ?>... properties);
 
     RawEntityLoader<ENTITY> properties(Map<String, Class<?>> propertyNameTypeMap);
 

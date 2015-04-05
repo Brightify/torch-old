@@ -3,10 +3,12 @@ package org.brightify.torch;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceProperty;
+import org.brightify.torch.filter.ValueProperty;
 import org.brightify.torch.util.Helper;
 import org.brightify.torch.util.MigrationAssistant;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -17,14 +19,20 @@ public interface EntityDescription<ENTITY> {
      *
      * @return ID property of the target entity.
      */
-    NumberProperty<Long> getIdProperty();
+    NumberProperty<ENTITY, Long> getIdProperty();
 
     /**
      * Returns an array of properties.
      *
      * @return An array of properties in the target entity.
      */
-    Property<?>[] getProperties();
+    List<? extends Property<ENTITY, ?>> getProperties();
+
+    List<? extends ValueProperty<ENTITY, ?>> getValueProperties();
+
+    List<? extends ReferenceProperty<ENTITY, ?>> getReferenceProperties();
+
+    // FIXME add "getRefCollectionProperties()"
 
     /**
      * Returns a safe class name.
@@ -39,18 +47,9 @@ public interface EntityDescription<ENTITY> {
 
     Entity.MigrationType getMigrationType();
 
-    Long getEntityId(ENTITY entity);
-
-    void setEntityId(ENTITY entity, Long id);
-
     Class<ENTITY> getEntityClass();
 
-    void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, ENTITY entity,
-                            Set<Class<?>> loadGroups) throws Exception;
-
     ENTITY createEmpty();
-
-    void toRawEntity(TorchFactory torchFactory, ENTITY entity, WritableRawEntity rawEntity) throws Exception;
 
     void migrate(MigrationAssistant<ENTITY> assistant, long sourceRevision, long targetRevision) throws Exception;
 

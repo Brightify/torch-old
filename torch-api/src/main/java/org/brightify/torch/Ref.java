@@ -3,15 +3,15 @@ package org.brightify.torch;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface Ref<ENTITY> {
+public interface Ref<CHILD> {
 
-    ENTITY get();
+    CHILD get();
+
+    void set(CHILD entity);
 
     boolean isLoaded();
 
-    boolean isSaved();
-
-    Class<ENTITY> getEntityClass();
+    EntityDescription<CHILD> getEntityDescription();
 
     Long getEntityId();
 

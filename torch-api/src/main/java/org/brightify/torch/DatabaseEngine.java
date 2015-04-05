@@ -12,6 +12,18 @@ import java.util.Map;
  */
 public interface DatabaseEngine {
 
+    TorchFactory getTorchFactory();
+
+    void setTorchFactory(TorchFactory factory);
+
+    boolean open();
+
+    boolean close();
+
+    boolean wipe();
+
+    boolean isOpen();
+
     <ENTITY> void each(LoadQuery<ENTITY> loadQuery, EditFunction<ENTITY> function);
 
     <ENTITY> List<ENTITY> load(LoadQuery<ENTITY> loadQuery);
@@ -25,11 +37,5 @@ public interface DatabaseEngine {
     <ENTITY> Map<ENTITY, Boolean> delete(Iterable<ENTITY> entities);
 
     <ENTITY> MigrationAssistant<ENTITY> getMigrationAssistant(EntityDescription<ENTITY> metadata);
-
-    TorchFactory getTorchFactory();
-
-    void setTorchFactory(TorchFactory factory);
-
-    boolean wipe();
 
 }

@@ -12,6 +12,7 @@ import org.brightify.torch.annotation.Index;
 import org.brightify.torch.annotation.NotNull;
 import org.brightify.torch.annotation.Unique;
 import org.brightify.torch.compile.EntityContext;
+import org.brightify.torch.compile.EntityMirror;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.PropertyMirrorImpl;
 import org.brightify.torch.compile.util.TypeHelper;
@@ -53,15 +54,15 @@ public class PropertyParserImpl implements PropertyParser {
     private EntityContext entityContext;
 
     @Override
-    public List<PropertyMirror> parseEntityElement(Element element) {
+    public List<PropertyMirror> parseEntity(EntityMirror entity) {
         Map<String, GetSetPair> getSetPairMap = new HashMap<String, GetSetPair>();
-        for (Element property : element.getEnclosedElements()) {
+        for (Element property : entity.getElement().getEnclosedElements()) {
             parseGetSetPairs(getSetPairMap, property);
         }
 
         List<PropertyMirror> propertyMirrors = new ArrayList<PropertyMirror>();
         for (GetSetPair pair : getSetPairMap.values()) {
-            parsePropertyElement(propertyMirrors, pair);
+            parsePropertyElement(entity, propertyMirrors, pair);
         }
         return propertyMirrors;
     }
@@ -251,7 +252,7 @@ public class PropertyParserImpl implements PropertyParser {
                element.getParameters().size() == 1;
     }
 
-    private void parsePropertyElement(List<PropertyMirror> propertyMirrors, GetSetPair pair) {
+    private void parsePropertyElement(EntityMirror owner, List<PropertyMirror> propertyMirrors, GetSetPair pair) {
         // We take all annotations only from getter
         Element element = pair.getter().getElement();
         Set<Modifier> modifiers = element.getModifiers();
@@ -266,6 +267,7 @@ public class PropertyParserImpl implements PropertyParser {
 
         PropertyMirrorImpl property = new PropertyMirrorImpl();
 
+        property.setOwner(owner);
         property.setAnnotations(element.getAnnotationMirrors());
         property.setId(id);
         property.setIndex(index);

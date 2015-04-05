@@ -20,7 +20,7 @@ public class KeyFactory {
     }
 
     public static <ENTITY> Key<ENTITY> create(EntityDescription<ENTITY> description, ENTITY entity) {
-        return create(description.getEntityClass(), description.getEntityId(entity));
+        return create(description.getEntityClass(), description.getIdProperty().get(entity));
     }
 
     @SuppressWarnings("unchecked")

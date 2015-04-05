@@ -67,7 +67,7 @@ public class RelationResolverImpl implements RelationResolver {
 
         @Override
         public LazyArrayList<VALUE> parent(ENTITY entity) {
-            return parentId(metadata.getEntityId(entity));
+            return parentId(metadata.getIdProperty().get(entity));
         }
 
         @Override

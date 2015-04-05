@@ -131,7 +131,7 @@ public class MockDatabaseFilter {
         });
     }
 
-    public static boolean applyFilter(BaseFilter<?, ?> filter, MockDatabaseEngine.RawEntity entity) {
+    public static boolean applyFilter(BaseFilter<?, ?, ?> filter, MockDatabaseEngine.RawEntity entity) {
         Class<?> filterType = filter.getClass();
         MockFilterMatcher matcher = operatorMap.get(filterType);
         if (matcher == null) {
@@ -148,7 +148,7 @@ public class MockDatabaseFilter {
         if (filterTuples != null) {
             for (BaseFilter.OperatorFilterTuple filterTuple : filterTuples) {
                 BaseFilter.Operator operator = filterTuple.getOperator();
-                BaseFilter<?, ?> nextFilter = filterTuple.getFilter();
+                BaseFilter<?, ?, ?> nextFilter = filterTuple.getFilter();
 
                 boolean nextFilterApplies = applyFilter(nextFilter, entity);
                 switch (operator) {
@@ -168,13 +168,13 @@ public class MockDatabaseFilter {
     }
 
     private interface MockFilterMatcher {
-        boolean apply(BaseFilter<?, ?> filter, Object value);
+        boolean apply(BaseFilter<?, ?, ?> filter, Object value);
     }
 
     private static abstract class SingleValueMockFilterMatcher implements MockFilterMatcher {
         @Override
-        public boolean apply(BaseFilter<?, ?> filter, Object value) {
-            SingleValueFilter<?, ?> singleValueFilter = (SingleValueFilter<?, ?>) filter;
+        public boolean apply(BaseFilter<?, ?, ?> filter, Object value) {
+            SingleValueFilter<?, ?, ?> singleValueFilter = (SingleValueFilter<?, ?, ?>) filter;
 
             return applyWithValue(value, FilterMethodPublicRouter.getSingleValue(singleValueFilter));
         }
@@ -184,8 +184,8 @@ public class MockDatabaseFilter {
 
     private static abstract class EnumerationMockFilterMatcher implements MockFilterMatcher {
         @Override
-        public boolean apply(BaseFilter<?, ?> filter, Object value) {
-            EnumerationFilter<?, ?> enumerationFilter = (EnumerationFilter<?, ?>) filter;
+        public boolean apply(BaseFilter<?, ?, ?> filter, Object value) {
+            EnumerationFilter<?, ?, ?> enumerationFilter = (EnumerationFilter<?, ?, ?>) filter;
 
             return applyWithEnumeration(value, FilterMethodPublicRouter.getValueEnumeration(enumerationFilter));
         }
@@ -196,6 +196,11 @@ public class MockDatabaseFilter {
     private static abstract class NumberComparationFilterMatcher extends SingleValueMockFilterMatcher {
         @Override
         protected boolean applyWithValue(Object value, Object filterValue) {
+            if(value == null ^ filterValue == null) {
+                return false;
+            } else if (value == null && filterValue == null) {
+                return true;
+            }
             Number valueNumber = (Number) value;
             Number filterValueNumber = (Number) filterValue;
 

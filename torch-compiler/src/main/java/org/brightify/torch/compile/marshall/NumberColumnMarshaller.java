@@ -25,13 +25,9 @@ public abstract class NumberColumnMarshaller extends AbstractMarshaller {
 
     @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.NUMBER_PROPERTY.narrow(
-                CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
+        return CodeModelTypes.NUMBER_PROPERTY
+                .narrow(CodeModelTypes.ref(propertyMirror.getOwner()))
+                .narrow(CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
     }
 
-    @Override
-    protected JClass propertyClassImpl(PropertyMirror propertyMirror) {
-        return CodeModelTypes.NUMBER_PROPERTY_IMPL.narrow(
-                CodeModelTypes.ref(typeHelper.getWrappedType(propertyMirror).toString()));
-    }
 }

@@ -10,15 +10,17 @@ import java.util.Set;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class PropertyImpl<TYPE> implements Property<TYPE> {
+public abstract class PropertyImpl<OWNER, TYPE> implements Property<OWNER, TYPE> {
 
+    private final Class<OWNER> owner;
     private final Class<TYPE> type;
     private final String name;
     private final String safeName;
     private Set<Feature> features = new HashSet<Feature>();
     private TYPE defaultValue;
 
-    public PropertyImpl(Class<TYPE> type, String name, String safeName) {
+    public PropertyImpl(Class<OWNER> owner, Class<TYPE> type, String name, String safeName) {
+        this.owner = owner;
         this.type = type;
         this.name = name;
         this.safeName = safeName;
@@ -32,6 +34,11 @@ public class PropertyImpl<TYPE> implements Property<TYPE> {
     @Override
     public String getSafeName() {
         return safeName;
+    }
+
+    @Override
+    public Class<OWNER> getOwnerType() {
+        return owner;
     }
 
     @Override
@@ -50,21 +57,21 @@ public class PropertyImpl<TYPE> implements Property<TYPE> {
     }
 
     @Override
-    public EqualToFilter<?> equalTo(TYPE value) {
-        return new EqualToFilter<TYPE>(this, value);
+    public EqualToFilter<OWNER, TYPE> equalTo(TYPE value) {
+        return new EqualToFilter<OWNER, TYPE>(this, value);
     }
 
     @Override
-    public NotEqualToFilter<?> notEqualTo(TYPE value) {
-        return new NotEqualToFilter<TYPE>(this, value);
+    public NotEqualToFilter<OWNER, TYPE> notEqualTo(TYPE value) {
+        return new NotEqualToFilter<OWNER, TYPE>(this, value);
     }
 
-    public PropertyImpl<TYPE> feature(Feature feature) {
+    public PropertyImpl<OWNER, TYPE> feature(Feature feature) {
         features.add(feature);
         return this;
     }
 
-    public PropertyImpl<TYPE> defaultValue(TYPE defaultValue) {
+    public PropertyImpl<OWNER, TYPE> defaultValue(TYPE defaultValue) {
         this.defaultValue = defaultValue;
         return this;
     }

@@ -16,25 +16,24 @@ public interface EntityDescriptionGenerator {
     void generate(EntityMirror entityMirror, JDefinedClass definedClass) throws Exception;
 
 
-    public static class ClassHolder {
+    class ClassHolder {
         public EntityMirror entityMirror;
         public JClass entityClass;
         public JDefinedClass definedClass;
     }
 
-    public static class CreateFromRawEntityHolder {
+    class CreateFromRawEntityHolder {
         public ClassHolder classHolder;
         public JMethod method;
-        public JVar torchFactory;
+        public JVar loadContainer;
         public JVar rawEntity;
-        public JVar loadGroups;
         public JVar entity;
     }
 
-    public static class ToRawEntityHolder {
+    class ToRawEntityHolder {
         public ClassHolder classHolder;
         public JMethod method;
-        public JVar torchFactory;
+        public JVar saveContainer;
         public JVar rawEntity;
         public JVar entity;
     }

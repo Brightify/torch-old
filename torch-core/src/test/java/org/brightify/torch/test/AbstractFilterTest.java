@@ -136,7 +136,7 @@ public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
         filteredContains(TestObject$.stringField.endsWith(last8Chars), testObject2);
     }
 
-    private List<TestObject> filteredContains(BaseFilter<?, ?> filter, TestObject... objects) {
+    private List<TestObject> filteredContains(BaseFilter<TestObject, ?, ?> filter, TestObject... objects) {
         List<TestObject> loadedObjects = torch()
                 .load().type(TestObject.class)
                 .filter(filter)

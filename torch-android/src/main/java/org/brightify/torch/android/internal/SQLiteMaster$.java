@@ -1,51 +1,128 @@
 package org.brightify.torch.android.internal;
 
 import org.brightify.torch.EntityDescription;
-import org.brightify.torch.ReadableRawEntity;
-import org.brightify.torch.TorchFactory;
-import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.StringProperty;
-import org.brightify.torch.impl.filter.NumberPropertyImpl;
+import org.brightify.torch.filter.ValueProperty;
+import org.brightify.torch.impl.filter.IntegerPropertyImpl;
 import org.brightify.torch.impl.filter.StringPropertyImpl;
+import org.brightify.torch.util.ArrayListBuilder;
 import org.brightify.torch.util.MigrationAssistant;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
 
-    public static final StringProperty type = new StringPropertyImpl("type", "type");
-    public static final StringProperty name = new StringPropertyImpl("name", "name");
-    public static final StringProperty tableName = new StringPropertyImpl("tbl_name", "tbl_name");
-    public static final NumberProperty<Integer> rootpage =
-            new NumberPropertyImpl<Integer>(Integer.class, "rootpage", "rootpage");
-    public static final StringProperty sql = new StringPropertyImpl("sql", "sql");
+    public static final StringProperty<SQLiteMaster> type =
+            new StringPropertyImpl<SQLiteMaster>(SQLiteMaster.class, "type", "type") {
+                @Override
+                public String get(SQLiteMaster owner) {
+                    return owner.getType();
+                }
 
-    private static final Property<?>[] properties = {
-            type,
-            name,
-            tableName,
-            rootpage,
-            sql
-    };
+                @Override
+                public void set(SQLiteMaster owner, String value) {
+                    owner.setType(value);
+                }
+            };
+    public static final StringProperty<SQLiteMaster> name =
+            new StringPropertyImpl<SQLiteMaster>(SQLiteMaster.class, "name", "name") {
+                @Override
+                public String get(SQLiteMaster owner) {
+                    return owner.getName();
+                }
+
+                @Override
+                public void set(SQLiteMaster owner, String value) {
+                    owner.setName(value);
+                }
+            };
+    public static final StringProperty<SQLiteMaster> tableName =
+            new StringPropertyImpl<SQLiteMaster>(SQLiteMaster.class, "tbl_name", "tbl_name") {
+                @Override
+                public String get(SQLiteMaster owner) {
+                    return owner.getTableName();
+                }
+
+                @Override
+                public void set(SQLiteMaster owner, String value) {
+                    owner.setTableName(value);
+                }
+            };
+    public static final NumberProperty<SQLiteMaster, Integer> rootpage =
+            new IntegerPropertyImpl<SQLiteMaster>(SQLiteMaster.class, "rootpage", "rootpage") {
+                @Override
+                public Integer get(SQLiteMaster owner) {
+                    return owner.getRootpage();
+                }
+
+                @Override
+                public void set(SQLiteMaster owner, Integer value) {
+                    owner.setRootpage(value);
+                }
+            };
+    public static final StringProperty<SQLiteMaster> sql =
+            new StringPropertyImpl<SQLiteMaster>(SQLiteMaster.class, "sql", "sql") {
+                @Override
+                public String get(SQLiteMaster owner) {
+                    return owner.getSql();
+                }
+
+                @Override
+                public void set(SQLiteMaster owner, String value) {
+                    owner.setSql(value);
+                }
+            };
+
+    private static final List<? extends Property<SQLiteMaster, ?>> properties =
+            ArrayListBuilder.<Property<SQLiteMaster, ?>>begin()
+                            .add(type)
+                            .add(name)
+                            .add(tableName)
+                            .add(rootpage)
+                            .add(sql)
+                            .list();
+
+    private static final List<? extends ValueProperty<SQLiteMaster, ?>> valueProperties =
+            ArrayListBuilder.<ValueProperty<SQLiteMaster, ?>>begin()
+                            .add(type)
+                            .add(name)
+                            .add(tableName)
+                            .add(rootpage)
+                            .add(sql)
+                            .list();
+
+    private static final List<? extends ReferenceProperty<SQLiteMaster, ?>> referenceProperties =
+            ArrayListBuilder.<ReferenceProperty<SQLiteMaster, ?>>begin().list();
 
     public static SQLiteMaster$ create() {
         return new SQLiteMaster$();
     }
 
     @Override
-    public NumberProperty<Long> getIdProperty() {
+    public NumberProperty<SQLiteMaster, Long> getIdProperty() {
         return null;
     }
 
     @Override
-    public Property<?>[] getProperties() {
+    public List<? extends Property<SQLiteMaster, ?>> getProperties() {
         return properties;
+    }
+
+    @Override
+    public List<? extends ValueProperty<SQLiteMaster, ?>> getValueProperties() {
+        return valueProperties;
+    }
+
+    @Override
+    public List<? extends ReferenceProperty<SQLiteMaster, ?>> getReferenceProperties() {
+        return referenceProperties;
     }
 
     @Override
@@ -64,14 +141,6 @@ public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
     }
 
     @Override
-    public Long getEntityId(SQLiteMaster sqLiteMaster) {
-        return null;
-    }
-
-    @Override
-    public void setEntityId(SQLiteMaster sqLiteMaster, Long id) { }
-
-    @Override
     public Class<SQLiteMaster> getEntityClass() {
         return SQLiteMaster.class;
     }
@@ -82,23 +151,7 @@ public class SQLiteMaster$ implements EntityDescription<SQLiteMaster> {
     }
 
     @Override
-    public void toRawEntity(TorchFactory torchFactory, SQLiteMaster entity, WritableRawEntity rawEntity)
-            throws Exception {
-        throw new UnsupportedOperationException("sqlite_master table is not supposed to be edited!");
-    }
-
-    @Override
     public void migrate(MigrationAssistant<SQLiteMaster> assistant, long sourceRevision, long targetRevision)
             throws Exception {
-    }
-
-    @Override
-    public void setFromRawEntity(TorchFactory torchFactory, ReadableRawEntity rawEntity, SQLiteMaster entity,
-                                 Set<Class<?>> loadGroups) throws Exception {
-        entity.setType(rawEntity.getString(type.getName()));
-        entity.setName(rawEntity.getString(name.getName()));
-        entity.setTableName(rawEntity.getString(tableName.getName()));
-        entity.setRootpage(rawEntity.getIntegerPrimitive(rootpage.getName()));
-        entity.setSql(rawEntity.getString(sql.getName()));
     }
 }

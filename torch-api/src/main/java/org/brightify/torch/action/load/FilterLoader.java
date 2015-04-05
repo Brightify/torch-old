@@ -8,6 +8,6 @@ import org.brightify.torch.filter.BaseFilter;
  */
 public interface FilterLoader<ENTITY> {
 
-    OrderLimitListLoader<ENTITY> filter(BaseFilter<?, ?> filter);
+    OrderLimitListLoader<ENTITY> filter(BaseFilter<ENTITY, ?, ?> filter);
 
 }

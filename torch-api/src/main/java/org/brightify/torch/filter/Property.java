@@ -5,11 +5,13 @@ import java.util.Set;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public interface Property<TYPE> {
+public interface Property<OWNER, TYPE> {
 
     String getName();
 
     String getSafeName();
+
+    Class<OWNER> getOwnerType();
 
     Class<TYPE> getType();
 
@@ -17,10 +19,14 @@ public interface Property<TYPE> {
 
     TYPE getDefaultValue();
 
-    EqualToFilter<?> equalTo(TYPE value);
+    EqualToFilter<OWNER, TYPE> equalTo(TYPE value);
 
-    NotEqualToFilter<?> notEqualTo(TYPE value);
+    NotEqualToFilter<OWNER, TYPE> notEqualTo(TYPE value);
 
-    public interface Feature { }
+    TYPE get(OWNER entity);
+
+    void set(OWNER entity, TYPE value);
+
+    interface Feature { }
 
 }

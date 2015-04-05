@@ -16,10 +16,12 @@ import org.brightify.torch.android.internal.SQLiteMaster;
 import org.brightify.torch.android.internal.SQLiteMaster$;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ValueProperty;
 import org.brightify.torch.util.Helper;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.PropertyUtil;
 import org.brightify.torch.util.Validate;
+import org.brightify.torch.util.WritableRawContainerImpl;
 import org.brightify.torch.util.functional.EditFunction;
 
 import java.util.ArrayList;
@@ -165,15 +167,19 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         }
     }
 
-    public void close() {
+    @Override
+    public boolean close() {
         synchronized (lock) {
             if (initializing) {
                 throw new IllegalStateException("Cannot close while initializing!");
             }
 
-            if (database != null && database.isOpen()) {
+            if (isOpen()) {
                 database.close();
                 database = null;
+                return true;
+            } else {
+                return false;
             }
         }
     }
@@ -204,12 +210,17 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
 
             CompiledStatement statement = precompileInsertStatement(description);
             DirectBindWritableRawEntity rawEntity = new DirectBindWritableRawEntity(statement);
+            WritableRawContainerImpl rawContainer = new WritableRawContainerImpl();
+            rawContainer.setRawEntity(rawEntity);
 
             while (iterator.hasNext()) {
                 ENTITY entity = iterator.next();
                 boolean applies = function.apply(entity);
                 if (applies) {
-                    description.toRawEntity(torchFactory, entity, rawEntity);
+                    for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
+                        rawContainer.setPropertyName(valueProperty.getSafeName());
+                        valueProperty.writeToRawContainer(entity, rawContainer);
+                    }
 
                     statement.getSQLiteStatement().executeInsert();
                 }
@@ -280,9 +291,14 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
 
             CompiledStatement statement = precompileInsertStatement(description);
             DirectBindWritableRawEntity rawEntity = new DirectBindWritableRawEntity(statement);
+            WritableRawContainerImpl rawContainer = new WritableRawContainerImpl();
+            rawContainer.setRawEntity(rawEntity);
 
             for (ENTITY entity : entities) {
-                description.toRawEntity(torchFactory, entity, rawEntity);
+                for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
+                    rawContainer.setPropertyName(valueProperty.getSafeName());
+                    valueProperty.writeToRawContainer(entity, rawContainer);
+                }
 
                 long entityId = statement.getSQLiteStatement().executeInsert();
 
@@ -291,7 +307,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
                     throw new IllegalStateException("Error when storing data into database!");
                 }
 
-                description.setEntityId(entity, entityId);
+                description.getIdProperty().set(entity, entityId);
 
                 results.put(entity, entityId);
             }
@@ -327,7 +343,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
                 }
 
                 int affected = db.delete(metadata.getSafeName(), metadata.getIdProperty().getSafeName() + " = ?",
-                                         new String[] { String.valueOf(metadata.getEntityId(entity)) });
+                                         new String[] { String.valueOf(metadata.getIdProperty().get(entity)) });
                 if (affected > 1) {
                     throw new IllegalStateException("Delete command affected more than one row at once!");
                 }
@@ -361,8 +377,22 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
     }
 
     @Override
+    public boolean open() {
+        if(isOpen()) {
+            return false;
+        }
+
+        return getDatabase() != null;
+    }
+
+    @Override
     public boolean wipe() {
         return deleteDatabase();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return database != null && database.isOpen();
     }
 
     protected <ENTITY> CompiledStatement precompileInsertStatement(EntityDescription<ENTITY> metadata) {
@@ -370,18 +400,18 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
             return compiledStatements.get(metadata.getEntityClass());
         }
 
-        Property<?>[] properties = metadata.getProperties();
+        List<? extends Property<ENTITY, ?>> properties = metadata.getProperties();
 
         Map<String, Integer> bindArgIndexes = new HashMap<String, Integer>();
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT OR REPLACE INTO ").append(metadata.getSafeName()).append(" (");
 
-        int propertyCount = properties.length;
+        int propertyCount = properties.size();
         for (int i = 0; i < propertyCount; i++) {
             if (i > 0) {
                 sql.append(',');
             }
-            String propertyName = properties[i].getSafeName();
+            String propertyName = properties.get(i).getSafeName();
             sql.append(propertyName);
             // i + 1 because bind arguments start with 1 and not 0
             bindArgIndexes.put(propertyName, i + 1);
@@ -413,9 +443,9 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         // append(databaseName).append('.').
         sql.append(description.getSafeName()).append(" (");
 
-        Property<?>[] properties = description.getProperties();
+        List<? extends Property<ENTITY, ?>> properties = description.getProperties();
         int i = 0;
-        for (Property<?> property : properties) {
+        for (Property<ENTITY, ?> property : properties) {
             if (i++ > 0) {
                 sql.append(',');
             }
@@ -439,7 +469,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
                            .filter(SQLiteMaster$.tableName.equalTo(description.getSafeName())).count() > 0;
     }
 
-    protected <ENTITY> void addColumn(EntityDescription<ENTITY> description, Property<?> property) {
+    protected <ENTITY> void addColumn(EntityDescription<ENTITY> description, Property<ENTITY, ?> property) {
         String tableName = description.getSafeName();
         StringBuilder builder = new StringBuilder();
         builder.append("ALTER TABLE ").append(tableName).append(" ADD COLUMN ");
@@ -615,7 +645,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
 
     }
 
-    private void appendColumnDefinition(StringBuilder builder, Property<?> property) {
+    private void appendColumnDefinition(StringBuilder builder, Property<?, ?> property) {
         Id.IdFeature idFeature = PropertyUtil.getFeature(property, Id.IdFeature.class);
 
         builder.append(property.getSafeName()).append(" ").append(affinityFor(property.getType()));
@@ -642,11 +672,11 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         } else {
             builder.append("SELECT ");
 
-            Property<?>[] properties = query.getEntityDescription().getProperties();
+            List<? extends Property<ENTITY, ?>> properties = query.getEntityDescription().getProperties();
 
             // TODO add some validation of filters
             int i = 0;
-            for (Property<?> property : properties) {
+            for (Property<ENTITY, ?> property : properties) {
                 if (i > 0) {
                     builder.append(',');
                 }
@@ -666,7 +696,7 @@ public class AndroidSQLiteEngine implements DatabaseEngine {
         if (query.getOrderMap().size() > 0) {
             builder.append(" ORDER BY ");
             int i = 0;
-            for (Map.Entry<Property<?>, OrderLoader.Direction> entry : query.getOrderMap().entrySet()) {
+            for (Map.Entry<Property<ENTITY, ?>, OrderLoader.Direction> entry : query.getOrderMap().entrySet()) {
                 if (i++ > 0) {
                     builder.append(',');
                 }

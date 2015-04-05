@@ -19,7 +19,7 @@ public class EntitiesImpl implements Entities {
         Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
         EntityDescription<ENTITY> metadata = getDescription(entityClass);
 
-        return KeyFactory.create(entityClass, metadata.getEntityId(entity));
+        return KeyFactory.create(entityClass, metadata.getIdProperty().get(entity));
     }
 
     public void clear() {

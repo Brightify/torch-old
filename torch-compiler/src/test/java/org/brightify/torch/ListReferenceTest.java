@@ -9,10 +9,10 @@ import java.util.Arrays;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
 import static org.truth0.Truth.ASSERT;
 
+@Ignore
 public class ListReferenceTest {
 
     @Test
-    @Ignore
     public void testEntityWithListOfOtherEntities() {
         ASSERT.about(javaSources())
                 .that(Arrays.asList(

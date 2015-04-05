@@ -9,40 +9,41 @@ import org.brightify.torch.filter.NumberProperty;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public class NumberPropertyImpl<TYPE extends Number> extends GenericPropertyImpl<TYPE> implements NumberProperty<TYPE> {
+public abstract class NumberPropertyImpl<OWNER, TYPE extends Number> extends GenericPropertyImpl<OWNER, TYPE>
+        implements NumberProperty<OWNER, TYPE> {
 
-    public NumberPropertyImpl(Class<TYPE> type, String name, String safeName) {
-        super(type, name, safeName);
+    public NumberPropertyImpl(Class<OWNER> owner, Class<TYPE> type, String name, String safeName) {
+        super(owner, type, name, safeName);
     }
 
     @Override
-    public GreaterThanFilter<?> greaterThan(TYPE value) {
-        return new GreaterThanFilter<TYPE>(this, value);
+    public GreaterThanFilter<OWNER, TYPE> greaterThan(TYPE value) {
+        return new GreaterThanFilter<OWNER, TYPE>(this, value);
     }
 
     @Override
-    public LessThanFilter<?> lessThan(TYPE value) {
-        return new LessThanFilter<TYPE>(this, value);
+    public LessThanFilter<OWNER, TYPE> lessThan(TYPE value) {
+        return new LessThanFilter<OWNER, TYPE>(this, value);
     }
 
     @Override
-    public GreaterThanOrEqualToFilter<?> greaterThanOrEqualTo(TYPE value) {
-        return new GreaterThanOrEqualToFilter<TYPE>(this, value);
+    public GreaterThanOrEqualToFilter<OWNER, TYPE> greaterThanOrEqualTo(TYPE value) {
+        return new GreaterThanOrEqualToFilter<OWNER, TYPE>(this, value);
     }
 
     @Override
-    public LessThanOrEqualToFilter<?> lessThanOrEqualTo(TYPE value) {
-        return new LessThanOrEqualToFilter<TYPE>(this, value);
+    public LessThanOrEqualToFilter<OWNER, TYPE> lessThanOrEqualTo(TYPE value) {
+        return new LessThanOrEqualToFilter<OWNER, TYPE>(this, value);
     }
 
     @Override
-    public NumberPropertyImpl<TYPE> defaultValue(TYPE defaultValue) {
+    public NumberPropertyImpl<OWNER, TYPE> defaultValue(TYPE defaultValue) {
         super.defaultValue(defaultValue);
         return this;
     }
 
     @Override
-    public NumberPropertyImpl<TYPE> feature(Feature feature) {
+    public NumberPropertyImpl<OWNER, TYPE> feature(Feature feature) {
         super.feature(feature);
         return this;
     }
