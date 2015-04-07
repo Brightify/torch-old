@@ -13,6 +13,8 @@ Support this project using Flattr:
 **Torch** is an Open Source library that makes data storage on Android easy.
 ### [**Documentation**](https://github.com/brightify/torch/wiki/Home)
 
+[![Join the chat at https://gitter.im/brightify/torch](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/brightify/torch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ***
 
 Development of **Torch ORM** is sponsored by [Brightify](http://www.brightify.org)
