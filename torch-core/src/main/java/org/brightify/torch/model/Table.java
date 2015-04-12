@@ -29,7 +29,7 @@ public class Table {
 
     @Id
     @Index
-    @Load(TableDetails.class)
+    @Load(when = TableDetails.class)
     public Long getId() {
         return id;
     }

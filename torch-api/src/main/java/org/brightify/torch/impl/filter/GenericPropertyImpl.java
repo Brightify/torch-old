@@ -1,8 +1,8 @@
 package org.brightify.torch.impl.filter;
 
+import org.brightify.torch.filter.BaseFilter;
+import org.brightify.torch.filter.EnumerationFilter;
 import org.brightify.torch.filter.GenericProperty;
-import org.brightify.torch.filter.InFilter;
-import org.brightify.torch.filter.NotInFilter;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -15,23 +15,23 @@ public abstract class GenericPropertyImpl<OWNER, TYPE> extends PropertyImpl<OWNE
     }
 
     @Override
-    public InFilter<OWNER, TYPE> in(TYPE... values) {
-        return new InFilter<OWNER, TYPE>(this, values);
+    public BaseFilter<OWNER, TYPE> in(TYPE... values) {
+        return new EnumerationFilter<OWNER, TYPE>(this, BaseFilter.FilterType.IN, values);
     }
 
     @Override
-    public InFilter<OWNER, TYPE> in(Iterable<TYPE> values) {
-        return new InFilter<OWNER, TYPE>(this, values);
+    public BaseFilter<OWNER, TYPE> in(Iterable<TYPE> values) {
+        return new EnumerationFilter<OWNER, TYPE>(this, BaseFilter.FilterType.IN, values);
     }
 
     @Override
-    public NotInFilter<OWNER, TYPE> notIn(TYPE... values) {
-        return new NotInFilter<OWNER, TYPE>(this, values);
+    public BaseFilter<OWNER, TYPE> notIn(TYPE... values) {
+        return new EnumerationFilter<OWNER, TYPE>(this, BaseFilter.FilterType.NOT_IN, values);
     }
 
     @Override
-    public NotInFilter<OWNER, TYPE> notIn(Iterable<TYPE> values) {
-        return new NotInFilter<OWNER, TYPE>(this, values);
+    public BaseFilter<OWNER, TYPE> notIn(Iterable<TYPE> values) {
+        return new EnumerationFilter<OWNER, TYPE>(this, BaseFilter.FilterType.NOT_IN, values);
     }
 
     @Override

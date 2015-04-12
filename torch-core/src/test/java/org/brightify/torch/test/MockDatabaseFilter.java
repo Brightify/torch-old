@@ -1,142 +1,128 @@
 package org.brightify.torch.test;
 
 import org.brightify.torch.filter.BaseFilter;
-import org.brightify.torch.filter.ContainsStringFilter;
-import org.brightify.torch.filter.EndsWithStringFilter;
 import org.brightify.torch.filter.EnumerationFilter;
-import org.brightify.torch.filter.EqualToFilter;
 import org.brightify.torch.filter.FilterMethodPublicRouter;
-import org.brightify.torch.filter.GreaterThanFilter;
-import org.brightify.torch.filter.GreaterThanOrEqualToFilter;
-import org.brightify.torch.filter.InFilter;
-import org.brightify.torch.filter.LessThanFilter;
-import org.brightify.torch.filter.LessThanOrEqualToFilter;
-import org.brightify.torch.filter.NotEqualToFilter;
-import org.brightify.torch.filter.NotInFilter;
 import org.brightify.torch.filter.SingleValueFilter;
-import org.brightify.torch.filter.StartsWithStringFilter;
+import org.brightify.torch.util.HashMapBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class MockDatabaseFilter {
 
-    private static Map<Class<?>, MockFilterMatcher> operatorMap = new HashMap<Class<?>, MockFilterMatcher>();
+    private static Map<BaseFilter.FilterType, MockFilterMatcher> operatorMap =
+            HashMapBuilder.<BaseFilter.FilterType, MockFilterMatcher>begin()
+                          .put(BaseFilter.FilterType.EQUAL, new SingleValueMockFilterMatcher() {
+                              @Override
+                              protected boolean applyWithValue(Object value, Object filterValue) {
+                                  if (value == null) {
+                                      return filterValue == null;
+                                  } else {
+                                      return value.equals(filterValue);
+                                  }
+                              }
+                          })
+                          .put(BaseFilter.FilterType.NOT_EQUAL, new SingleValueMockFilterMatcher() {
+                              @Override
+                              protected boolean applyWithValue(Object value, Object filterValue) {
+                                  if (value == null) {
+                                      return filterValue != null;
+                                  } else {
+                                      return !value.equals(filterValue);
+                                  }
+                              }
+                          })
+                          .put(BaseFilter.FilterType.GREATER_THAN, new NumberComparationFilterMatcher() {
+                              @Override
+                              protected boolean compareLong(long value, long filterValue) {
+                                  return value > filterValue;
+                              }
 
-    static {
-        operatorMap.put(EqualToFilter.class, new SingleValueMockFilterMatcher() {
+                              @Override
+                              protected boolean compareDouble(double value, double filterValue) {
+                                  return value > filterValue;
+                              }
+                          })
+                          .put(BaseFilter.FilterType.GREATER_THAN_OR_EQUAL_TO, new NumberComparationFilterMatcher() {
+                              @Override
+                              protected boolean compareLong(long value, long filterValue) {
+                                  return value >= filterValue;
+                              }
 
-            @Override
-            protected boolean applyWithValue(Object value, Object filterValue) {
-                if(value == null) {
-                    return filterValue == null;
-                } else {
-                    return value.equals(filterValue);
-                }
-            }
-        });
-        operatorMap.put(NotEqualToFilter.class, new SingleValueMockFilterMatcher() {
-            @Override
-            protected boolean applyWithValue(Object value, Object filterValue) {
-                if(value == null) {
-                    return filterValue != null;
-                } else {
-                    return !value.equals(filterValue);
-                }
-            }
-        });
-        operatorMap.put(GreaterThanFilter.class, new NumberComparationFilterMatcher() {
-            @Override
-            protected boolean compareLong(long value, long filterValue) {
-                return value > filterValue;
-            }
+                              @Override
+                              protected boolean compareDouble(double value, double filterValue) {
+                                  return value >= filterValue;
+                              }
+                          })
+                          .put(BaseFilter.FilterType.LESS_THAN, new NumberComparationFilterMatcher() {
+                              @Override
+                              protected boolean compareLong(long value, long filterValue) {
+                                  return value < filterValue;
+                              }
 
-            @Override
-            protected boolean compareDouble(double value, double filterValue) {
-                return value > filterValue;
-            }
-        });
-        operatorMap.put(GreaterThanOrEqualToFilter.class, new NumberComparationFilterMatcher() {
-            @Override
-            protected boolean compareLong(long value, long filterValue) {
-                return value >= filterValue;
-            }
+                              @Override
+                              protected boolean compareDouble(double value, double filterValue) {
+                                  return value < filterValue;
+                              }
+                          })
+                          .put(BaseFilter.FilterType.LESS_THAN_OR_EQUAL_TO, new NumberComparationFilterMatcher() {
+                              @Override
+                              protected boolean compareLong(long value, long filterValue) {
+                                  return value <= filterValue;
+                              }
 
-            @Override
-            protected boolean compareDouble(double value, double filterValue) {
-                return value >= filterValue;
-            }
-        });
-        operatorMap.put(LessThanFilter.class, new NumberComparationFilterMatcher() {
-            @Override
-            protected boolean compareLong(long value, long filterValue) {
-                return value < filterValue;
-            }
+                              @Override
+                              protected boolean compareDouble(double value, double filterValue) {
+                                  return value <= filterValue;
+                              }
+                          })
+                          .put(BaseFilter.FilterType.IN, new EnumerationMockFilterMatcher() {
+                              @Override
+                              protected boolean applyWithEnumeration(Object value, Iterable<?> filterValues) {
+                                  for (Object filterValue : filterValues) {
+                                      if (filterValue.equals(value)) {
+                                          return true;
+                                      }
+                                  }
+                                  return false;
+                              }
+                          })
+                          .put(BaseFilter.FilterType.NOT_IN, new EnumerationMockFilterMatcher() {
+                              @Override
+                              protected boolean applyWithEnumeration(Object value, Iterable<?> filterValues) {
+                                  for (Object filterValue : filterValues) {
+                                      if (filterValue.equals(value)) {
+                                          return false;
+                                      }
+                                  }
+                                  return true;
+                              }
+                          })
+                          .put(BaseFilter.FilterType.CONTAINS_STRING, new StringProcessingFilterMatcher() {
+                              @Override
+                              protected boolean process(String value, String filterValue) {
+                                  return value != null && value.contains(filterValue);
+                              }
+                          })
+                          .put(BaseFilter.FilterType.STARTS_WITH_STRING, new StringProcessingFilterMatcher() {
+                              @Override
+                              protected boolean process(String value, String filterValue) {
+                                  return value != null && value.startsWith(filterValue);
+                              }
+                          })
+                          .put(BaseFilter.FilterType.ENDS_WITH_STRING, new StringProcessingFilterMatcher() {
+                              @Override
+                              protected boolean process(String value, String filterValue) {
+                                  return value != null && value.endsWith(filterValue);
+                              }
+                          })
+                          .map();
 
-            @Override
-            protected boolean compareDouble(double value, double filterValue) {
-                return value < filterValue;
-            }
-        });
-        operatorMap.put(LessThanOrEqualToFilter.class, new NumberComparationFilterMatcher() {
-            @Override
-            protected boolean compareLong(long value, long filterValue) {
-                return value <= filterValue;
-            }
-
-            @Override
-            protected boolean compareDouble(double value, double filterValue) {
-                return value <= filterValue;
-            }
-        });
-        operatorMap.put(InFilter.class, new EnumerationMockFilterMatcher() {
-            @Override
-            protected boolean applyWithEnumeration(Object value, Iterable<?> filterValues) {
-                for (Object filterValue : filterValues) {
-                    if(filterValue.equals(value)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-        operatorMap.put(NotInFilter.class, new EnumerationMockFilterMatcher() {
-            @Override
-            protected boolean applyWithEnumeration(Object value, Iterable<?> filterValues) {
-                for (Object filterValue : filterValues) {
-                    if(filterValue.equals(value)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        });
-        operatorMap.put(ContainsStringFilter.class, new StringProcessingFilterMatcher() {
-            @Override
-            protected boolean process(String value, String filterValue) {
-                return value != null && value.contains(filterValue);
-            }
-        });
-        operatorMap.put(StartsWithStringFilter.class, new StringProcessingFilterMatcher() {
-            @Override
-            protected boolean process(String value, String filterValue) {
-                return value != null && value.startsWith(filterValue);
-            }
-        });
-        operatorMap.put(EndsWithStringFilter.class, new StringProcessingFilterMatcher() {
-            @Override
-            protected boolean process(String value, String filterValue) {
-                return value != null && value.endsWith(filterValue);
-            }
-        });
-    }
-
-    public static boolean applyFilter(BaseFilter<?, ?, ?> filter, MockDatabaseEngine.RawEntity entity) {
-        Class<?> filterType = filter.getClass();
+    public static boolean applyFilter(BaseFilter<?, ?> filter, MockDatabaseEngine.RawEntity entity) {
+        BaseFilter.FilterType filterType = FilterMethodPublicRouter.getFilterType(filter);
         MockFilterMatcher matcher = operatorMap.get(filterType);
         if (matcher == null) {
-            throw new IllegalStateException("Unsupported filter! New filters cannot be added! Filter: " +
-                    filter.getClass().getSimpleName());
+            throw new IllegalStateException("Unsupported filter " + filterType.name());
         }
 
         Iterable<BaseFilter.OperatorFilterTuple> filterTuples = FilterMethodPublicRouter.getFilters(filter);
@@ -148,7 +134,7 @@ public class MockDatabaseFilter {
         if (filterTuples != null) {
             for (BaseFilter.OperatorFilterTuple filterTuple : filterTuples) {
                 BaseFilter.Operator operator = filterTuple.getOperator();
-                BaseFilter<?, ?, ?> nextFilter = filterTuple.getFilter();
+                BaseFilter<?, ?> nextFilter = filterTuple.getFilter();
 
                 boolean nextFilterApplies = applyFilter(nextFilter, entity);
                 switch (operator) {
@@ -168,13 +154,13 @@ public class MockDatabaseFilter {
     }
 
     private interface MockFilterMatcher {
-        boolean apply(BaseFilter<?, ?, ?> filter, Object value);
+        boolean apply(BaseFilter<?, ?> filter, Object value);
     }
 
     private static abstract class SingleValueMockFilterMatcher implements MockFilterMatcher {
         @Override
-        public boolean apply(BaseFilter<?, ?, ?> filter, Object value) {
-            SingleValueFilter<?, ?, ?> singleValueFilter = (SingleValueFilter<?, ?, ?>) filter;
+        public boolean apply(BaseFilter<?, ?> filter, Object value) {
+            SingleValueFilter<?, ?> singleValueFilter = (SingleValueFilter<?, ?>) filter;
 
             return applyWithValue(value, FilterMethodPublicRouter.getSingleValue(singleValueFilter));
         }
@@ -184,8 +170,8 @@ public class MockDatabaseFilter {
 
     private static abstract class EnumerationMockFilterMatcher implements MockFilterMatcher {
         @Override
-        public boolean apply(BaseFilter<?, ?, ?> filter, Object value) {
-            EnumerationFilter<?, ?, ?> enumerationFilter = (EnumerationFilter<?, ?, ?>) filter;
+        public boolean apply(BaseFilter<?, ?> filter, Object value) {
+            EnumerationFilter<?, ?> enumerationFilter = (EnumerationFilter<?, ?>) filter;
 
             return applyWithEnumeration(value, FilterMethodPublicRouter.getValueEnumeration(enumerationFilter));
         }
@@ -196,7 +182,7 @@ public class MockDatabaseFilter {
     private static abstract class NumberComparationFilterMatcher extends SingleValueMockFilterMatcher {
         @Override
         protected boolean applyWithValue(Object value, Object filterValue) {
-            if(value == null ^ filterValue == null) {
+            if (value == null ^ filterValue == null) {
                 return false;
             } else if (value == null && filterValue == null) {
                 return true;
@@ -206,7 +192,7 @@ public class MockDatabaseFilter {
 
             long valueLong = valueNumber.longValue();
             long filterValueLong = filterValueNumber.longValue();
-            if(valueLong != filterValueLong) {
+            if (valueLong != filterValueLong) {
                 return compareLong(valueLong, filterValueLong);
             }
 

@@ -1,10 +1,8 @@
 package org.brightify.torch.impl.filter;
 
-import org.brightify.torch.filter.GreaterThanFilter;
-import org.brightify.torch.filter.GreaterThanOrEqualToFilter;
-import org.brightify.torch.filter.LessThanFilter;
-import org.brightify.torch.filter.LessThanOrEqualToFilter;
+import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.NumberProperty;
+import org.brightify.torch.filter.SingleValueFilter;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -17,23 +15,23 @@ public abstract class NumberPropertyImpl<OWNER, TYPE extends Number> extends Gen
     }
 
     @Override
-    public GreaterThanFilter<OWNER, TYPE> greaterThan(TYPE value) {
-        return new GreaterThanFilter<OWNER, TYPE>(this, value);
+    public BaseFilter<OWNER, TYPE> greaterThan(TYPE value) {
+        return new SingleValueFilter<OWNER, TYPE>(this, BaseFilter.FilterType.GREATER_THAN, value);
     }
 
     @Override
-    public LessThanFilter<OWNER, TYPE> lessThan(TYPE value) {
-        return new LessThanFilter<OWNER, TYPE>(this, value);
+    public BaseFilter<OWNER, TYPE> lessThan(TYPE value) {
+        return new SingleValueFilter<OWNER, TYPE>(this, BaseFilter.FilterType.LESS_THAN, value);
     }
 
     @Override
-    public GreaterThanOrEqualToFilter<OWNER, TYPE> greaterThanOrEqualTo(TYPE value) {
-        return new GreaterThanOrEqualToFilter<OWNER, TYPE>(this, value);
+    public BaseFilter<OWNER, TYPE> greaterThanOrEqualTo(TYPE value) {
+        return new SingleValueFilter<OWNER, TYPE>(this, BaseFilter.FilterType.GREATER_THAN_OR_EQUAL_TO, value);
     }
 
     @Override
-    public LessThanOrEqualToFilter<OWNER, TYPE> lessThanOrEqualTo(TYPE value) {
-        return new LessThanOrEqualToFilter<OWNER, TYPE>(this, value);
+    public BaseFilter<OWNER, TYPE> lessThanOrEqualTo(TYPE value) {
+        return new SingleValueFilter<OWNER, TYPE>(this, BaseFilter.FilterType.LESS_THAN_OR_EQUAL_TO, value);
     }
 
     @Override

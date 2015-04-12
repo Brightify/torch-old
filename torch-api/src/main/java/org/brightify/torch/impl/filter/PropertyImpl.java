@@ -1,8 +1,8 @@
 package org.brightify.torch.impl.filter;
 
-import org.brightify.torch.filter.EqualToFilter;
-import org.brightify.torch.filter.NotEqualToFilter;
+import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.SingleValueFilter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -57,13 +57,13 @@ public abstract class PropertyImpl<OWNER, TYPE> implements Property<OWNER, TYPE>
     }
 
     @Override
-    public EqualToFilter<OWNER, TYPE> equalTo(TYPE value) {
-        return new EqualToFilter<OWNER, TYPE>(this, value);
+    public BaseFilter<OWNER, TYPE> equalTo(TYPE value) {
+        return new SingleValueFilter<OWNER, TYPE>(this, BaseFilter.FilterType.EQUAL, value);
     }
 
     @Override
-    public NotEqualToFilter<OWNER, TYPE> notEqualTo(TYPE value) {
-        return new NotEqualToFilter<OWNER, TYPE>(this, value);
+    public BaseFilter<OWNER, TYPE> notEqualTo(TYPE value) {
+        return new SingleValueFilter<OWNER, TYPE>(this, BaseFilter.FilterType.NOT_EQUAL, value);
     }
 
     public PropertyImpl<OWNER, TYPE> feature(Feature feature) {

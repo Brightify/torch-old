@@ -1,5 +1,6 @@
 package org.brightify.torch.filter;
 
+import org.brightify.torch.EntityDescription;
 import org.brightify.torch.Ref;
 
 /**
@@ -10,5 +11,9 @@ import org.brightify.torch.Ref;
 public interface ReferenceProperty<OWNER, TYPE> extends Property<OWNER, Ref<TYPE>> {
 
     Class<TYPE> getReferencedType();
+
+    EntityDescription<TYPE> getReferencedEntityDescription();
+
+    void setReferencedEntityDescription(EntityDescription<TYPE> description);
 
 }

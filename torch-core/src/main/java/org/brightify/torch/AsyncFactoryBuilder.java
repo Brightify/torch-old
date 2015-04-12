@@ -33,8 +33,8 @@ public class AsyncFactoryBuilder implements AsyncInitializer, AsyncEntityRegistr
     }
 
     @Override
-    public <ENTITY> AsyncEntityRegistrarSubmit register(Class<ENTITY> entityClass) {
-        EntityDescription<ENTITY> metadata = EntitiesImpl.findMetadata(entityClass);
+    public AsyncEntityRegistrarSubmit register(Class<?> entityClass) {
+        EntityDescription<?> metadata = EntitiesImpl.resolveEntityDescription(entityClass);
         metadatas.add(metadata);
         return this;
     }

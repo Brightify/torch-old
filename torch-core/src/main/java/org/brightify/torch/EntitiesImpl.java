@@ -1,5 +1,7 @@
 package org.brightify.torch;
 
+import org.brightify.torch.util.Constants;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -16,6 +18,7 @@ public class EntitiesImpl implements Entities {
 
     @Override
     public <ENTITY> Key<ENTITY> keyOf(ENTITY entity) {
+        @SuppressWarnings("unchecked")
         Class<ENTITY> entityClass = (Class<ENTITY>) entity.getClass();
         EntityDescription<ENTITY> metadata = getDescription(entityClass);
 
@@ -55,28 +58,37 @@ public class EntitiesImpl implements Entities {
             byTableName.put(tableName, metadata);
             // throw new IllegalStateException("This table name is already registered! Table name:" + tableName);
         }
-
     }
 
-    public static <ENTITY> EntityDescription<ENTITY> findMetadata(Class<ENTITY> entityClass) {
-        // TODO Move "Metadata" to constant which is consistent through torch-compiler (probably Settings class)
-        String metadataName = entityClass.getName() + "$";
+    public static EntityDescription<?> resolveEntityDescription(Class<?> entityOrEntityDescriptionClass) {
+        Class<EntityDescription<?>> descriptionClass;
+        if(EntityDescription.class.isAssignableFrom(entityOrEntityDescriptionClass)) {
+            descriptionClass = (Class<EntityDescription<?>>) entityOrEntityDescriptionClass;
+        } else {
+            String descriptionName = entityOrEntityDescriptionClass.getName() + Constants.DESCRIPTION_POSTFIX;
+            try {
+                descriptionClass = (Class<EntityDescription<?>>) Class.forName(descriptionName);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Entity description '" + descriptionName + "' does not exist!", e);
+            }
+        }
 
+        return instantiateEntityDescription(descriptionClass);
+    }
+
+    public static EntityDescription<?> instantiateEntityDescription(Class<EntityDescription<?>> descriptionClass) {
         try {
-            Class<EntityDescription<ENTITY>> metadataClass = (Class<EntityDescription<ENTITY>>) Class.forName(metadataName);
-            Constructor<EntityDescription<ENTITY>> constructor = metadataClass.getDeclaredConstructor();
+            Constructor<EntityDescription<?>> constructor = descriptionClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
         } catch (InstantiationException e) {
-            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+            throw new IllegalArgumentException("Could not instantiate entity description '" + descriptionClass.getSimpleName() + "'.", e);
         } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+            throw new IllegalArgumentException("Constructor not accessible for entity description '" + descriptionClass.getSimpleName() + "'.", e);
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+            throw new IllegalArgumentException("Entity description '" + descriptionClass.getSimpleName() + "' lacks a no-arg constructor.", e);
         } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException("Entity metadata '" + metadataName + "' doesn't exist!", e);
+            throw new IllegalArgumentException("Could not invoke constructor for entity description '" + descriptionClass.getSimpleName() + "'.", e);
         }
     }
 

@@ -1,7 +1,8 @@
 package org.brightify.torch.test;
 
 import org.brightify.torch.DatabaseEngine;
-import org.brightify.torch.TorchService;
+import org.brightify.torch.TorchFactory;
+import org.brightify.torch.TorchFactoryImpl;
 import org.brightify.torch.filter.BaseFilter;
 import org.junit.After;
 import org.junit.Before;
@@ -10,7 +11,6 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-import static org.brightify.torch.TorchService.torch;
 import static org.brightify.torch.test.TestUtils.createTestObject;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThat;
  */
 public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
 
-    private ENGINE databaseEngine;
+    private TorchFactory torchFactory;
 
     private TestObject[] savedData;
 
@@ -31,13 +31,13 @@ public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
     private TestObject testObject2;
     private TestObject testObject3;
 
-    static int i = 0;
-
     @Before
     public void setUp() throws Exception {
-        databaseEngine = prepareDatabaseEngine();
+        ENGINE databaseEngine = prepareDatabaseEngine();
 
-        TorchService.with(databaseEngine).register(TestObject.class);
+        TorchFactoryImpl.BasicConfiguration configuration = new TorchFactoryImpl.BasicConfiguration(databaseEngine);
+        configuration.register(TestObject.class);
+        torchFactory = configuration.initializeFactory();
 
         testObject = createTestObject();
         testObject.intField = -10;
@@ -57,15 +57,14 @@ public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
 
         savedData = new TestObject[] { testObject, testObject1, testObject2, testObject3 };
 
-        Map<TestObject, Long> savedDataMap = torch().save().entities(savedData);
+        Map<TestObject, Long> savedDataMap = torchFactory.begin().save().entities(savedData);
         assertThat(savedDataMap.size(), is(4));
     }
 
     @After
     public void tearDown() throws Exception {
-        databaseEngine.wipe();
-        databaseEngine = null;
-        TorchService.forceUnload();
+        torchFactory.getDatabaseEngine().wipe();
+        torchFactory.unload();
     }
 
     @Test
@@ -136,8 +135,8 @@ public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
         filteredContains(TestObject$.stringField.endsWith(last8Chars), testObject2);
     }
 
-    private List<TestObject> filteredContains(BaseFilter<TestObject, ?, ?> filter, TestObject... objects) {
-        List<TestObject> loadedObjects = torch()
+    private List<TestObject> filteredContains(BaseFilter<TestObject, ?> filter, TestObject... objects) {
+        List<TestObject> loadedObjects = torchFactory.begin()
                 .load().type(TestObject.class)
                 .filter(filter)
                 .list();
@@ -145,10 +144,6 @@ public abstract class AbstractFilterTest<ENGINE extends DatabaseEngine> {
         assertThat(loadedObjects, contains(objects));
 
         return loadedObjects;
-    }
-
-    public ENGINE getDatabaseEngine() {
-        return databaseEngine;
     }
 
     protected abstract ENGINE prepareDatabaseEngine();

@@ -225,7 +225,7 @@ public class LoaderImpl<ENTITY> implements
                 torch.getFactory().getEntities().getDescription(typedLoaderType.entityClass);
         NumberProperty<ENTITY, Long> idColumn = metadata.getIdProperty();
 
-        BaseFilter<ENTITY, ?, ?> filter = null;
+        BaseFilter<ENTITY, ?> filter = null;
         for (Long id : ids) {
             if (filter == null) {
                 filter = idColumn.equalTo(id);
@@ -284,7 +284,7 @@ public class LoaderImpl<ENTITY> implements
     }
 
     @Override
-    public LoaderImpl<ENTITY> filter(BaseFilter<ENTITY, ?, ?> filter) {
+    public LoaderImpl<ENTITY> filter(BaseFilter<ENTITY, ?> filter) {
         return nextLoader(new LoaderType.FilterLoaderType<ENTITY>(filter));
     }
 
@@ -393,7 +393,7 @@ public class LoaderImpl<ENTITY> implements
 
         private EntityDescription<ENTITY> entityDescription;
         private Set<Class<?>> loadGroups = new HashSet<Class<?>>();
-        private BaseFilter<ENTITY, ?, ?> entityFilter;
+        private BaseFilter<ENTITY, ?> entityFilter;
         private Map<Property<ENTITY, ?>, OrderLoader.Direction> orderMap = new HashMap<Property<ENTITY, ?>, Direction>();
         private Property<ENTITY, ?> lastOrderColumn;
         private Integer limit;
@@ -422,7 +422,7 @@ public class LoaderImpl<ENTITY> implements
         }
 
         @Override
-        public BaseFilter<ENTITY, ?, ?> getFilter() {
+        public BaseFilter<ENTITY, ?> getFilter() {
             return entityFilter;
         }
 
@@ -461,7 +461,7 @@ public class LoaderImpl<ENTITY> implements
             Collections.addAll(loadGroups, groups);
         }
 
-        public void setEntityFilter(BaseFilter<ENTITY, ?, ?> entityFilter) {
+        public void setEntityFilter(BaseFilter<ENTITY, ?> entityFilter) {
             this.entityFilter = entityFilter;
         }
 

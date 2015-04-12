@@ -2,23 +2,12 @@ package org.brightify.torch.android;
 
 import android.util.Log;
 import org.brightify.torch.filter.BaseFilter;
-import org.brightify.torch.filter.ContainsStringFilter;
-import org.brightify.torch.filter.EndsWithStringFilter;
 import org.brightify.torch.filter.EnumerationFilter;
-import org.brightify.torch.filter.EqualToFilter;
 import org.brightify.torch.filter.FilterMethodPublicRouter;
-import org.brightify.torch.filter.GreaterThanFilter;
-import org.brightify.torch.filter.GreaterThanOrEqualToFilter;
-import org.brightify.torch.filter.InFilter;
-import org.brightify.torch.filter.LessThanFilter;
-import org.brightify.torch.filter.LessThanOrEqualToFilter;
-import org.brightify.torch.filter.NotEqualToFilter;
-import org.brightify.torch.filter.NotInFilter;
 import org.brightify.torch.filter.Property;
 import org.brightify.torch.filter.SingleValueFilter;
-import org.brightify.torch.filter.StartsWithStringFilter;
+import org.brightify.torch.util.HashMapBuilder;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,44 +15,41 @@ public class SQLiteWhereClauseBuilder {
 
     private static final String TAG = SQLiteWhereClauseBuilder.class.getSimpleName();
 
-    private static Map<Class<?>, FilterToSQLConvertor> operatorMap = new HashMap<Class<?>, FilterToSQLConvertor>();
+    private static Map<BaseFilter.FilterType, FilterToSQLConvertor> operatorMap = HashMapBuilder
+            .<BaseFilter.FilterType, FilterToSQLConvertor>begin()
+            .put(BaseFilter.FilterType.EQUAL, new SingleValueFilterToSQLConvertor("="))
+            .put(BaseFilter.FilterType.NOT_EQUAL, new SingleValueFilterToSQLConvertor("!="))
+            .put(BaseFilter.FilterType.GREATER_THAN, new SingleValueFilterToSQLConvertor(">"))
+            .put(BaseFilter.FilterType.GREATER_THAN_OR_EQUAL_TO, new SingleValueFilterToSQLConvertor(">="))
+            .put(BaseFilter.FilterType.LESS_THAN, new SingleValueFilterToSQLConvertor("<"))
+            .put(BaseFilter.FilterType.LESS_THAN_OR_EQUAL_TO, new SingleValueFilterToSQLConvertor("<="))
+            .put(BaseFilter.FilterType.IN, new EnumerationFilterToSQLConvertor("IN"))
+            .put(BaseFilter.FilterType.NOT_IN, new EnumerationFilterToSQLConvertor("NOT IN"))
+            .put(BaseFilter.FilterType.STARTS_WITH_STRING, new StringProcessingFilterToSQLConvertor() {
+                @Override
+                protected String alterValue(String original) {
+                    return original + "%";
+                }
+            })
+            .put(BaseFilter.FilterType.ENDS_WITH_STRING, new StringProcessingFilterToSQLConvertor() {
+                @Override
+                protected String alterValue(String original) {
+                    return "%" + original;
+                }
+            })
+            .put(BaseFilter.FilterType.CONTAINS_STRING, new StringProcessingFilterToSQLConvertor() {
+                @Override
+                protected String alterValue(String original) {
+                    return "%" + original + "%";
+                }
+            })
+            .map();
 
-    static {
-        operatorMap.put(EqualToFilter.class, new SingleValueFilterToSQLConvertor("="));
-        operatorMap.put(NotEqualToFilter.class, new SingleValueFilterToSQLConvertor("!="));
-        operatorMap.put(GreaterThanFilter.class, new SingleValueFilterToSQLConvertor(">"));
-        operatorMap.put(GreaterThanOrEqualToFilter.class, new SingleValueFilterToSQLConvertor(">="));
-        operatorMap.put(LessThanFilter.class, new SingleValueFilterToSQLConvertor("<"));
-        operatorMap.put(LessThanOrEqualToFilter.class, new SingleValueFilterToSQLConvertor("<="));
-
-        operatorMap.put(InFilter.class, new EnumerationFilterToSQLConvertor("IN"));
-        operatorMap.put(NotInFilter.class, new EnumerationFilterToSQLConvertor("NOT IN"));
-
-        operatorMap.put(StartsWithStringFilter.class, new StringProcessingFilterToSQLConvertor() {
-            @Override
-            protected String alterValue(String original) {
-                return original + "%";
-            }
-        });
-        operatorMap.put(EndsWithStringFilter.class, new StringProcessingFilterToSQLConvertor() {
-            @Override
-            protected String alterValue(String original) {
-                return "%" + original;
-            }
-        });
-        operatorMap.put(ContainsStringFilter.class, new StringProcessingFilterToSQLConvertor() {
-            @Override
-            protected String alterValue(String original) {
-                return "%" + original + "%";
-            }
-        });
-    }
-
-    public static void appendFilter(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
-        Class<?> filterType = filter.getClass();
+    public static void appendFilter(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
+        BaseFilter.FilterType filterType = FilterMethodPublicRouter.getFilterType(filter);
         FilterToSQLConvertor convertor = operatorMap.get(filterType);
         if (convertor == null) {
-            throw new IllegalStateException("Unsupported filter! New filters cannot be added!");
+            throw new IllegalStateException("Unsupported filter " + filterType.name());
         }
 
         Iterable<BaseFilter.OperatorFilterTuple> filterTuples = FilterMethodPublicRouter.getFilters(filter);
@@ -76,7 +62,7 @@ public class SQLiteWhereClauseBuilder {
         if (filterTuples != null) {
             for (BaseFilter.OperatorFilterTuple filterTuple : filterTuples) {
                 BaseFilter.Operator operator = filterTuple.getOperator();
-                BaseFilter<?, ?, ?> nextFilter = filterTuple.getFilter();
+                BaseFilter<?, ?> nextFilter = filterTuple.getFilter();
 
                 switch (operator) {
                     case AND:
@@ -98,7 +84,7 @@ public class SQLiteWhereClauseBuilder {
 
 
     private interface FilterToSQLConvertor {
-        void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs);
+        void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs);
     }
 
     private static class SingleValueFilterToSQLConvertor implements FilterToSQLConvertor {
@@ -110,9 +96,9 @@ public class SQLiteWhereClauseBuilder {
         }
 
         @Override
-        public void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
-            if (filter instanceof SingleValueFilter<?, ?, ?>) {
-                SingleValueFilter<?, ?, ?> singleValueFilter = (SingleValueFilter<?, ?, ?>) filter;
+        public void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
+            if (filter instanceof SingleValueFilter<?, ?>) {
+                SingleValueFilter<?, ?> singleValueFilter = (SingleValueFilter<?, ?>) filter;
                 Property<?, ?> property = FilterMethodPublicRouter.getProperty(filter);
                 Object value = FilterMethodPublicRouter.getSingleValue(singleValueFilter);
                 builder.append(" ").append(property.getSafeName()).append(" ").append(operator).append(" ? ");
@@ -127,16 +113,16 @@ public class SQLiteWhereClauseBuilder {
 
             } else {
                 Log.w(TAG, "Filter ignored, because it has a wrong binding! Expected " +
-                        SingleValueFilter.class.getSimpleName() + " but got " + filter.getClass().getSimpleName());
+                           SingleValueFilter.class.getSimpleName() + " but got " + filter.getClass().getSimpleName());
             }
         }
     }
 
     private abstract static class StringProcessingFilterToSQLConvertor implements FilterToSQLConvertor {
         @Override
-        public void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
-            if (filter instanceof SingleValueFilter<?, ?, ?>) {
-                SingleValueFilter<?, ?, ?> singleValueFilter = (SingleValueFilter<?, ?, ?>) filter;
+        public void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
+            if (filter instanceof SingleValueFilter<?, ?>) {
+                SingleValueFilter<?, ?> singleValueFilter = (SingleValueFilter<?, ?>) filter;
                 Property<?, ?> property = FilterMethodPublicRouter.getProperty(filter);
                 Object value = FilterMethodPublicRouter.getSingleValue(singleValueFilter);
                 builder.append(" ").append(property.getSafeName()).append(" LIKE ? ");
@@ -144,7 +130,7 @@ public class SQLiteWhereClauseBuilder {
                 selectionArgs.add(alterValue(value.toString()));
             } else {
                 Log.w(TAG, "Filter ignored, because it has a wrong binding! Expected " +
-                        SingleValueFilter.class.getSimpleName() + " but got " + filter.getClass().getSimpleName());
+                           SingleValueFilter.class.getSimpleName() + " but got " + filter.getClass().getSimpleName());
             }
         }
 
@@ -160,9 +146,9 @@ public class SQLiteWhereClauseBuilder {
         }
 
         @Override
-        public void convert(StringBuilder builder, BaseFilter<?, ?, ?> filter, List<String> selectionArgs) {
-            if (filter instanceof EnumerationFilter<?, ?, ?>) {
-                EnumerationFilter<?, ?, ?> enumerationFilter = (EnumerationFilter<?, ?, ?>) filter;
+        public void convert(StringBuilder builder, BaseFilter<?, ?> filter, List<String> selectionArgs) {
+            if (filter instanceof EnumerationFilter<?, ?>) {
+                EnumerationFilter<?, ?> enumerationFilter = (EnumerationFilter<?, ?>) filter;
                 Property<?, ?> property = FilterMethodPublicRouter.getProperty(filter);
                 Iterable<?> values = FilterMethodPublicRouter.getValueEnumeration(enumerationFilter);
 
@@ -178,7 +164,7 @@ public class SQLiteWhereClauseBuilder {
                         selectionArgs.add(value.toString());
                     }
                     builder.append(delimiter).append("?");
-                    if(delimiter.equals("")) {
+                    if (delimiter.equals("")) {
                         delimiter = ", ";
                     }
                 }
@@ -186,7 +172,7 @@ public class SQLiteWhereClauseBuilder {
 
             } else {
                 Log.w(TAG, "Filter ignored, because it has wrong binding! Expected " +
-                        EnumerationFilter.class.getSimpleName() + " but got " + filter.getClass().getSimpleName());
+                           EnumerationFilter.class.getSimpleName() + " but got " + filter.getClass().getSimpleName());
             }
         }
     }

@@ -19,9 +19,9 @@ public interface Property<OWNER, TYPE> {
 
     TYPE getDefaultValue();
 
-    EqualToFilter<OWNER, TYPE> equalTo(TYPE value);
+    BaseFilter<OWNER, TYPE> equalTo(TYPE value);
 
-    NotEqualToFilter<OWNER, TYPE> notEqualTo(TYPE value);
+    BaseFilter<OWNER, TYPE> notEqualTo(TYPE value);
 
     TYPE get(OWNER entity);
 

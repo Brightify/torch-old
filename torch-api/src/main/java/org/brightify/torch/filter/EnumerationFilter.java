@@ -5,18 +5,17 @@ import java.util.Arrays;
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
-public abstract class EnumerationFilter<OWNER, TYPE, FILTER extends EnumerationFilter<OWNER, TYPE, FILTER>>
-        extends BaseFilter<OWNER, TYPE, FILTER> {
+public class EnumerationFilter<OWNER, TYPE> extends BaseFilter<OWNER, TYPE> {
 
     private final Iterable<TYPE> values;
 
-    public EnumerationFilter(Property<OWNER, TYPE> property, Iterable<TYPE> values) {
-        super(property);
+    public EnumerationFilter(Property<OWNER, TYPE> property, FilterType filterType, Iterable<TYPE> values) {
+        super(property, filterType);
         this.values = values;
     }
 
-    public EnumerationFilter(Property<OWNER, TYPE> property, TYPE... values) {
-        super(property);
+    public EnumerationFilter(Property<OWNER, TYPE> property, FilterType filterType, TYPE... values) {
+        super(property, filterType);
         this.values = Arrays.asList(values);
     }
 

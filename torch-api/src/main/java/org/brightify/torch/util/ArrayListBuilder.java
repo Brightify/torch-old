@@ -20,7 +20,7 @@ public class ArrayListBuilder<T> {
         list = new ArrayList<T>(initialCapacity);
     }
 
-    public ArrayListBuilder(Collection<T> fromCollection) {
+    public ArrayListBuilder(Collection<? extends T> fromCollection) {
         list = new ArrayList<T>(fromCollection);
     }
 
@@ -41,7 +41,7 @@ public class ArrayListBuilder<T> {
         return this;
     }
 
-    public static <T> ArrayListBuilder<T> from(Collection<T> collection) {
+    public static <T> ArrayListBuilder<T> from(Collection<? extends T> collection) {
         return new ArrayListBuilder<T>(collection);
     }
 

@@ -7,6 +7,7 @@ import org.brightify.torch.LoadContainerImpl;
 import org.brightify.torch.ReadableRawEntity;
 import org.brightify.torch.Ref;
 import org.brightify.torch.RefCollection;
+import org.brightify.torch.RefImpl;
 import org.brightify.torch.SaveContainer;
 import org.brightify.torch.SaveContainerImpl;
 import org.brightify.torch.Torch;
@@ -14,9 +15,10 @@ import org.brightify.torch.TorchFactory;
 import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.action.load.LoadQuery;
 import org.brightify.torch.action.load.OrderLoader;
-import org.brightify.torch.filter.EqualToFilter;
+import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.ValueProperty;
 import org.brightify.torch.impl.filter.LongPropertyImpl;
 import org.brightify.torch.util.MigrationAssistant;
@@ -113,6 +115,12 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         WritableRawContainerImpl rawContainer = new WritableRawContainerImpl();
         SaveContainer saveContainer = new SaveContainerImpl(torchFactory, Collections.<Class<?>>emptySet());
+
+        for (ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
+            List<?> objects = referencedObjects(referenceProperty, entities);
+            save(objects);
+        }
+
         for (ENTITY entity : entities) {
             RawEntity rawEntity = new RawEntity();
             rawContainer.setRawEntity(rawEntity);
@@ -128,6 +136,21 @@ public class MockDatabaseEngine implements DatabaseEngine {
                     valueProperty.writeToRawContainer(entity, rawContainer);
                 }
 
+                for(ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
+                    rawContainer.setPropertyName(referenceProperty.getSafeName());
+                    Ref<?> ref = referenceProperty.get(entity);
+                    if(ref == null) {
+                        rawContainer.putNull();
+                    } else {
+                        Long entityId = ref.getEntityId();
+                        if(entityId == null) {
+                            rawContainer.putNull();
+                        } else {
+                            rawContainer.put(entityId);
+                        }
+                    }
+                }
+
                 results.put(entity, id);
                 transaction.put(id, rawEntity);
             } catch (Exception e) {
@@ -137,6 +160,24 @@ public class MockDatabaseEngine implements DatabaseEngine {
         database.get(description.getSafeName()).putAll(transaction);
 
         return results;
+    }
+
+    private <ENTITY, CHILD> List<CHILD> referencedObjects(ReferenceProperty<ENTITY, CHILD> property, Iterable<ENTITY> entities) {
+        List<CHILD> children = new ArrayList<CHILD>();
+
+        for (ENTITY entity : entities) {
+            Ref<CHILD> ref = property.get(entity);
+            if(ref == null) {
+                continue;
+            }
+            CHILD child = ref.get();
+            if(child == null) {
+                continue;
+            }
+            children.add(child);
+        }
+
+        return children;
     }
 
     @Override
@@ -226,6 +267,13 @@ public class MockDatabaseEngine implements DatabaseEngine {
                     rawContainer.setPropertyName(valueProperty.getSafeName());
                     valueProperty.readFromRawContainer(rawContainer, entity);
                 }
+
+                for (ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
+                    rawContainer.setPropertyName(referenceProperty.getSafeName());
+                    Long childID = rawContainer.getLong();
+                    Ref<?> ref = setReference(referenceProperty, childID, torchFactory, entity);
+                    loadContainer.addReferenceToQueue(ref);
+                }
             } catch (Exception e) {
                 // FIXME handle the exception better
                 throw new RuntimeException(e);
@@ -234,9 +282,16 @@ public class MockDatabaseEngine implements DatabaseEngine {
         }
 
         loadReferences(loadContainer);
-        loadReferenceCollections(loadContainer);
+//        loadReferenceCollections(loadContainer);
 
         return result;
+    }
+
+    private <ENTITY, CHILD> Ref<CHILD> setReference(ReferenceProperty<ENTITY, CHILD> referenceProperty, Long childID,
+                                              TorchFactory torchFactory, ENTITY entity) {
+        Ref<CHILD> reference = RefImpl.of(referenceProperty, torchFactory, childID);
+        referenceProperty.set(entity, reference);
+        return reference;
     }
 
     private void loadReferences(LoadContainer loadContainer) {
@@ -261,7 +316,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
             String bindTableName = getBindTableName(referenceCollection);
 
             Long parentId = referenceCollection.getParentId();
-            EqualToFilter<?, ?> parentIdFilter = BindTableDescription.parentId.equalTo(parentId);
+            BaseFilter<?, ?> parentIdFilter = BindTableDescription.parentId.equalTo(parentId);
 
             Map<Long, RawEntity> bindTableDatabase = database.get(bindTableName);
             List<RawEntity> rawEntities = new ArrayList<RawEntity>();

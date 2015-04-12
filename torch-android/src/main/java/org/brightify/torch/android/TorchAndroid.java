@@ -1,8 +1,7 @@
 package org.brightify.torch.android;
 
 import android.content.Context;
-import org.brightify.torch.TorchFactory;
-import org.brightify.torch.TorchService;
+import org.brightify.torch.TorchFactoryImpl;
 import org.brightify.torch.util.Constants;
 import org.brightify.torch.util.async.AsyncRunner;
 
@@ -11,12 +10,12 @@ import org.brightify.torch.util.async.AsyncRunner;
  */
 public class TorchAndroid {
 
-    public static TorchFactory with(Context context) {
+    public static TorchFactoryImpl.BasicConfiguration with(Context context) {
         AndroidAsyncExecutor executor = new AndroidAsyncExecutor();
         AsyncRunner.setExecutor(executor);
 
         AndroidSQLiteEngine engine = new AndroidSQLiteEngine(context, Constants.DEFAULT_DATABASE_NAME, null);
-        return TorchService.with(engine);
+        return new TorchFactoryImpl.BasicConfiguration(engine);
     }
 
 }

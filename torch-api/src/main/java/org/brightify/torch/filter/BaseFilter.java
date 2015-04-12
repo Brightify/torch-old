@@ -3,23 +3,30 @@ package org.brightify.torch.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseFilter<OWNER, TYPE, FILTER extends BaseFilter<OWNER, TYPE, FILTER>> {
+public abstract class BaseFilter<OWNER, TYPE> {
+
+    private final Property<OWNER, TYPE> property;
+    private final FilterType filterType;
 
     private List<OperatorFilterTuple> filters;
-    private final Property<OWNER, TYPE> property;
 
-    public BaseFilter(Property<OWNER, TYPE> property) {
+    public BaseFilter(Property<OWNER, TYPE> property, FilterType filterType) {
         this.property = property;
+        this.filterType = filterType;
     }
 
-    public BaseFilter<OWNER, ?, ?> and(BaseFilter<OWNER, ?, ?> filter) {
+    public BaseFilter<OWNER, TYPE> and(BaseFilter<OWNER, ?> filter) {
         addFilter(Operator.AND, filter);
         return this;
     }
 
-    public BaseFilter<OWNER, ?, ?> or(BaseFilter<OWNER, ?, ?> filter) {
+    public BaseFilter<OWNER, TYPE> or(BaseFilter<OWNER, ?> filter) {
         addFilter(Operator.OR, filter);
         return this;
+    }
+
+    protected FilterType getType() {
+        return filterType;
     }
 
     protected Iterable<OperatorFilterTuple> getFilters() {
@@ -58,6 +65,20 @@ public abstract class BaseFilter<OWNER, TYPE, FILTER extends BaseFilter<OWNER, T
 
     public enum Operator {
         AND, OR
+    }
+
+    public enum FilterType {
+        CONTAINS_STRING,
+        ENDS_WITH_STRING,
+        EQUAL,
+        GREATER_THAN,
+        GREATER_THAN_OR_EQUAL_TO,
+        IN,
+        LESS_THAN,
+        LESS_THAN_OR_EQUAL_TO,
+        NOT_EQUAL,
+        NOT_IN,
+        STARTS_WITH_STRING
     }
 
 }

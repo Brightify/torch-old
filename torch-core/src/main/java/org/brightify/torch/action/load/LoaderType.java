@@ -62,9 +62,9 @@ abstract class LoaderType<ENTITY> {
 
     public static class FilterLoaderType<ENTITY> extends LoaderType<ENTITY> {
 
-        protected final BaseFilter<ENTITY, ?, ?> entityFilter;
+        protected final BaseFilter<ENTITY, ?> entityFilter;
 
-        public FilterLoaderType(BaseFilter<ENTITY, ?, ?> entityFilter) {
+        public FilterLoaderType(BaseFilter<ENTITY, ?> entityFilter) {
             this.entityFilter = entityFilter;
         }
 

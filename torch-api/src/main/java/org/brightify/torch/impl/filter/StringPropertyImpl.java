@@ -2,9 +2,8 @@ package org.brightify.torch.impl.filter;
 
 import org.brightify.torch.ReadableRawContainer;
 import org.brightify.torch.WritableRawContainer;
-import org.brightify.torch.filter.ContainsStringFilter;
-import org.brightify.torch.filter.EndsWithStringFilter;
-import org.brightify.torch.filter.StartsWithStringFilter;
+import org.brightify.torch.filter.BaseFilter;
+import org.brightify.torch.filter.SingleValueFilter;
 import org.brightify.torch.filter.StringProperty;
 
 /**
@@ -18,19 +17,19 @@ public abstract class StringPropertyImpl<OWNER> extends GenericPropertyImpl<OWNE
     }
 
     @Override
-    public StartsWithStringFilter<OWNER> startsWith(String value) {
+    public BaseFilter<OWNER, String> startsWith(String value) {
         // FIXME add escaping of input value!
-        return new StartsWithStringFilter<OWNER>(this, value);
+        return new SingleValueFilter<OWNER, String>(this, BaseFilter.FilterType.STARTS_WITH_STRING, value);
     }
 
     @Override
-    public EndsWithStringFilter<OWNER> endsWith(String value) {
-        return new EndsWithStringFilter<OWNER>(this, value);
+    public BaseFilter<OWNER, String> endsWith(String value) {
+        return new SingleValueFilter<OWNER, String>(this, BaseFilter.FilterType.ENDS_WITH_STRING, value);
     }
 
     @Override
-    public ContainsStringFilter<OWNER> contains(String value) {
-        return new ContainsStringFilter<OWNER>(this, value);
+    public BaseFilter<OWNER, String> contains(String value) {
+        return new SingleValueFilter<OWNER, String>(this, BaseFilter.FilterType.CONTAINS_STRING, value);
     }
 
     @Override

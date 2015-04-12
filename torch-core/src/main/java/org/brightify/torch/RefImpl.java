@@ -1,5 +1,7 @@
 package org.brightify.torch;
 
+import org.brightify.torch.filter.ReferenceProperty;
+
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
@@ -53,8 +55,15 @@ public class RefImpl<CHILD> implements Ref<CHILD> {
 
     @Override
     public Long getEntityId() {
-        return description.getIdProperty().get(entity);
+        if(entity == null) {
+            return null;
+        } else {
+            return description.getIdProperty().get(entity);
+        }
     }
 
+    public static <ENTITY, CHILD> RefImpl<CHILD> of(ReferenceProperty<ENTITY, CHILD> property, TorchFactory torchFactory, Long childId) {
+        return new RefImpl<CHILD>(property.getReferencedEntityDescription(), torchFactory, childId);
+    }
 
 }

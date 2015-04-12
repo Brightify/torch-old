@@ -16,7 +16,7 @@ public interface LoadQuery<ENTITY> {
 
     Set<Class<?>> getLoadGroups();
 
-    BaseFilter<ENTITY, ?, ?> getFilter();
+    BaseFilter<ENTITY, ?> getFilter();
 
     Map<Property<ENTITY, ?>, OrderLoader.Direction> getOrderMap();
 

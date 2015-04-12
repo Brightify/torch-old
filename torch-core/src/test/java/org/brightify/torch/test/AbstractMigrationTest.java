@@ -2,6 +2,9 @@ package org.brightify.torch.test;
 
 import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
+import org.brightify.torch.TorchConfiguration;
+import org.brightify.torch.TorchFactoryImpl;
+import org.brightify.torch.TorchService;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.filter.NumberProperty;
@@ -22,9 +25,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.brightify.torch.TorchService.forceUnload;
 import static org.brightify.torch.TorchService.torch;
-import static org.brightify.torch.TorchService.with;
+import static org.brightify.torch.TorchService.unload;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -46,13 +48,12 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
     public void tearDown() throws Exception {
         databaseEngine.wipe();
         databaseEngine = null;
-
-        forceUnload();
+        unload();
     }
 
     @Test
     public void renameProperty() {
-        with(databaseEngine).register(new User_r1_Description());
+        initWith(new User_r1_Description());
 
         User_r1 entity1 = new User_r1();
         entity1.username = "john1";
@@ -63,9 +64,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         assertThat(entity1.id, is(not(nullValue())));
 
-        forceUnload();
+        unload();
 
-        with(databaseEngine).register(new User_r2_Description());
+        initWith(new User_r2_Description());
 
         User_r2 entity2 = torch().load().type(User_r2.class).single();
 
@@ -77,7 +78,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     @Test
     public void addPropertyAndMigrateData() {
-        with(databaseEngine).register(new User_r2_Description());
+        initWith(new User_r2_Description());
 
         User_r2 entity1 = new User_r2();
         entity1.username = "john1";
@@ -88,9 +89,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         assertThat(entity1.id, is(not(nullValue())));
 
-        forceUnload();
+        unload();
 
-        with(databaseEngine).register(new User_r3_Description());
+        initWith(new User_r3_Description());
 
         User_r3 entity2 = torch().load().type(User_r3.class).single();
 
@@ -102,7 +103,7 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
     @Test
     public void removeProperty() {
-        with(databaseEngine).register(new User_r3_Description());
+        initWith(new User_r3_Description());
 
         User_r3 entity1 = new User_r3();
         entity1.username = "john1";
@@ -114,9 +115,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
 
         assertThat(entity1.id, is(not(nullValue())));
 
-        forceUnload();
+        unload();
 
-        with(databaseEngine).register(new User_r4_Description());
+        initWith(new User_r4_Description());
 
         User_r4 entity2 = torch().load().type(User_r4.class).single();
 
@@ -126,8 +127,10 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         assertThat(entity2.lastName, is(entity1.lastName));
     }
 
-    public ENGINE getDatabaseEngine() {
-        return databaseEngine;
+    private void initWith(EntityDescription<?>... descriptions) {
+        TorchConfiguration<?> configuration = new TorchFactoryImpl.BasicConfiguration(databaseEngine);
+        configuration.register(descriptions);
+        TorchService.initialize(configuration);
     }
 
     protected abstract ENGINE prepareDatabaseEngine();

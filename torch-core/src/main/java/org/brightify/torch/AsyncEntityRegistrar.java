@@ -4,7 +4,7 @@ package org.brightify.torch;
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public interface AsyncEntityRegistrar {
-    public <ENTITY> AsyncEntityRegistrarSubmit register(Class<ENTITY> entityClass);
+    AsyncEntityRegistrarSubmit register(Class<?> entityClass);
 
-    public <ENTITY> AsyncEntityRegistrarSubmit register(EntityDescription<ENTITY> metadata);
+    <ENTITY> AsyncEntityRegistrarSubmit register(EntityDescription<ENTITY> metadata);
 }

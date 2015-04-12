@@ -9,22 +9,22 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 @Target({ ElementType.FIELD, ElementType.METHOD })
-public @interface Load {
+public @interface Save {
     Class<?>[] when() default { };
 
     Class<?>[] unless() default { };
 
-    class LoadFeature implements Property.Feature {
+    class SaveFeature implements Property.Feature {
         private final Class<?>[] when;
 
         private final Class<?>[] unless;
 
-        public LoadFeature(Class<?>[] when, Class<?>[] unless) {
+        public SaveFeature(Class<?>[] when, Class<?>[] unless) {
             this.when = when;
             this.unless = unless;
         }
 
-        public Class<?>[] getWhen() {
+        public Class<?>[] getValue() {
             return when;
         }
 

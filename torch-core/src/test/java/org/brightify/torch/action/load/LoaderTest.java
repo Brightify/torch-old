@@ -1,5 +1,8 @@
 package org.brightify.torch.action.load;
 
+import org.brightify.torch.DatabaseEngine;
+import org.brightify.torch.TorchConfiguration;
+import org.brightify.torch.TorchFactoryImpl;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.test.MockDatabaseEngine;
 import org.brightify.torch.test.TestObject;
@@ -36,13 +39,13 @@ public class LoaderTest {
     private TestObject testObject2;
     private TestObject testObject3;
 
-    private MockDatabaseEngine engine;
-
     @Before
     public void setUp() throws Exception {
-        engine = new MockDatabaseEngine();
+        DatabaseEngine engine = new MockDatabaseEngine();
 
-        TorchService.with(engine).register(TestObject.class);
+        TorchConfiguration<?> configuration = new TorchFactoryImpl.BasicConfiguration(engine);
+        configuration.register(TestObject.class);
+        TorchService.initialize(configuration);
 
         testObject = createTestObject();
         testObject.intField = -10;
@@ -68,9 +71,8 @@ public class LoaderTest {
 
     @After
     public void tearDown() throws Exception {
-        engine.wipe();
-        engine = null;
-        TorchService.forceUnload();
+        TorchService.factory().getDatabaseEngine().wipe();
+        TorchService.unload();
     }
 
     @Test
