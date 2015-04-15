@@ -65,5 +65,43 @@ public class SimpleEntityTest {
                 .withErrorContaining("There has to be exactly one @Id property in each entity!")
                 .in(JavaFileObjects.forResource("negative/EntityWithTwoIdProperties.java")).onLine(13);
     }
+    
+    @Test
+    public void testEntityWithIntId(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithIntId.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("@Id property has to be type Long.").
+                in(JavaFileObjects.forResource("negative/EntityWithIntId.java")).onLine(9);
+    }
+    
+    @Test
+    public void testEntityWithPrimitiveIntId(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithPrimitiveIntId.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("@Id property has to be type Long.").
+                in(JavaFileObjects.forResource("negative/EntityWithPrimitiveIntId.java")).onLine(9);
+    }
 
+    @Test
+    public void testEntityWithLongFieldsWithoutIdAnnotation(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).
+                processedWith(new TorchCompilerEntrypoint()).failsToCompile().
+                withErrorContaining("There has to be exactly one @Id property in each entity!").
+                in(JavaFileObjects.forResource("negative/EntityWithLongFieldsWithoutIdAnnotation.java")).onLine(6);
+        
+    }
+
+    @Test
+    public void testClassWithoutEntityAnnotation(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/ClassWithoutEntityAnnotation.java")).
+                processedWith(new TorchCompilerEntrypoint()).compilesWithoutError();
+
+    }
+    
+    @Test
+    public void testClassWithNoAnnotations(){
+        ASSERT.about(javaSource()).that(JavaFileObjects.forResource("negative/ClassWithNoAnnotations.java")).
+                processedWith(new TorchCompilerEntrypoint()).compilesWithoutError();
+        
+    }
 }
