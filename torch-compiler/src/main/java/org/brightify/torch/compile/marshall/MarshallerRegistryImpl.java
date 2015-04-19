@@ -5,7 +5,6 @@ import com.google.inject.Injector;
 import org.brightify.torch.compile.PropertyMirror;
 import org.reflections.Reflections;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.processing.Messager;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -23,16 +22,19 @@ public class MarshallerRegistryImpl implements MarshallerRegistry {
 
     private final List<Marshaller> marshallers = new ArrayList<Marshaller>();
 
-    @Inject
-    private Reflections reflections;
+    private final Reflections reflections;
+    private final Injector injector;
+    private final Messager messager;
 
     @Inject
-    private Injector injector;
+    public MarshallerRegistryImpl(Reflections reflections, Injector injector, Messager messager) {
+        this.reflections = reflections;
+        this.injector = injector;
+        this.messager = messager;
 
-    @Inject
-    private Messager messager;
+        init();
+    }
 
-    @PostConstruct
     private void init() {
         Set<Class<? extends Marshaller>> marshallerClasses = reflections.getSubTypesOf(Marshaller.class);
 

@@ -2,6 +2,7 @@ package org.brightify.torch;
 
 import org.brightify.torch.action.relation.RelationResolverImpl;
 import org.brightify.torch.annotation.Entity;
+import org.brightify.torch.filter.ReferenceCollectionProperty;
 import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.model.Table;
 import org.brightify.torch.model.Table$;
@@ -94,6 +95,9 @@ public class TorchFactoryImpl implements TorchFactory {
         for (ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
             initializeReferenceProperty(referenceProperty);
         }
+        for(ReferenceCollectionProperty<ENTITY, ?> referenceCollectionProperty : description.getReferenceCollectionProperties()) {
+            initializeRefCollectionProperty(referenceCollectionProperty);
+        }
 
         Table table = begin().load()
                              .type(Table.class)
@@ -129,8 +133,14 @@ public class TorchFactoryImpl implements TorchFactory {
     }
 
     private <ENTITY, CHILD> void initializeReferenceProperty(ReferenceProperty<ENTITY, CHILD> referenceProperty) {
-        EntityDescription<CHILD> referencedEntityDescription = entities.getDescription(referenceProperty.getReferencedType());
+        EntityDescription<CHILD> referencedEntityDescription = entities.getDescription(
+                referenceProperty.getReferencedType());
         referenceProperty.setReferencedEntityDescription(referencedEntityDescription);
+    }
+
+    private <ENTITY, CHILD> void initializeRefCollectionProperty(ReferenceCollectionProperty<ENTITY, CHILD> referenceCollectionProperty) {
+        EntityDescription<CHILD> referencedEntityDescription = entities.getDescription(referenceCollectionProperty.getReferencedType());
+        referenceCollectionProperty.setReferencedEntityDescription(referencedEntityDescription);
     }
 
     @Override

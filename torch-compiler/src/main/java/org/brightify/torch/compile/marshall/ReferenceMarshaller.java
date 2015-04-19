@@ -7,7 +7,6 @@ import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldRef;
 import com.sun.codemodel.JInvocation;
-import com.sun.codemodel.JStatement;
 import org.brightify.torch.Ref;
 import org.brightify.torch.compile.EntityContext;
 import org.brightify.torch.compile.PropertyMirror;
@@ -63,13 +62,6 @@ public class ReferenceMarshaller extends AbstractMarshaller {
     @Override
     public PropertyType getPropertyType() {
         return PropertyType.REFERENCE;
-    }
-
-    @Override
-    public JStatement marshall(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
-        JExpression getValue = marshallValue(holder, propertyMirror);
-
-        return holder.saveContainer.invoke("addReferenceToQueue").arg(getValue);
     }
 
     @Override

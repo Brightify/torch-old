@@ -11,7 +11,6 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
-import com.sun.codemodel.JStatement;
 import com.sun.codemodel.JVar;
 import org.brightify.torch.compile.PropertyMirror;
 import org.brightify.torch.compile.feature.FeatureProviderRegistry;
@@ -56,29 +55,6 @@ public abstract class AbstractMarshaller implements Marshaller {
     @Override
     public int getPriority() {
         return 0;
-    }
-
-    @Override
-    public JStatement marshall(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
-        return holder.rawEntity
-                .invoke("put").arg(JExpr.lit(propertyMirror.getSafeName())).arg(marshallValue(holder, propertyMirror));
-    }
-
-    @Override
-    public JStatement unmarshall(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
-                                 PropertyMirror propertyMirror) {
-        //JBlock block= new JBlock();
-        //JVar index = block.decl(CodeModelTypes.INTEGER, "index", getIndex(holder.rawEntity, propertyMirror));
-        //JConditional isNull = block._if(index.ne(JExpr._null()));
-
-        return propertyMirror.getSetter().setValue(holder.entity, fromRawEntity(holder, propertyMirror));
-
-        //isNull._then().add(propertyMirror.getSetter().setValue(holder.entity, fromRawEntity(holder, index,
-        // propertyMirror)));
-        //if(nullable(propertyMirror)) {
-        //    isNull._else().add(propertyMirror.getSetter().setValue(holder.entity, JExpr._null()));
-        //}
-        //return block;
     }
 
     @Override

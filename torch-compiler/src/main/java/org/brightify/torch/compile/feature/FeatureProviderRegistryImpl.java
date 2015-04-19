@@ -1,12 +1,11 @@
 package org.brightify.torch.compile.feature;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.sun.codemodel.JExpression;
 import org.brightify.torch.compile.PropertyMirror;
 import org.reflections.Reflections;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -20,13 +19,17 @@ public class FeatureProviderRegistryImpl implements FeatureProviderRegistry {
 
     private final List<FeatureProvider> featureProviders = new ArrayList<FeatureProvider>();
 
-    @Inject
-    private Reflections reflections;
+    private final Reflections reflections;
+    private final Injector injector;
 
     @Inject
-    private Injector injector;
+    public FeatureProviderRegistryImpl(Reflections reflections, Injector injector) {
+        this.reflections = reflections;
+        this.injector = injector;
 
-    @PostConstruct
+        init();
+    }
+
     private void init() {
         Set<Class<? extends FeatureProvider>> featureProviderClasses = reflections.getSubTypesOf(FeatureProvider.class);
 

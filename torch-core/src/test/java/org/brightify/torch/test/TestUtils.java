@@ -15,6 +15,14 @@ public class TestUtils {
         return testObject;
     }
 
+    public static SecondTestObject createSecondTestObject() {
+        SecondTestObject object = new SecondTestObject();
+
+        object.string = UUID.randomUUID().toString();
+
+        return object;
+    }
+
     public static <T> T[] concatArrays(T[] first, T[] second) {
         int firstLength = first.length;
         int secondLength = second.length;

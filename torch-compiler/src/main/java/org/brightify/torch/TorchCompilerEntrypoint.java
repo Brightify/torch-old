@@ -1,7 +1,7 @@
 package org.brightify.torch;
 
+import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.netflix.governator.guice.LifecycleInjector;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -29,26 +29,11 @@ public class TorchCompilerEntrypoint extends AbstractProcessor {
             return false;
         }
 
-        LifecycleInjector lifecycleInjector = LifecycleInjector
-                .builder()
-                .withModules(new TorchCompilerModule(this, roundEnv))
-                .build();
-
-        try {
-            lifecycleInjector.getLifecycleManager().start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        Injector injector = lifecycleInjector.createInjector();
+        Injector injector = Guice.createInjector(new TorchCompilerModule(this, roundEnv));
 
         TorchAnnotationProcessor processor = injector.getInstance(TorchAnnotationProcessor.class);
 
-        boolean success = processor.process(annotations);
-
-        lifecycleInjector.getLifecycleManager().close();
-
-        return success;
+        return processor.process(annotations);
     }
 
 }

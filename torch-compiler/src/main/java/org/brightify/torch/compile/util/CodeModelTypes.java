@@ -7,6 +7,7 @@ import org.brightify.torch.Key;
 import org.brightify.torch.LoadContainer;
 import org.brightify.torch.ReadableRawEntity;
 import org.brightify.torch.Ref;
+import org.brightify.torch.RefCollection;
 import org.brightify.torch.SaveContainer;
 import org.brightify.torch.Torch;
 import org.brightify.torch.TorchFactory;
@@ -20,6 +21,7 @@ import org.brightify.torch.filter.GenericProperty;
 import org.brightify.torch.filter.ListProperty;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceCollectionProperty;
 import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.StringProperty;
 import org.brightify.torch.filter.ValueProperty;
@@ -34,6 +36,7 @@ import org.brightify.torch.impl.filter.ListPropertyImpl;
 import org.brightify.torch.impl.filter.LongPropertyImpl;
 import org.brightify.torch.impl.filter.NumberPropertyImpl;
 import org.brightify.torch.impl.filter.PropertyImpl;
+import org.brightify.torch.impl.filter.ReferenceCollectionPropertyImpl;
 import org.brightify.torch.impl.filter.ReferencePropertyImpl;
 import org.brightify.torch.impl.filter.SerializablePropertyImpl;
 import org.brightify.torch.impl.filter.ShortPropertyImpl;
@@ -46,6 +49,7 @@ import org.brightify.torch.util.MigrationException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +81,7 @@ public class CodeModelTypes {
     public static final JClass HASH_SET = ref(HashSet.class.getCanonicalName());
     public static final JClass WILDCARD = OBJECT.wildcard();
     public static final JClass ANNOTATION = ref(Annotation.class.getCanonicalName());
+    public static final JClass COLLECTION = ref(Collection.class.getCanonicalName());
 
     // Torch classes
     public static final JClass TORCH = ref(Torch.class.getCanonicalName());
@@ -94,6 +99,7 @@ public class CodeModelTypes {
     public static final JClass READABLE_RAW_ENTITY = ref(ReadableRawEntity.class.getCanonicalName());
     public static final JClass WRITABLE_RAW_ENTITY = ref(WritableRawEntity.class.getCanonicalName());
     public static final JClass REF = ref(Ref.class.getCanonicalName());
+    public static final JClass REF_COLLECTION = ref(RefCollection.class.getCanonicalName());
     public static final JClass ARRAY_LIST_BUILDER = ref(ArrayListBuilder.class.getCanonicalName());
     public static final JClass FEATURE = ref(Property.Feature.class);
 
@@ -121,6 +127,8 @@ public class CodeModelTypes {
     public static final JClass VALUE_PROPERTY = ref(ValueProperty.class.getCanonicalName());
     public static final JClass REFERENCE_PROPERTY = ref(ReferenceProperty.class.getCanonicalName());
     public static final JClass REFERENCE_PROPERTY_IMPL = ref(ReferencePropertyImpl.class.getCanonicalName());
+    public static final JClass REFERENCE_COLLECTION_PROPERTY = ref(ReferenceCollectionProperty.class.getCanonicalName());
+    public static final JClass REFERENCE_COLLECTION_PROPERTY_IMPL = ref(ReferenceCollectionPropertyImpl.class.getCanonicalName());
 
     private CodeModelTypes() { }
 

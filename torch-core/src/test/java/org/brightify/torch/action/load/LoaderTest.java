@@ -1,12 +1,15 @@
 package org.brightify.torch.action.load;
 
 import org.brightify.torch.DatabaseEngine;
+import org.brightify.torch.RefFactory;
 import org.brightify.torch.TorchConfiguration;
 import org.brightify.torch.TorchFactoryImpl;
 import org.brightify.torch.TorchService;
 import org.brightify.torch.test.MockDatabaseEngine;
+import org.brightify.torch.test.SecondTestObject;
 import org.brightify.torch.test.TestObject;
 import org.brightify.torch.test.TestObject$;
+import org.brightify.torch.util.ArrayListBuilder;
 import org.brightify.torch.util.async.Callback;
 import org.junit.After;
 import org.junit.Before;
@@ -20,8 +23,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.brightify.torch.TorchService.torch;
+import static org.brightify.torch.test.TestUtils.createSecondTestObject;
 import static org.brightify.torch.test.TestUtils.createTestObject;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -39,17 +44,40 @@ public class LoaderTest {
     private TestObject testObject2;
     private TestObject testObject3;
 
+    private SecondTestObject secondTestObject;
+    private SecondTestObject secondTestObject1;
+    private SecondTestObject secondTestObject2;
+    private SecondTestObject secondTestObject3;
+    private SecondTestObject secondTestObject4;
+    private SecondTestObject secondTestObject5;
+
     @Before
     public void setUp() throws Exception {
         DatabaseEngine engine = new MockDatabaseEngine();
 
         TorchConfiguration<?> configuration = new TorchFactoryImpl.BasicConfiguration(engine);
-        configuration.register(TestObject.class);
+        configuration.register(TestObject.class).register(SecondTestObject.class);
         TorchService.initialize(configuration);
+
+        secondTestObject = createSecondTestObject();
+        secondTestObject1 = createSecondTestObject();
+        secondTestObject2 = createSecondTestObject();
+        secondTestObject3 = createSecondTestObject();
+        secondTestObject4 = createSecondTestObject();
+        secondTestObject5 = createSecondTestObject();
 
         testObject = createTestObject();
         testObject.intField = -10;
         testObject.booleanField = false;
+        testObject.secondTestObject = RefFactory.createRef(createSecondTestObject());
+        testObject.secondTestObjects = ArrayListBuilder.<SecondTestObject>begin()
+                .add(secondTestObject)
+                .add(secondTestObject1)
+                .add(secondTestObject2)
+                .add(secondTestObject3)
+                .add(secondTestObject4)
+                .add(secondTestObject5)
+                .list();
 
         testObject1 = createTestObject();
         testObject1.intField = 10;
@@ -58,6 +86,7 @@ public class LoaderTest {
         testObject2 = createTestObject();
         testObject2.intField = 100;
         testObject2.booleanField = false;
+        testObject2.secondTestObject = RefFactory.createRef(createSecondTestObject());
 
         testObject3 = createTestObject();
         testObject3.intField = 1000;
@@ -100,7 +129,7 @@ public class LoaderTest {
     @Test
     public void testLoadAllEntities() {
         List<TestObject> objects = torch().load().type(TestObject.class).list();
-        assertThat(objects, contains(testObject, testObject1, testObject2, testObject3));
+        assertThat(objects, containsInAnyOrder(testObject, testObject1, testObject2, testObject3));
     }
 
     @Test
@@ -109,7 +138,7 @@ public class LoaderTest {
         torch().load().type(TestObject.class).list(new Callback<List<TestObject>>() {
             @Override
             public void onSuccess(List<TestObject> data) {
-                assertThat(data, contains(testObject, testObject1, testObject2, testObject3));
+                assertThat(data, containsInAnyOrder(testObject, testObject1, testObject2, testObject3));
                 latch.countDown();
             }
 
@@ -186,8 +215,8 @@ public class LoaderTest {
     public void testLoadOrderedDescending() {
         List<TestObject> objectsOrdered = torch().load().type(TestObject.class)
                 .orderBy(TestObject$.intField).desc().list();
-
-        assertThat(objectsOrdered, contains(testObject3, testObject2, testObject1, testObject));
+        System.out.println(testObject2.secondTestObject.toString());
+        assertThat(objectsOrdered, containsInAnyOrder(testObject3, testObject2, testObject1, testObject));
     }
 
     @Test

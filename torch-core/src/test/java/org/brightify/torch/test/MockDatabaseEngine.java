@@ -4,22 +4,18 @@ import org.brightify.torch.DatabaseEngine;
 import org.brightify.torch.EntityDescription;
 import org.brightify.torch.LoadContainer;
 import org.brightify.torch.LoadContainerImpl;
-import org.brightify.torch.ReadableRawEntity;
 import org.brightify.torch.Ref;
-import org.brightify.torch.RefCollection;
 import org.brightify.torch.RefImpl;
-import org.brightify.torch.SaveContainer;
-import org.brightify.torch.SaveContainerImpl;
 import org.brightify.torch.Torch;
 import org.brightify.torch.TorchFactory;
-import org.brightify.torch.WritableRawEntity;
 import org.brightify.torch.action.load.LoadQuery;
 import org.brightify.torch.action.load.OrderLoader;
-import org.brightify.torch.filter.BaseFilter;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceCollectionProperty;
 import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.ValueProperty;
+import org.brightify.torch.impl.filter.IntegerPropertyImpl;
 import org.brightify.torch.impl.filter.LongPropertyImpl;
 import org.brightify.torch.util.MigrationAssistant;
 import org.brightify.torch.util.ReadableRawContainerImpl;
@@ -27,45 +23,43 @@ import org.brightify.torch.util.WritableRawContainerImpl;
 import org.brightify.torch.util.functional.EditFunction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
  */
 public class MockDatabaseEngine implements DatabaseEngine {
     private TorchFactory torchFactory;
-    private Map<String, Map<Long, RawEntity>> database = new HashMap<String, Map<Long, RawEntity>>();
-    private Map<String, AtomicLong> idCounter = new HashMap<String, AtomicLong>();
+    private MockDatabase database = new MockDatabase();
 
     @Override
     public boolean open() {
-        return wipe();
+        database.open();
+        return true;
     }
 
     @Override
     public boolean close() {
-        database = null;
-        idCounter = null;
+        database.open();
         return true;
     }
 
 
     @Override
     public boolean wipe() {
-        database = new HashMap<String, Map<Long, RawEntity>>();
-        idCounter = new HashMap<String, AtomicLong>();
+        database.wipe();
         return true;
     }
 
     @Override
     public boolean isOpen() {
-        return database != null && idCounter != null;
+        return database.isOpen();
     }
 
     @Override
@@ -101,6 +95,21 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
     @Override
     public <ENTITY> Map<ENTITY, Long> save(Iterable<ENTITY> entities) {
+        MockDatabase.MockTransaction transaction = database.beginTransaction();
+
+        Map<ENTITY, Long> result;
+        try {
+            result = save(entities, transaction);
+
+            transaction.commit();
+
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <ENTITY> Map<ENTITY, Long> save(Iterable<ENTITY> entities, MockDatabase.MockTransaction transaction) throws Exception {
         Map<ENTITY, Long> results = new HashMap<ENTITY, Long>();
         Iterator<ENTITY> iterator = entities.iterator();
         if (!iterator.hasNext()) {
@@ -110,71 +119,124 @@ public class MockDatabaseEngine implements DatabaseEngine {
         @SuppressWarnings("unchecked")
         Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
         EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
-        AtomicLong counter = idCounter.get(description.getSafeName());
-        Map<Long, RawEntity> transaction = new HashMap<Long, RawEntity>();
-
         WritableRawContainerImpl rawContainer = new WritableRawContainerImpl();
-        SaveContainer saveContainer = new SaveContainerImpl(torchFactory, Collections.<Class<?>>emptySet());
 
         for (ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
             List<?> objects = referencedObjects(referenceProperty, entities);
-            save(objects);
+            save(objects, transaction);
+        }
+
+        for (ReferenceCollectionProperty<ENTITY, ?> property : description.getReferenceCollectionProperties()) {
+            List<?> objects = referencedObjects(property, entities);
+            save(objects, transaction);
         }
 
         for (ENTITY entity : entities) {
             RawEntity rawEntity = new RawEntity();
             rawContainer.setRawEntity(rawEntity);
-            try {
-                Long id = description.getIdProperty().get(entity);
-                if(id == null) {
-                    id = counter.getAndIncrement();
-                    description.getIdProperty().set(entity, id);
-                }
+            Long id = description.getIdProperty().get(entity);
+            if (id == null) {
+                id = transaction.acquireNewId(description.getSafeName());
+                description.getIdProperty().set(entity, id);
+            }
 
-                for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
-                    rawContainer.setPropertyName(valueProperty.getSafeName());
-                    valueProperty.writeToRawContainer(entity, rawContainer);
-                }
+            for (ValueProperty<ENTITY, ?> valueProperty : description.getValueProperties()) {
+                rawContainer.setPropertyName(valueProperty.getSafeName());
+                valueProperty.writeToRawContainer(entity, rawContainer);
+            }
 
-                for(ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
-                    rawContainer.setPropertyName(referenceProperty.getSafeName());
-                    Ref<?> ref = referenceProperty.get(entity);
-                    if(ref == null) {
+            for (ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
+                rawContainer.setPropertyName(referenceProperty.getSafeName());
+                Ref<?> ref = referenceProperty.get(entity);
+                if (ref == null) {
+                    rawContainer.putNull();
+                } else {
+                    Long entityId = ref.getEntityId();
+                    if (entityId == null) {
                         rawContainer.putNull();
                     } else {
-                        Long entityId = ref.getEntityId();
-                        if(entityId == null) {
-                            rawContainer.putNull();
-                        } else {
-                            rawContainer.put(entityId);
-                        }
+                        rawContainer.put(entityId);
                     }
                 }
-
-                results.put(entity, id);
-                transaction.put(id, rawEntity);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+
+            for (ReferenceCollectionProperty<ENTITY, ?> property : description.getReferenceCollectionProperties()) {
+                rawContainer.setPropertyName(property.getSafeName());
+                Collection<?> children = property.get(entity);
+                if(children == null) {
+                    rawContainer.putNull();
+                } else {
+                    int count = children.size();
+                    rawContainer.put(count);
+                }
+            }
+
+            results.put(entity, id);
+            transaction.store(description.getSafeName(), RawEntity.PrimaryKey.of(id), rawEntity);
         }
-        database.get(description.getSafeName()).putAll(transaction);
+
+        for (ReferenceCollectionProperty<ENTITY, ?> property : description.getReferenceCollectionProperties()) {
+            storeChildren(description, entities, property, transaction);
+        }
 
         return results;
     }
 
-    private <ENTITY, CHILD> List<CHILD> referencedObjects(ReferenceProperty<ENTITY, CHILD> property, Iterable<ENTITY> entities) {
+    private <ENTITY, CHILD> void storeChildren(EntityDescription<ENTITY> parentDescription, Iterable<ENTITY> entities,
+                                               ReferenceCollectionProperty<ENTITY, CHILD> property,
+                                               MockDatabase.MockTransaction transaction) {
+        String bindEntityName = getBindEntityName(parentDescription, property);
+        EntityDescription<CHILD> childDescription = property.getReferencedEntityDescription();
+
+        for (ENTITY entity : entities) {
+            Long parentId = parentDescription.getIdProperty().get(entity);
+            Collection<CHILD> children = property.get(entity);
+            if(children == null) {
+                continue;
+            }
+
+            int i = 0;
+            for (CHILD child : children) {
+                RawEntity rawEntity = new RawEntity();
+                Long childId = childDescription.getIdProperty().get(child);
+                BindTableDescription.parentId.set(rawEntity, parentId);
+                BindTableDescription.childId.set(rawEntity, childId);
+                BindTableDescription.position.set(rawEntity, i);
+                transaction.store(bindEntityName, RawEntity.PrimaryKey.of(parentId, i), rawEntity);
+                i++;
+            }
+        }
+    }
+
+    private <ENTITY, CHILD> List<CHILD> referencedObjects(ReferenceProperty<ENTITY, CHILD> property,
+                                                          Iterable<ENTITY> entities) {
         List<CHILD> children = new ArrayList<CHILD>();
 
         for (ENTITY entity : entities) {
             Ref<CHILD> ref = property.get(entity);
-            if(ref == null) {
+            if (ref == null) {
                 continue;
             }
             CHILD child = ref.get();
-            if(child == null) {
+            if (child == null) {
                 continue;
             }
             children.add(child);
+        }
+
+        return children;
+    }
+
+    private <ENTITY, CHILD> List<CHILD> referencedObjects(ReferenceCollectionProperty<ENTITY, CHILD> property,
+                                                          Iterable<ENTITY> entities) {
+        List<CHILD> children = new ArrayList<CHILD>();
+
+        for (ENTITY entity : entities) {
+            Collection<CHILD> entityChildren = property.get(entity);
+            if (entityChildren == null) {
+                continue;
+            }
+            children.addAll(entityChildren);
         }
 
         return children;
@@ -192,11 +254,12 @@ public class MockDatabaseEngine implements DatabaseEngine {
         Class<ENTITY> entityClass = (Class<ENTITY>) iterator.next().getClass();
         EntityDescription<ENTITY> description = torchFactory.getEntities().getDescription(entityClass);
 
-        Map<Long, RawEntity> entityDatabase = database.get(description.getSafeName());
+        Map<RawEntity.PrimaryKey, RawEntity> entityDatabase = database.getEntityDatabase(description.getSafeName());
+
 
         for (ENTITY entity : entities) {
             Long id = description.getIdProperty().get(entity);
-            RawEntity rawEntity = entityDatabase.remove(id);
+            RawEntity rawEntity = entityDatabase.remove(RawEntity.PrimaryKey.of(id));
             result.put(entity, rawEntity != null);
         }
 
@@ -220,7 +283,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
     private <ENTITY> List<ENTITY> loadList(final LoadQuery<ENTITY> loadQuery) {
         EntityDescription<ENTITY> description = loadQuery.getEntityDescription();
-        Map<Long, RawEntity> entityDatabase = database.get(description.getSafeName());
+        Map<RawEntity.PrimaryKey, RawEntity> entityDatabase = database.getEntityDatabase(description.getSafeName());
 
         List<RawEntity> rawEntities = new ArrayList<RawEntity>();
         for (RawEntity rawEntity : entityDatabase.values()) {
@@ -258,6 +321,12 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         ReadableRawContainerImpl rawContainer = new ReadableRawContainerImpl();
         LoadContainer loadContainer = new LoadContainerImpl(torchFactory, loadQuery.getLoadGroups());
+
+        Map<ReferenceCollectionProperty<ENTITY, ?>, Map<ENTITY, Integer>> referenceCollectionSizes = new HashMap<ReferenceCollectionProperty<ENTITY, ?>, Map<ENTITY, Integer>>();
+        for (ReferenceCollectionProperty<ENTITY, ?> property : description.getReferenceCollectionProperties()) {
+            referenceCollectionSizes.put(property, new HashMap<ENTITY, Integer>());
+        }
+
         List<ENTITY> result = new ArrayList<ENTITY>();
         for (RawEntity rawEntity : rawEntities) {
             rawContainer.setRawEntity(rawEntity);
@@ -271,8 +340,15 @@ public class MockDatabaseEngine implements DatabaseEngine {
                 for (ReferenceProperty<ENTITY, ?> referenceProperty : description.getReferenceProperties()) {
                     rawContainer.setPropertyName(referenceProperty.getSafeName());
                     Long childID = rawContainer.getLong();
-                    Ref<?> ref = setReference(referenceProperty, childID, torchFactory, entity);
-                    loadContainer.addReferenceToQueue(ref);
+                    if (childID != null) {
+                        Ref<?> ref = setReference(referenceProperty, childID, torchFactory, entity);
+                        loadContainer.addReferenceToQueue(ref);
+                    }
+                }
+
+                for (ReferenceCollectionProperty<ENTITY, ?> property : description.getReferenceCollectionProperties()) {
+                    rawContainer.setPropertyName(property.getSafeName());
+                    referenceCollectionSizes.get(property).put(entity, rawContainer.getInteger());
                 }
             } catch (Exception e) {
                 // FIXME handle the exception better
@@ -281,14 +357,57 @@ public class MockDatabaseEngine implements DatabaseEngine {
             result.add(entity);
         }
 
+        for (ReferenceCollectionProperty<ENTITY, ?> property : description.getReferenceCollectionProperties()) {
+            loadChildren(description, result, property, referenceCollectionSizes.get(property));
+        }
+
         loadReferences(loadContainer);
 //        loadReferenceCollections(loadContainer);
 
         return result;
     }
 
+    private <ENTITY, CHILD> void loadChildren(EntityDescription<ENTITY> parentDescription, Iterable<ENTITY> entities,
+                                              ReferenceCollectionProperty<ENTITY, CHILD> property,
+                                              Map<ENTITY, Integer> referenceCollectionSizes) {
+        String bindEntityName = getBindEntityName(parentDescription, property);
+        EntityDescription<CHILD> childDescription = property.getReferencedEntityDescription();
+
+        for (ENTITY entity : entities) {
+            Long parentId = parentDescription.getIdProperty().get(entity);
+
+            Integer size = referenceCollectionSizes.get(entity);
+            if(size == null) {
+                continue;
+            } else if (size == 0) {
+                property.set(entity, new ArrayList<CHILD>());
+                continue;
+            }
+
+            Long[] childrenIds = new Long[size];
+
+            Map<RawEntity.PrimaryKey, RawEntity> bindTable = database.getEntityDatabase(bindEntityName);
+            for (RawEntity bindEntity : bindTable.values()) {
+                if(!BindTableDescription.parentId.get(bindEntity).equals(parentId)) {
+                    continue;
+                }
+                Integer position = BindTableDescription.position.get(bindEntity);
+                Long childId = BindTableDescription.childId.get(bindEntity);
+
+                childrenIds[position] = childId;
+            }
+
+            Collection<CHILD> children = torchFactory.begin()
+                                                     .load()
+                                                     .type(childDescription.getEntityClass())
+                                                     .ids(childrenIds);
+
+            property.set(entity, children);
+        }
+    }
+
     private <ENTITY, CHILD> Ref<CHILD> setReference(ReferenceProperty<ENTITY, CHILD> referenceProperty, Long childID,
-                                              TorchFactory torchFactory, ENTITY entity) {
+                                                    TorchFactory torchFactory, ENTITY entity) {
         Ref<CHILD> reference = RefImpl.of(referenceProperty, torchFactory, childID);
         referenceProperty.set(entity, reference);
         return reference;
@@ -307,13 +426,20 @@ public class MockDatabaseEngine implements DatabaseEngine {
         }
     }
 
+    private String getBindEntityName(EntityDescription<?> parentDescription, ReferenceCollectionProperty<?, ?> property) {
+        return "parent__" + parentDescription.getSafeName() +
+               "#" + property.getSafeName() +
+               "__child__" + property.getReferencedEntityDescription().getSafeName();
+    }
+
+/*
     private <T> void loadReferenceCollections(LoadContainer loadContainer) {
         LoadContainer localLoadContainer = new LoadContainerImpl(loadContainer);
         Iterator<RefCollection<?>> iterator = loadContainer.getReferenceCollectionQueue().iterator();
         while (iterator.hasNext()) {
             // The "T" will be erased and we use it only so we don't need to care about wildcards.
             RefCollection<T> referenceCollection = (RefCollection<T>) iterator.next();
-            String bindTableName = getBindTableName(referenceCollection);
+            String bindTableName = getBindEntityName(referenceCollection);
 
             Long parentId = referenceCollection.getParentId();
             BaseFilter<?, ?> parentIdFilter = BindTableDescription.parentId.equalTo(parentId);
@@ -353,26 +479,8 @@ public class MockDatabaseEngine implements DatabaseEngine {
         }
 
     }
-
-    private String getBindTableName(RefCollection<?> referenceCollection) {
-        return "parent__" + referenceCollection.getParentDescription().getSafeName() +
-               "#" + referenceCollection.getParentProperty().getSafeName() +
-               "__child__" + referenceCollection.getChildDescription().getSafeName();
-    }
-
+*/
     private static class BindTableDescription {
-        public static NumberProperty<RawEntity, Long> id =
-                new LongPropertyImpl<RawEntity>(RawEntity.class, "id", "torch_id") {
-                    @Override
-                    public Long get(RawEntity entity) {
-                        return entity.getLong(getSafeName());
-                    }
-
-                    @Override
-                    public void set(RawEntity entity, Long value) {
-                        entity.put(getSafeName(), value);
-                    }
-                };
         public static NumberProperty<RawEntity, Long> parentId =
                 new LongPropertyImpl<RawEntity>(RawEntity.class, "parentId", "torch_parentId") {
                     @Override
@@ -397,6 +505,18 @@ public class MockDatabaseEngine implements DatabaseEngine {
                         entity.put(getSafeName(), value);
                     }
                 };
+        public static NumberProperty<RawEntity, Integer> position =
+                new IntegerPropertyImpl<RawEntity>(RawEntity.class, "position", "torch_position") {
+                    @Override
+                    public Integer get(RawEntity entity) {
+                        return entity.getInteger(getSafeName());
+                    }
+
+                    @Override
+                    public void set(RawEntity entity, Integer value) {
+                        entity.put(getSafeName(), value);
+                    }
+                };
     }
 
     public class MockMigrationAssistant<ENTITY> implements MigrationAssistant<ENTITY> {
@@ -416,7 +536,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public void renameProperty(String from, String to) {
-            Map<Long, RawEntity> entityDatabase = database.get(entityDescription.getSafeName());
+            Map<?, RawEntity> entityDatabase = database.getEntityDatabase(entityDescription.getSafeName());
             for (RawEntity rawEntity : entityDatabase.values()) {
                 Object value = rawEntity.getValue(from);
                 rawEntity.storeValue(from, null);
@@ -426,7 +546,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public void removeProperty(String name) {
-            Map<Long, RawEntity> entityDatabase = database.get(entityDescription.getSafeName());
+            Map<?, RawEntity> entityDatabase = database.getEntityDatabase(entityDescription.getSafeName());
             for (RawEntity rawEntity : entityDatabase.values()) {
                 rawEntity.storeValue(name, null);
             }
@@ -435,15 +555,21 @@ public class MockDatabaseEngine implements DatabaseEngine {
         @Override
         public void createStore() {
             if (!storeExists()) {
-                database.put(entityDescription.getSafeName(), new HashMap<Long, RawEntity>());
-                idCounter.put(entityDescription.getSafeName(), new AtomicLong());
+                database.prepareStore(entityDescription.getSafeName());
+                for (ReferenceCollectionProperty<ENTITY, ?> property :
+                        entityDescription.getReferenceCollectionProperties()) {
+                    database.prepareStore(getBindEntityName(entityDescription, property));
+                }
             }
         }
 
         @Override
         public void deleteStore() {
-            database.remove(entityDescription.getSafeName());
-            idCounter.remove(entityDescription.getSafeName());
+            database.deleteStore(entityDescription.getSafeName());
+            for (ReferenceCollectionProperty<ENTITY, ?> property :
+                    entityDescription.getReferenceCollectionProperties()) {
+                database.deleteStore(getBindEntityName(entityDescription, property));
+            }
         }
 
         @Override
@@ -454,8 +580,7 @@ public class MockDatabaseEngine implements DatabaseEngine {
 
         @Override
         public boolean storeExists() {
-            return database.containsKey(entityDescription.getSafeName()) &&
-                   idCounter.containsKey(entityDescription.getSafeName());
+            return database.storeExists(entityDescription.getSafeName());
         }
 
         @Override
@@ -464,182 +589,4 @@ public class MockDatabaseEngine implements DatabaseEngine {
         }
     }
 
-    public class RawEntity implements ReadableRawEntity, WritableRawEntity {
-
-        private Map<String, Object> values = new HashMap<String, Object>();
-
-        @Override
-        public boolean isNull(String propertyName) {
-            return values.containsKey(propertyName);
-        }
-
-        @Override
-        public byte[] getBlob(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Boolean getBoolean(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public boolean getBooleanPrimitive(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Byte getByte(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Short getShort(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public short getShortPrimitive(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Integer getInteger(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public int getIntegerPrimitive(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Long getLong(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public long getLongPrimitive(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Double getDouble(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public double getDoublePrimitive(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public Float getFloat(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public float getFloatPrimitive(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public String getString(String propertyName) {
-            return getValue(propertyName);
-        }
-
-        @Override
-        public void put(String propertyName, String value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Byte value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, byte value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Short value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, short value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Integer value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, int value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Long value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, long value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Float value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, float value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Double value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, double value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, Boolean value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, boolean value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void put(String propertyName, byte[] value) {
-            storeValue(propertyName, value);
-        }
-
-        @Override
-        public void putNull(String propertyName) {
-            storeValue(propertyName, null);
-        }
-
-        @SuppressWarnings("unchecked")
-        protected <T> T getValue(String propertyName) {
-            return (T) values.get(propertyName);
-        }
-
-        protected <T> void storeValue(String propertyName, T value) {
-            values.put(propertyName, value);
-        }
-    }
 }

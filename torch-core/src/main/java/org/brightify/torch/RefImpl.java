@@ -62,6 +62,36 @@ public class RefImpl<CHILD> implements Ref<CHILD> {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RefImpl<?> ref = (RefImpl<?>) o;
+
+        return !(entity != null ? !entity.equals(ref.entity) : ref.entity != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        if(idToLoad != null) {
+            return idToLoad.hashCode();
+        }
+        if(entity != null) {
+            Long id = description.getIdProperty().get(entity);
+            if(id != null) {
+                return id.hashCode();
+            }
+        }
+
+        return -1;
+    }
+
     public static <ENTITY, CHILD> RefImpl<CHILD> of(ReferenceProperty<ENTITY, CHILD> property, TorchFactory torchFactory, Long childId) {
         return new RefImpl<CHILD>(property.getReferencedEntityDescription(), torchFactory, childId);
     }

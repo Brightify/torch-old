@@ -4,7 +4,7 @@ import org.brightify.torch.RefCollection;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 
-import java.util.List;
+import java.util.Collection;
 
 @Entity
 public class ParentEntity {
@@ -14,6 +14,7 @@ public class ParentEntity {
 
     String name;
 
-    RefCollection<ChildEntity> childEntities;
+    //RefCollection<ChildEntity> childEntities;
+    Collection<ChildEntity> childEntities;
 
 }

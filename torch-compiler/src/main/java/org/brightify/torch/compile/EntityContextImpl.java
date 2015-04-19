@@ -1,6 +1,5 @@
 package org.brightify.torch.compile;
 
-import com.google.inject.Inject;
 import org.brightify.torch.EntityDescription;
 import org.brightify.torch.compile.util.TypeHelper;
 import org.reflections.ReflectionUtils;
@@ -8,8 +7,8 @@ import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
 import org.reflections.scanners.SubTypesScanner;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.processing.Messager;
+import javax.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import java.lang.reflect.Modifier;
@@ -24,24 +23,22 @@ import java.util.Set;
  */
 public class EntityContextImpl implements EntityContext {
 
-    @Inject
-    private Reflections reflections;
-
-    @Inject
-    private TypeHelper typeHelper;
-
-    @Inject
-    private Messager messager;
+    private final Reflections reflections;
+    private final TypeHelper typeHelper;
+    private final Messager messager;
 
     private Set<Class<?>> entityClasses = new HashSet<Class<?>>();
-
     private Set<EntityMirror> entityMirrors = new HashSet<EntityMirror>();
 
-    public EntityContextImpl() {
+    @Inject
+    public EntityContextImpl(Reflections reflections, TypeHelper typeHelper, Messager messager) {
+        this.reflections = reflections;
+        this.typeHelper = typeHelper;
+        this.messager = messager;
 
+        init();
     }
 
-    @PostConstruct
     private void init() {
         Iterable<String> metadataClassNames = reflections.getStore().get(SubTypesScanner.class.getSimpleName(), EntityDescription.class.getCanonicalName());
 
@@ -59,14 +56,20 @@ public class EntityContextImpl implements EntityContext {
                 continue;
             }
 
-            Map<TypeVariable<?>, Type> params =
-                    typeHelper.genericParameters(EntityDescription.class, actualMetadataClass, null);
-            Type entityType = params.values().iterator().next();
-            if(entityType instanceof Class<?>) {
-                registerEntityClass((Class<?>) entityType);
-            } else {
-                messager.printMessage(Diagnostic.Kind.WARNING, "Skipping metadata class " + metadataClassName + " because it does not state entity class!");
+            try {
+                Map<TypeVariable<?>, Type> params =
+                        typeHelper.genericParameters(EntityDescription.class, actualMetadataClass, null);
+                Type entityType = params.values().iterator().next();
+                if(entityType instanceof Class<?>) {
+                    registerEntityClass((Class<?>) entityType);
+                } else {
+                    messager.printMessage(Diagnostic.Kind.WARNING, "Skipping metadata class " + metadataClassName + " because it does not state entity class!");
+                }
+            } catch(TypeNotPresentException e) {
+                messager.printMessage(Diagnostic.Kind.WARNING, e.toString());
+//                e.printStackTrace();
             }
+
         }
     }
 

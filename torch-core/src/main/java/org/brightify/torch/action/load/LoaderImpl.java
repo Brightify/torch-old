@@ -234,6 +234,9 @@ public class LoaderImpl<ENTITY> implements
             }
 
         }
+        if(filter == null) {
+            return Collections.emptyList();
+        }
 
         return filter(filter).orderBy(idColumn).list();
     }

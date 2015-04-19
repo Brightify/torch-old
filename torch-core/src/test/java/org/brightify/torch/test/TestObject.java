@@ -1,5 +1,7 @@
 package org.brightify.torch.test;
 
+import com.google.common.base.MoreObjects;
+import org.brightify.torch.Ref;
 import org.brightify.torch.annotation.Accessor;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
@@ -11,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,10 +42,10 @@ public class TestObject implements Serializable {
     String defaultTest = "defaultTest";
     @Ignore
     public List<String> strings;
-    @Ignore
-    public SecondTestObject secondTestObject;
-    @Ignore
-    public List<SecondTestObject> secondTestObjects;
+
+    public Ref<SecondTestObject> secondTestObject;
+
+    public Collection<SecondTestObject> secondTestObjects;
 //    public List<String> strings = new ArrayList<String>();
 
     @Migration(source = 1, target = 2)
@@ -97,49 +99,57 @@ public class TestObject implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TestObject that = (TestObject) o;
-
-        if (booleanPrimitiveField != that.booleanPrimitiveField) return false;
-        if (intPrimitiveField != that.intPrimitiveField) return false;
-        if (longPrimitiveField != that.longPrimitiveField) return false;
-        if (booleanField != null ? !booleanField.equals(that.booleanField) : that.booleanField != null) return false;
-        if (!Arrays.equals(byteArrayField, that.byteArrayField)) return false;
-        if (defaultTest != null ? !defaultTest.equals(that.defaultTest) : that.defaultTest != null) return false;
-        if (group != null ? !group.equals(that.group) : that.group != null) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (intField != null ? !intField.equals(that.intField) : that.intField != null) return false;
-        if (longField != null ? !longField.equals(that.longField) : that.longField != null) return false;
-        if (protectedTest != null ? !protectedTest.equals(that.protectedTest) : that.protectedTest != null)
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (secondTestObject != null ? !secondTestObject.equals(that.secondTestObject) : that.secondTestObject != null)
-            return false;
-        if (secondTestObjects != null ? !secondTestObjects.equals(that.secondTestObjects) : that.secondTestObjects !=
-                null)
-            return false;
-        if (stringField != null ? !stringField.equals(that.stringField) : that.stringField != null) return false;
-
-        return true;
+        }
+        TestObject object = (TestObject) o;
+        return com.google.common.base.Objects.equal(intPrimitiveField, object.intPrimitiveField) &&
+               com.google.common.base.Objects.equal(longPrimitiveField, object.longPrimitiveField) &&
+               com.google.common.base.Objects.equal(booleanPrimitiveField, object.booleanPrimitiveField) &&
+               com.google.common.base.Objects.equal(id, object.id) &&
+               com.google.common.base.Objects.equal(byteArrayField, object.byteArrayField) &&
+               com.google.common.base.Objects.equal(intField, object.intField) &&
+               com.google.common.base.Objects.equal(stringField, object.stringField) &&
+               com.google.common.base.Objects.equal(longField, object.longField) &&
+               com.google.common.base.Objects.equal(booleanField, object.booleanField) &&
+               com.google.common.base.Objects.equal(group, object.group) &&
+               com.google.common.base.Objects.equal(protectedTest, object.protectedTest) &&
+               com.google.common.base.Objects.equal(defaultTest, object.defaultTest) &&
+               com.google.common.base.Objects.equal(strings, object.strings) &&
+               com.google.common.base.Objects.equal(secondTestObject, object.secondTestObject) &&
+               com.google.common.base.Objects.equal(secondTestObjects, object.secondTestObjects);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (byteArrayField != null ? Arrays.hashCode(byteArrayField) : 0);
-        result = 31 * result + (intField != null ? intField.hashCode() : 0);
-        result = 31 * result + intPrimitiveField;
-        result = 31 * result + (stringField != null ? stringField.hashCode() : 0);
-        result = 31 * result + (longField != null ? longField.hashCode() : 0);
-        result = 31 * result + (int) (longPrimitiveField ^ (longPrimitiveField >>> 32));
-        result = 31 * result + (booleanField != null ? booleanField.hashCode() : 0);
-        result = 31 * result + (booleanPrimitiveField ? 1 : 0);
-        result = 31 * result + (group != null ? group.hashCode() : 0);
-        result = 31 * result + (protectedTest != null ? protectedTest.hashCode() : 0);
-        result = 31 * result + (defaultTest != null ? defaultTest.hashCode() : 0);
-        result = 31 * result + (secondTestObject != null ? secondTestObject.hashCode() : 0);
-        result = 31 * result + (secondTestObjects != null ? secondTestObjects.hashCode() : 0);
-        return result;
+        return com.google.common.base.Objects.hashCode(id, byteArrayField, intField, intPrimitiveField, stringField,
+                                                       longField, longPrimitiveField,
+                                                       booleanField, booleanPrimitiveField, group, protectedTest,
+                                                       defaultTest, strings,
+                                                       secondTestObject, secondTestObjects);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                      .add("id", id)
+                      .add("byteArrayField", byteArrayField)
+                      .add("intField", intField)
+                      .add("intPrimitiveField", intPrimitiveField)
+                      .add("stringField", stringField)
+                      .add("longField", longField)
+                      .add("longPrimitiveField", longPrimitiveField)
+                      .add("booleanField", booleanField)
+                      .add("booleanPrimitiveField", booleanPrimitiveField)
+                      .add("group", group)
+                      .add("protectedTest", protectedTest)
+                      .add("defaultTest", defaultTest)
+                      .add("strings", strings)
+                      .add("secondTestObject", secondTestObject)
+                      .add("secondTestObjects", secondTestObjects)
+                      .toString();
     }
 }

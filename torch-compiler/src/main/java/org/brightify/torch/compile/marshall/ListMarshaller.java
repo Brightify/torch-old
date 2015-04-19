@@ -75,7 +75,6 @@ public class ListMarshaller implements Marshaller {
         return PropertyType.VALUE;
     }
 
-    @Override
     public JStatement marshall(EntityDescriptionGenerator.ToRawEntityHolder holder, PropertyMirror propertyMirror) {
         JClass listType = CodeModelTypes.ref(typeHelper.singleGenericParameter(propertyMirror.getType()).toString());
 
@@ -96,7 +95,6 @@ public class ListMarshaller implements Marshaller {
         return block;
     }
 
-    @Override
     public JStatement unmarshall(EntityDescriptionGenerator.CreateFromRawEntityHolder holder,
                                  PropertyMirror propertyMirror) {
 

@@ -7,9 +7,7 @@ before_install:
   | bash /dev/stdin --install=android-21 && source ~/.android-sdk-installer/env
 script: mvn install -B
 notifications:
-  hipchat:
-    rooms:
-      secure: M5HkXCTdwtYHR/e1EQRAlpcYRyNd5zKjVudvIDfrpgA/W742s+gRepWLjYLEeF6mdsFc2oo7LDNIxim7e44TwxjMQHTZ4o0D3nWmukX3yRJGlHSJYP1YdMQPQK/JXAheQC8AlBxw69jQtglUrF3NaWtoRyeeWglP0sP5d4jNlLE=
+  slack: brightify:G9XT4KDOPRLdFiVic9XYkUKQ
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/30f3e4b6091257a2e588

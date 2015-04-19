@@ -9,6 +9,7 @@ import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.annotation.Id;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceCollectionProperty;
 import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.StringProperty;
 import org.brightify.torch.filter.ValueProperty;
@@ -216,6 +217,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public static final List<? extends ReferenceProperty<User_r1, ?>> referenceProperties =
                 ArrayListBuilder.<ReferenceProperty<User_r1, ?>>begin().list();
 
+        public static final List<? extends ReferenceCollectionProperty<User_r1, ?>> referenceCollectionProperties =
+                ArrayListBuilder.<ReferenceCollectionProperty<User_r1, ?>>begin().list();
+
         @Override
         public NumberProperty<User_r1, Long> getIdProperty() {
             return idProperty;
@@ -239,6 +243,11 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         @Override
         public List<? extends ReferenceProperty<User_r1, ?>> getReferenceProperties() {
             return referenceProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceCollectionProperty<User_r1, ?>> getReferenceCollectionProperties() {
+            return referenceCollectionProperties;
         }
 
         @Override
@@ -355,6 +364,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public static final List<? extends ReferenceProperty<User_r2, ?>> referenceProperties =
                 ArrayListBuilder.<ReferenceProperty<User_r2, ?>>begin().list();
 
+        public static final List<? extends ReferenceCollectionProperty<User_r2, ?>> referenceCollectionProperties =
+                ArrayListBuilder.<ReferenceCollectionProperty<User_r2, ?>>begin().list();
+
         @Override
         public User_r2 createEmpty() {
             return new User_r2();
@@ -378,6 +390,11 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         @Override
         public List<? extends ReferenceProperty<User_r2, ?>> getReferenceProperties() {
             return referenceProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceCollectionProperty<User_r2, ?>> getReferenceCollectionProperties() {
+            return referenceCollectionProperties;
         }
 
         @Override
@@ -538,6 +555,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public static final List<? extends ReferenceProperty<User_r3, ?>> referenceProperties =
                 ArrayListBuilder.<ReferenceProperty<User_r3, ?>>begin().list();
 
+        public static final List<? extends ReferenceCollectionProperty<User_r3, ?>> referenceCollectionProperties =
+                ArrayListBuilder.<ReferenceCollectionProperty<User_r3, ?>>begin().list();
+
         @Override
         public NumberProperty<User_r3, Long> getIdProperty() {
             return idProperty;
@@ -556,6 +576,11 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         @Override
         public List<? extends ReferenceProperty<User_r3, ?>> getReferenceProperties() {
             return referenceProperties;
+        }
+
+        @Override
+        public List<? extends ReferenceCollectionProperty<User_r3, ?>> getReferenceCollectionProperties() {
+            return referenceCollectionProperties;
         }
 
         @Override
@@ -714,6 +739,9 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         public static final List<? extends ReferenceProperty<User_r4, ?>> referenceProperties =
                 ArrayListBuilder.<ReferenceProperty<User_r4, ?>>begin().list();
 
+        public static final List<? extends ReferenceCollectionProperty<User_r4, ?>> referenceCollectionProperties =
+                ArrayListBuilder.<ReferenceCollectionProperty<User_r4, ?>>begin().list();
+
         @Override
         public NumberProperty<User_r4, Long> getIdProperty() {
             return idProperty;
@@ -732,6 +760,11 @@ public abstract class AbstractMigrationTest<ENGINE extends DatabaseEngine> {
         @Override
         public List<? extends Property<User_r4, ?>> getProperties() {
             return properties;
+        }
+
+        @Override
+        public List<? extends ReferenceCollectionProperty<User_r4, ?>> getReferenceCollectionProperties() {
+            return referenceCollectionProperties;
         }
 
         @Override

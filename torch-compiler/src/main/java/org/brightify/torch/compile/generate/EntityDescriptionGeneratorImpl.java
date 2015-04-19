@@ -68,6 +68,9 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
         JInvocation referencePropertiesInvocation = JExpr._new(CodeModelTypes.ARRAY_LIST_BUILDER
                 .narrow(CodeModelTypes.REFERENCE_PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD)));
 
+        JInvocation referenceCollectionPropertiesInvocation = JExpr._new(CodeModelTypes.ARRAY_LIST_BUILDER
+                .narrow(CodeModelTypes.REFERENCE_COLLECTION_PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD)));
+
         /*JArray propertiesArray = JExpr.newArray(
                 CodeModelTypes.PROPERTY.narrow(classHolder.entityClass).narrow(CodeModelTypes.WILDCARD));
         JArray valuePropertiesArray = JExpr.newArray(
@@ -87,6 +90,10 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
                     break;
                 case REFERENCE:
                     referencePropertiesInvocation = referencePropertiesInvocation.invoke("add").arg(propertyField);
+                    break;
+                case REFERENCE_COLLECTION:
+                    referenceCollectionPropertiesInvocation =
+                            referenceCollectionPropertiesInvocation.invoke("add").arg(propertyField);
                     break;
             }
         }
@@ -121,6 +128,16 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
                 "referenceProperties",
                 referencePropertiesInvocation.invoke("list"));
 
+        JFieldVar referenceCollectionPropertiesField = classHolder.definedClass.field(
+                JMod.PRIVATE | JMod.STATIC | JMod.FINAL,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.REFERENCE_COLLECTION_PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "referenceCollectionProperties",
+                referenceCollectionPropertiesInvocation.invoke("list"));
+
         JMethod getPropertiesMethod = classHolder.definedClass.method(
                 JMod.PUBLIC,
                 CodeModelTypes.LIST.narrow(
@@ -153,6 +170,17 @@ public class EntityDescriptionGeneratorImpl implements EntityDescriptionGenerato
                 "getReferenceProperties");
         getReferencePropertiesMethod.annotate(Override.class);
         getReferencePropertiesMethod.body()._return(referencePropertiesField);
+
+        JMethod getReferenceCollectionPropertiesMethod = classHolder.definedClass.method(
+                JMod.PUBLIC,
+                CodeModelTypes.LIST.narrow(
+                        CodeModelTypes.REFERENCE_COLLECTION_PROPERTY
+                                .narrow(classHolder.entityClass)
+                                .narrow(CodeModelTypes.WILDCARD)
+                                .wildcard()),
+                "getReferenceCollectionProperties");
+        getReferenceCollectionPropertiesMethod.annotate(Override.class);
+        getReferenceCollectionPropertiesMethod.body()._return(referenceCollectionPropertiesField);
 
 
         generate_migrate(classHolder);

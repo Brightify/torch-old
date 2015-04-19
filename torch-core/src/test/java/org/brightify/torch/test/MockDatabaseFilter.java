@@ -118,7 +118,7 @@ public class MockDatabaseFilter {
                           })
                           .map();
 
-    public static boolean applyFilter(BaseFilter<?, ?> filter, MockDatabaseEngine.RawEntity entity) {
+    public static boolean applyFilter(BaseFilter<?, ?> filter, RawEntity entity) {
         BaseFilter.FilterType filterType = FilterMethodPublicRouter.getFilterType(filter);
         MockFilterMatcher matcher = operatorMap.get(filterType);
         if (matcher == null) {

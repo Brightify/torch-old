@@ -32,12 +32,7 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.0-beta4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.governator</groupId>
-            <artifactId>governator</artifactId>
-            <version>1.2.20</version>
+            <version>4.0-beta5</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>

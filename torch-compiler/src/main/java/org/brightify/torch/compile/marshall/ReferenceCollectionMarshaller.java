@@ -1,9 +1,11 @@
 package org.brightify.torch.compile.marshall;
 
 import com.google.inject.Inject;
+import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JOp;
 import org.brightify.torch.RefCollection;
 import org.brightify.torch.compile.EntityContext;
@@ -16,6 +18,7 @@ import javax.annotation.processing.Messager;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+import java.util.Collection;
 
 /**
  * @author <a href="mailto:tadeas@brightify.org">Tadeas Kriz</a>
@@ -35,12 +38,13 @@ public class ReferenceCollectionMarshaller extends AbstractMarshaller {
     private TypeHelper typeHelper;
 
     public ReferenceCollectionMarshaller() {
-        super(Long.class);
+        super(RefCollection.class);
     }
 
     @Override
     public boolean accepts(TypeMirror type) {
-        DeclaredType refCollection = types.getDeclaredType(typeHelper.elementOf(RefCollection.class), types.getWildcardType(null, null));
+        //DeclaredType refCollection = types.getDeclaredType(typeHelper.elementOf(RefCollection.class), types.getWildcardType(null, null));
+        DeclaredType refCollection = types.getDeclaredType(typeHelper.elementOf(Collection.class), types.getWildcardType(null, null));
 
         if (!types.isAssignable(typeHelper.getWrappedType(type), refCollection)) {
             return false;
@@ -49,6 +53,17 @@ public class ReferenceCollectionMarshaller extends AbstractMarshaller {
         TypeMirror refType = typeHelper.singleGenericParameter(type);
 
         return entityContext.containsEntity(refType.toString());
+    }
+
+    @Override
+    protected JClass getBackingType(PropertyMirror propertyMirror) {
+        return CodeModelTypes.COLLECTION
+                .narrow(CodeModelTypes.ref(typeHelper.singleGenericParameter(propertyMirror.getType()).toString()));
+    }
+
+    @Override
+    public PropertyType getPropertyType() {
+        return PropertyType.REFERENCE_COLLECTION;
     }
 
     @Override
@@ -88,19 +103,24 @@ public class ReferenceCollectionMarshaller extends AbstractMarshaller {
 
     @Override
     protected JClass propertyClass(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY
+        return CodeModelTypes.REFERENCE_COLLECTION_PROPERTY
                 .narrow(CodeModelTypes.ref(propertyMirror.getOwner()))
-                .narrow(CodeModelTypes.LONG); // CodeModelTypes.ref(typeHelper
-        // .getWrappedType(propertyMirror)
-        //       .toString()));
+                .narrow(CodeModelTypes.ref(typeHelper.singleGenericParameter(typeHelper.getWrappedType(propertyMirror)).toString()));
     }
 
     @Override
     protected JClass propertyClassBase(PropertyMirror propertyMirror) {
-        return CodeModelTypes.GENERIC_PROPERTY_IMPL
+        return CodeModelTypes.REFERENCE_COLLECTION_PROPERTY_IMPL
                 .narrow(CodeModelTypes.ref(propertyMirror.getOwner()))
-                .narrow(CodeModelTypes.LONG); //CodeModelTypes.ref(typeHelper
-        // .getWrappedType(propertyMirror)
-        //                             .toString()));
+                .narrow(CodeModelTypes.ref(typeHelper.singleGenericParameter(typeHelper.getWrappedType(propertyMirror)).toString()));
+    }
+
+    @Override
+    protected JInvocation invokeSuperConstructor(JBlock body, JClass entityClass, PropertyMirror propertyMirror) {
+        return body.invoke("super").arg(entityClass.dotclass())
+                .arg(CodeModelTypes.ref(typeHelper.singleGenericParameter(propertyMirror.getType()).toString())
+                                   .dotclass())
+                .arg(propertyMirror.getName())
+                .arg(propertyMirror.getSafeName());
     }
 }

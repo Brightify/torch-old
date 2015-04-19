@@ -3,6 +3,7 @@ package org.brightify.torch;
 import org.brightify.torch.annotation.Entity;
 import org.brightify.torch.filter.NumberProperty;
 import org.brightify.torch.filter.Property;
+import org.brightify.torch.filter.ReferenceCollectionProperty;
 import org.brightify.torch.filter.ReferenceProperty;
 import org.brightify.torch.filter.ValueProperty;
 import org.brightify.torch.util.Helper;
@@ -32,7 +33,7 @@ public interface EntityDescription<ENTITY> {
 
     List<? extends ReferenceProperty<ENTITY, ?>> getReferenceProperties();
 
-    // FIXME add "getRefCollectionProperties()"
+    List<? extends ReferenceCollectionProperty<ENTITY, ?>> getReferenceCollectionProperties();
 
     /**
      * Returns a safe class name.
