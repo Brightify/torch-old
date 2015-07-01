@@ -14,6 +14,8 @@ If you use accessor methods (and you should), then be sure to apply the annotati
 * [@Ignore](annotations.md#ignore)
 * [@Index](annotations.md#index)
 * [@Load](annotations.md#load)
+* [@Save](annotations.md#save)
+* [@Delete](annotations.md#delete)
 * [@NotNull](annotations.md#notnull)
 * [@Unindex](annotations.md#unindex)
 * [@Unique](annotations.md#unique)
@@ -84,19 +86,43 @@ If you set this parameter to `false`, you will have to make sure you have set th
 Use this annotation to tell **Torch** that the annotated field/method is not a property.
 
 ### @Load
-**IMPORTANT**: This is not yet implemented! It will be a part of an upcoming release of the alpha 2.
+**IMPORTANT**: This is not yet implemented! It will be a part of an upcoming release of the alpha 4.
 **FIXME**: Incomplete documentation!
 
-This annotation is meant to be used as a way to tell **Torch** when to load a reference to an entity, collection of entities or collection of basic types eagerly.
+This annotation is meant to be used as a way to tell **Torch** when to load a reference to an entity, collection of entities or collection of values eagerly.
 
 #### Parameters
-##### value
+##### when
 ###### default: an empty array
 Define load group classes array. In case any of the load group is set during the load from **Torch**, the property's value will be loaded eagerly. Otherwise only a live reference will be present, waiting to be loaded later by your code.
 
 ##### unless
 ###### default: an empty array
 When you use the *unless*, **Torch** will load the property's value eagerly if none of the load groups, set by this parameter, are set during the load from **Torch**.
+
+### @Save
+**IMPORTANT**: This is not yet implemented! It will be a part of an upcoming release of the alpha 4.
+
+This annotation is similar to the `@Load` annotation. It can be applied only on properties of type Collection<E> where E is another entity. By default **Torch** will not save the referenced entities and will throw an exception if you attempt to save an entity without saving the child entities first. You can however annotate a property with the `@Save` and Torch will make sure to save the child entities for you.
+
+#### Parameters
+##### when
+###### default: an empty array
+
+##### unless
+###### default: an empty array
+
+### @Delete
+**IMPORTANT**: This is not yet implemented! It will be a part of an upcoming release of the alpha 4.
+
+Similarly to the saving, **Torch** does not delete child entities automatically. If you use the `@Delete` annotation, you tell **Torch** to perform the delete.
+
+#### Parameters
+##### when
+###### default: an empty array
+
+##### unless
+###### default: an empty array
 
 ### @NotNull
 In case you want to be sure that you will never save an entity with a null value of this property into **Torch**, you can mark it with this annotation. This is however a run-time check and therefore will result in an exception thrown by the save action.

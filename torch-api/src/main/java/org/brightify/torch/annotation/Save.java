@@ -24,7 +24,7 @@ public @interface Save {
             this.unless = unless;
         }
 
-        public Class<?>[] getValue() {
+        public Class<?>[] getWhen() {
             return when;
         }
 

@@ -1,13 +1,21 @@
 # Torch internals
 
+Torch is built around Android's SQLite, but it does not require it and can be used with other databases and platforms as well.
+
 ## TorchService
 
-* user facing class that handles singleton access to Torch functionality
+User facing class that handles singleton access to Torch functionality.
 
-## Actors
+## Actor DSL
 NOTE: Would adding `ActorFactory` help anything?
+WARNING: There might be problem with the loader API, because each database has different capabilities. We should think about this properly before the release of first Beta.
 
-Actors are many interfaces designed to help and guide the 
+Actors are many interfaces designed to help and guide the user through **load**, **save** and **delete** actions. The most advanced is the `Loader`.
+
+[ ] - rename package `action` to `dsl`
+[ ] - rename `Loader` to `LoadDsl` (or just `Load`?)
+[ ] - rename `Saver` to `SaveDsl` (or just `Save`?)
+[ ] - rename `Deleter` to `DeleteDsl` (or just `Delete`?)
 
 ### Loader
 
